@@ -139,6 +139,7 @@
     <Compile Include="ScreenshotsCommon\Models\ScreenshotGroup.cs" />
     <Compile Include="ScreenshotsCommon\Models\ScreenshotGroups.cs" />
     <Compile Include="ScreenshotsCommon\Models\ScreenshotProvider.cs" />
+    <Compile Include="SteamHelper.cs" />
     <Compile Include="StringHelper.cs" />
     <Compile Include="MetadataCommon\ViewModels\SelectMetadataViewModel.cs" />
     <Compile Include="MetadataCommon\Views\SelectMetadataView.xaml.cs">
