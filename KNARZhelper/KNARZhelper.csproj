@@ -72,6 +72,7 @@
     <Compile Include="Controls\ListBoxScrollIntoViewBehavior.cs" />
     <Compile Include="FilesCommon\FileDownloader.cs" />
     <Compile Include="FilesCommon\FileHelper.cs" />
+    <Compile Include="FilesCommon\ImageHelper.cs" />
     <Compile Include="MetadataCommon\DatabaseObjectTypes\BaseBooleanType.cs" />
     <Compile Include="MetadataCommon\DatabaseObjectTypes\BaseCompanyType.cs" />
     <Compile Include="MetadataCommon\DatabaseObjectTypes\BaseDateType.cs" />
@@ -140,6 +141,7 @@
     <Compile Include="ScreenshotsCommon\Models\ScreenshotGroup.cs" />
     <Compile Include="ScreenshotsCommon\Models\ScreenshotGroups.cs" />
     <Compile Include="ScreenshotsCommon\Models\ScreenshotProvider.cs" />
+    <Compile Include="ScreenshotsCommon\ScreenshotHelper.cs" />
     <Compile Include="SteamHelper.cs" />
     <Compile Include="StringHelper.cs" />
     <Compile Include="MetadataCommon\ViewModels\SelectMetadataViewModel.cs" />

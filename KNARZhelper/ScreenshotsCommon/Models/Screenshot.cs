@@ -64,7 +64,7 @@ namespace KNARZhelper.ScreenshotsCommon.Models
                 return;
             }
 
-            var thumb = FileHelper.CreateThumbnailImage(DownloadedPath);
+            var thumb = ImageHelper.CreateThumbnailImage(DownloadedPath);
             DownloadedThumbnailPath = thumb.FullName;
         }
 
