@@ -166,8 +166,9 @@ namespace KNARZhelper.ScreenshotsCommon.Models
         /// </summary>
         [DontSerialize]
         public string DisplayName => Provider == null || string.IsNullOrEmpty(Provider.Name) ? Name
-            : string.IsNullOrEmpty(Name) ? (Provider?.Name)
-            : $"{Provider?.Name}: {Name}";
+                    : string.IsNullOrEmpty(Name) ? (Provider?.Name)
+                    : Provider.Name.Equals(Name) ? Name
+                    : $"{Provider?.Name}: {Name}";
 
         /// <summary>
         /// Gets or sets the name of the JSON file associated with this instance.

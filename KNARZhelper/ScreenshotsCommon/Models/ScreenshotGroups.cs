@@ -104,6 +104,12 @@ namespace KNARZhelper.ScreenshotsCommon.Models
         }
 
         /// <summary>
+        /// True if there is more than one screenshot group in the collection. Can be used to differentiate singular and plural.
+        /// </summary>
+        [DontSerialize]
+        public bool HasMoreThanOneGroup => Count > 1;
+
+        /// <summary>
         /// Resets the collection by clearing all groups.
         /// </summary>
         public void Reset() => Clear();
