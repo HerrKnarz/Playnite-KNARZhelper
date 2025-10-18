@@ -164,8 +164,8 @@ namespace KNARZhelper.ScreenshotsCommon.Models
         }
 
         /// <summary>
-        /// Gets or sets the unique identifier for the screenshot. It is used as the filename for the downloaded image, so it's not advisable
-        /// to change this value after the screenshot was downloaded already to avoid confusion.
+        /// Gets or sets the unique identifier for the screenshot. It is used as the filename for the downloaded image. Becaus of than it's
+        /// not advisable to change this value after the screenshot was downloaded already to avoid confusion.
         /// </summary>
         [SerializationPropertyName("id")]
         public Guid Id
