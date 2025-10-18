@@ -67,6 +67,7 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ApiHelper.cs" />
     <Compile Include="Controls\AspectRatioLayoutDecorator.cs" />
     <Compile Include="Controls\ListBoxScrollIntoViewBehavior.cs" />
     <Compile Include="FilesCommon\FileDownloader.cs" />
@@ -153,6 +154,9 @@
     </PackageReference>
     <PackageReference Include="Microsoft.Xaml.Behaviors.Wpf">
       <Version>1.1.39</Version>
+    </PackageReference>
+    <PackageReference Include="Newtonsoft.Json">
+      <Version>10.0.3</Version>
     </PackageReference>
     <PackageReference Include="PlayniteSDK">
       <Version>6.13.0</Version>
