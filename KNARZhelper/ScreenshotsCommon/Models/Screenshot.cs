@@ -74,11 +74,14 @@ namespace KNARZhelper.ScreenshotsCommon.Models
         /// </summary>
         public void OpenContainingFolder()
         {
-            var directoryInfo = new FileInfo(DisplayPath).Directory;
-
-            if (directoryInfo.Exists)
+            if (string.IsNullOrEmpty(DownloadedPath))
             {
-                Process.Start("explorer.exe", $"/select, \"{DisplayPath}\"");
+                return;
+            }
+
+            if (new FileInfo(DownloadedPath).Directory.Exists)
+            {
+                Process.Start("explorer.exe", $"/select, \"{DownloadedPath}\"");
             }
         }
 
@@ -87,7 +90,12 @@ namespace KNARZhelper.ScreenshotsCommon.Models
         /// </summary>
         public void OpenInAssociatedApplication()
         {
-            var fileInfo = new FileInfo(DisplayPath);
+            if (string.IsNullOrEmpty(DownloadedPath))
+            {
+                return;
+            }
+
+            var fileInfo = new FileInfo(DownloadedPath);
 
             if (fileInfo.Exists)
             {
@@ -111,13 +119,18 @@ namespace KNARZhelper.ScreenshotsCommon.Models
         /// </summary>
         public void CopyToClipboard()
         {
-            var fileInfo = new FileInfo(DisplayPath);
+            if (string.IsNullOrEmpty(DownloadedPath))
+            {
+                return;
+            }
+
+            var fileInfo = new FileInfo(DownloadedPath);
 
             if (fileInfo.Exists)
             {
                 try
                 {
-                    Clipboard.SetImage(BitmapFrame.Create(new Uri(DisplayPath, UriKind.Absolute)));
+                    Clipboard.SetImage(BitmapFrame.Create(new Uri(DownloadedPath, UriKind.Absolute)));
                 }
                 catch (Exception ex)
                 {
