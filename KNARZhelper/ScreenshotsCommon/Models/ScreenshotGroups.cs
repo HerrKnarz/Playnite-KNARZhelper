@@ -105,6 +105,19 @@ namespace KNARZhelper.ScreenshotsCommon.Models
         }
 
         /// <summary>
+        /// Refreshes all screenshots in all groups.
+        /// </summary>
+        /// <param name="thumbNailHeight">Height of the thumbnails that will be generated</param>
+        public void RefreshAllThumbnails(int thumbNailHeight)
+        {
+            foreach (var group in this)
+            {
+                group.RefreshThumbnails(thumbNailHeight);
+                group.Save();
+            }
+        }
+
+        /// <summary>
         /// True if there is more than one screenshot group in the collection. Can be used to differentiate singular and plural.
         /// </summary>
         [DontSerialize]

@@ -95,6 +95,45 @@ namespace KNARZhelper.ScreenshotsCommon.Models
         }
 
         /// <summary>
+        /// Creates thumbnails to all screenshots in the group and regenerates already existing ones.
+        /// </summary>
+        /// <param name="thumbNailHeight">Height of the thumbnails that will be generated</param>
+        public void RefreshThumbnails(int thumbNailHeight)
+        {
+            var globalProgressOptions = new GlobalProgressOptions(
+                $"{ResourceProvider.GetString("LOCScreenshotUtilitiesMenuGeneratingThumbnails")} {DisplayName}",
+                true
+            )
+            {
+                IsIndeterminate = false
+            };
+
+            API.Instance.Dialogs.ActivateGlobalProgress((activateGlobalProgress) =>
+            {
+                try
+                {
+                    activateGlobalProgress.ProgressMaxValue = Screenshots.Count();
+
+                    foreach (var screenshot in Screenshots)
+                    {
+                        if (activateGlobalProgress.CancelToken.IsCancellationRequested)
+                        {
+                            break;
+                        }
+
+                        screenshot.GenerateThumbnail(thumbNailHeight, true);
+
+                        activateGlobalProgress.CurrentProgressValue++;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Log.Error(ex);
+                }
+            }, globalProgressOptions);
+        }
+
+        /// <summary>
         /// Saves the ScreenshotGroup to its associated JSON file.
         /// </summary>
         public void Save()

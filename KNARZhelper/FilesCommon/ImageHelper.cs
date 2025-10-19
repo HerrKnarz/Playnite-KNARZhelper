@@ -23,6 +23,13 @@ namespace KNARZhelper.FilesCommon
                 thumbnailFileName = Path.Combine(fileInfo.DirectoryName, $"{Path.GetFileNameWithoutExtension(fileInfo.Name)}_thumb.jpg");
             }
 
+            var thumbnailFileInfo = new FileInfo(thumbnailFileName);
+
+            if (thumbnailFileInfo.Exists)
+            {
+                thumbnailFileInfo.Delete();
+            }
+
             using (var image = new MagickImage(imageFileName))
             {
                 image.Scale(0, (uint)thumbNailHeight);

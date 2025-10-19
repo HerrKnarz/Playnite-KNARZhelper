@@ -56,11 +56,11 @@ namespace KNARZhelper.ScreenshotsCommon.Models
         /// Generates a thumbnail for the downloaded screenshot.
         /// </summary>
         /// <param name="thumbNailHeight">Height of the thumbnails that will be generated</param>
-        public void GenerateThumbnail(int thumbNailHeight)
+        /// <param name="replaceExisting">When true existing thumbnails will be regenerated</param>
+        public void GenerateThumbnail(int thumbNailHeight, bool replaceExisting = false)
         {
-            if (!IsDownloaded
-                || (!string.IsNullOrEmpty(DownloadedThumbnailPath) && File.Exists(DownloadedThumbnailPath))
-                || !File.Exists(DownloadedPath))
+            if (!IsDownloaded || !File.Exists(DownloadedPath)
+                || (!string.IsNullOrEmpty(DownloadedThumbnailPath) && !replaceExisting))
             {
                 return;
             }
