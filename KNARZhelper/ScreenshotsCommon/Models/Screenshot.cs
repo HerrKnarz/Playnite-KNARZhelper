@@ -55,7 +55,8 @@ namespace KNARZhelper.ScreenshotsCommon.Models
         /// <summary>
         /// Generates a thumbnail for the downloaded screenshot.
         /// </summary>
-        public void GenerateThumbnail()
+        /// <param name="thumbNailHeight">Height of the thumbnails that will be generated</param>
+        public void GenerateThumbnail(int thumbNailHeight)
         {
             if (!IsDownloaded
                 || (!string.IsNullOrEmpty(DownloadedThumbnailPath) && File.Exists(DownloadedThumbnailPath))
@@ -64,7 +65,7 @@ namespace KNARZhelper.ScreenshotsCommon.Models
                 return;
             }
 
-            var thumb = ImageHelper.CreateThumbnailImage(DownloadedPath);
+            var thumb = ImageHelper.CreateThumbnailImage(DownloadedPath, thumbNailHeight);
             DownloadedThumbnailPath = thumb.FullName;
         }
 

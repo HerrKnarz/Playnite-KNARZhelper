@@ -94,11 +94,12 @@ namespace KNARZhelper.ScreenshotsCommon.Models
         /// <summary>
         /// Downloads all screenshots in all groups.
         /// </summary>
-        public void DownloadAll()
+        /// <param name="thumbNailHeight">Height of the thumbnails that will be generated</param>
+        public void DownloadAll(int thumbNailHeight)
         {
             foreach (var group in this)
             {
-                group.Download();
+                group.Download(thumbNailHeight);
                 group.Save();
             }
         }

@@ -50,7 +50,8 @@ namespace KNARZhelper.ScreenshotsCommon.Models
         /// <summary>
         /// Downloads all screenshots in the group.
         /// </summary>
-        public void Download()
+        /// <param name="thumbNailHeight">Height of the thumbnails that will be generated</param>
+        public void Download(int thumbNailHeight)
         {
             var globalProgressOptions = new GlobalProgressOptions(
                 $"{ResourceProvider.GetString("LOCScreenshotUtilitiesMenuDownloadingScreenshots")} {DisplayName}",
@@ -75,7 +76,7 @@ namespace KNARZhelper.ScreenshotsCommon.Models
 
                         screenshot.Download(BasePath);
 
-                        screenshot.GenerateThumbnail();
+                        screenshot.GenerateThumbnail(thumbNailHeight);
 
                         activateGlobalProgress.CurrentProgressValue++;
                     }
