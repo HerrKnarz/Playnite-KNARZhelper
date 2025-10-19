@@ -41,9 +41,15 @@ namespace KNARZhelper.ScreenshotsCommon.Models
         /// <returns>A ScreenshotGroup instance.</returns>
         public static ScreenshotGroup CreateFromFile(FileInfo file)
         {
+            if (!file.Exists)
+            {
+                return null;
+            }
+
             var group = Serialization.FromJsonFile<ScreenshotGroup>(file.FullName);
             group.BasePath = file.DirectoryName;
             group.FileName = file.FullName;
+            group.Sort();
             return group;
         }
 
@@ -142,6 +148,8 @@ namespace KNARZhelper.ScreenshotsCommon.Models
             SelectedScreenshot = Screenshots[index];
         }
 
+        public void Sort() => _screenshots.Sort(s => s.SortOrder);
+
         /// <summary>
         /// Base path where screenshots are downloaded. This is also where the JSON file is stored.
         /// </summary>
@@ -221,6 +229,8 @@ namespace KNARZhelper.ScreenshotsCommon.Models
             set
             {
                 SetValue(ref _screenshots, value);
+
+                Sort();
 
                 SelectedScreenshot = value != null && value.Count > 0 ? value[0] : null;
             }

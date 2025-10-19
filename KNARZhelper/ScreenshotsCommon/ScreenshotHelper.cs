@@ -10,7 +10,7 @@ namespace KNARZhelper.ScreenshotsCommon
     {
         internal static Guid ScreenshotUtilitiesId = Guid.Parse("485d682f-73e9-4d54-b16f-b8dd49e88f90");
 
-        internal static string GenerateFileName(Game game, ScreenshotGroup group)
+        internal static string GenerateFileName(Guid gameId, Guid providerId, Guid groupId)
         {
             if (!IsScreenshotUtilitiesInstalled)
             {
@@ -25,10 +25,10 @@ namespace KNARZhelper.ScreenshotsCommon
             }
 
             directoryInfo = directoryInfo
-                .CreateSubdirectory(game.Id.ToString())
-                .CreateSubdirectory(group.Provider.Id.ToString());
+                .CreateSubdirectory(gameId.ToString())
+                .CreateSubdirectory(providerId.ToString());
 
-            return Path.Combine(directoryInfo.FullName, $"{group.Id}.json");
+            return Path.Combine(directoryInfo.FullName, $"{groupId}.json");
         }
 
         internal static bool IsScreenshotUtilitiesInstalled => API.Instance.Addons.Plugins.Exists(p => p.Id == ScreenshotUtilitiesId);
@@ -45,7 +45,7 @@ namespace KNARZhelper.ScreenshotsCommon
                 return;
             }
 
-            group.FileName = GenerateFileName(game, group);
+            group.FileName = GenerateFileName(game.Id, group.Provider.Id, group.Id);
             group.Save();
         }
     }
