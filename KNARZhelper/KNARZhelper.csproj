@@ -137,6 +137,7 @@
     <Compile Include="MiscHelper.cs" />
     <Compile Include="PlatformHelper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ScreenshotsCommon\IScreenshotProvider.cs" />
     <Compile Include="ScreenshotsCommon\Models\Screenshot.cs" />
     <Compile Include="ScreenshotsCommon\Models\ScreenshotGroup.cs" />
     <Compile Include="ScreenshotsCommon\Models\ScreenshotGroups.cs" />
