@@ -40,16 +40,27 @@ namespace KNARZhelper.ScreenshotsCommon.Models
         /// Downloads the screenshot to the specified path.
         /// </summary>
         /// <param name="path">Path to the folder where the screenshot will be downloaded.</param>
-        public void Download(string path)
+        /// <returns>True if new screenshots were downloaded.</returns>
+        public bool Download(string path)
         {
             if (!PathIsUrl || IsDownloaded)
             {
-                return;
+                return false;
             }
 
-            path = System.IO.Path.Combine(path, $"{Id}{FileHelper.GetFileExtensionFromUrl(Path)}");
-            var image = FileDownloader.Instance().DownloadFileAsync(path, new Uri(Path)).Result;
-            DownloadedPath = image.FullName;
+            try
+            {
+                path = System.IO.Path.Combine(path, $"{Id}{FileHelper.GetFileExtensionFromUrl(Path)}");
+                var image = FileDownloader.Instance().DownloadFileAsync(path, new Uri(Path)).Result;
+                DownloadedPath = image.FullName;
+
+                return true;
+            }
+            catch (Exception exception)
+            {
+                Log.Error(exception, $"Error trying to download file from {path}");
+                return false;
+            }
         }
 
         /// <summary>
@@ -57,16 +68,26 @@ namespace KNARZhelper.ScreenshotsCommon.Models
         /// </summary>
         /// <param name="thumbNailHeight">Height of the thumbnails that will be generated</param>
         /// <param name="replaceExisting">When true existing thumbnails will be regenerated</param>
-        public void GenerateThumbnail(int thumbNailHeight, bool replaceExisting = false)
+        /// <returns>True if new thumbnails were generated.</returns>
+        public bool GenerateThumbnail(int thumbNailHeight, bool replaceExisting = false)
         {
             if (!IsDownloaded || !File.Exists(DownloadedPath)
                 || (!string.IsNullOrEmpty(DownloadedThumbnailPath) && !replaceExisting))
             {
-                return;
+                return false;
             }
 
-            var thumb = ImageHelper.CreateThumbnailImage(DownloadedPath, thumbNailHeight);
-            DownloadedThumbnailPath = thumb.FullName;
+            try
+            {
+                var thumb = ImageHelper.CreateThumbnailImage(DownloadedPath, thumbNailHeight);
+                DownloadedThumbnailPath = thumb.FullName;
+                return true;
+            }
+            catch (Exception exception)
+            {
+                Log.Error(exception, $"Error trying to generate thumbnail for {DownloadedPath}");
+                return false;
+            }
         }
 
         /// <summary>

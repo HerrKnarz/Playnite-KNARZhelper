@@ -95,26 +95,36 @@ namespace KNARZhelper.ScreenshotsCommon.Models
         /// Downloads all screenshots in all groups.
         /// </summary>
         /// <param name="thumbNailHeight">Height of the thumbnails that will be generated</param>
-        public void DownloadAll(int thumbNailHeight)
+        /// <returns>True if new screenshots were downloaded.</returns>
+        public bool DownloadAll(int thumbNailHeight)
         {
+            var downloaded = false;
+
             foreach (var group in this)
             {
-                group.Download(thumbNailHeight);
+                downloaded |= group.Download(thumbNailHeight);
                 group.Save();
             }
+
+            return downloaded;
         }
 
         /// <summary>
         /// Refreshes all screenshots in all groups.
         /// </summary>
         /// <param name="thumbNailHeight">Height of the thumbnails that will be generated</param>
-        public void RefreshAllThumbnails(int thumbNailHeight)
+        /// <returns>True if new thumbnails were generated.</returns>
+        public bool RefreshAllThumbnails(int thumbNailHeight)
         {
+            var generated = false;
+
             foreach (var group in this)
             {
-                group.RefreshThumbnails(thumbNailHeight);
+                generated |= group.RefreshThumbnails(thumbNailHeight);
                 group.Save();
             }
+
+            return generated;
         }
 
         /// <summary>

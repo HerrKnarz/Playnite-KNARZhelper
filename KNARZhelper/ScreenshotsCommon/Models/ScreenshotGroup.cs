@@ -57,8 +57,11 @@ namespace KNARZhelper.ScreenshotsCommon.Models
         /// Downloads all screenshots in the group.
         /// </summary>
         /// <param name="thumbNailHeight">Height of the thumbnails that will be generated</param>
-        public void Download(int thumbNailHeight)
+        /// <returns>True if new screenshots were downloaded.</returns>
+        public bool Download(int thumbNailHeight)
         {
+            var downloaded = false;
+
             var globalProgressOptions = new GlobalProgressOptions(
                 $"{ResourceProvider.GetString("LOCScreenshotUtilitiesMenuDownloadingScreenshots")} {DisplayName}",
                 true
@@ -80,7 +83,7 @@ namespace KNARZhelper.ScreenshotsCommon.Models
                             break;
                         }
 
-                        screenshot.Download(BasePath);
+                        downloaded |= screenshot.Download(BasePath);
 
                         screenshot.GenerateThumbnail(thumbNailHeight);
 
@@ -92,14 +95,19 @@ namespace KNARZhelper.ScreenshotsCommon.Models
                     Log.Error(ex);
                 }
             }, globalProgressOptions);
+
+            return downloaded;
         }
 
         /// <summary>
         /// Creates thumbnails to all screenshots in the group and regenerates already existing ones.
         /// </summary>
         /// <param name="thumbNailHeight">Height of the thumbnails that will be generated</param>
-        public void RefreshThumbnails(int thumbNailHeight)
+        /// <returns>True if new thumbnails were generated.</returns>
+        public bool RefreshThumbnails(int thumbNailHeight)
         {
+            var generated = false;
+
             var globalProgressOptions = new GlobalProgressOptions(
                 $"{ResourceProvider.GetString("LOCScreenshotUtilitiesMenuGeneratingThumbnails")} {DisplayName}",
                 true
@@ -121,7 +129,7 @@ namespace KNARZhelper.ScreenshotsCommon.Models
                             break;
                         }
 
-                        screenshot.GenerateThumbnail(thumbNailHeight, true);
+                        generated |= screenshot.GenerateThumbnail(thumbNailHeight, true);
 
                         activateGlobalProgress.CurrentProgressValue++;
                     }
@@ -131,6 +139,8 @@ namespace KNARZhelper.ScreenshotsCommon.Models
                     Log.Error(ex);
                 }
             }, globalProgressOptions);
+
+            return generated;
         }
 
         /// <summary>
