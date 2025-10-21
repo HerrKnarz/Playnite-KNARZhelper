@@ -1,9 +1,10 @@
 ﻿using Playnite.SDK.Models;
+using System.Threading.Tasks;
 
 namespace KNARZhelper.ScreenshotsCommon
 {
     public interface IScreenshotProvider
     {
-        bool GetScreenshots(Game game);
+        Task<bool> GetScreenshotsAsync(Game game);
     }
 }

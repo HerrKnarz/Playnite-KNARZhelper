@@ -3,6 +3,7 @@ using Playnite.SDK;
 using System;
 using System.Net;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace KNARZhelper
 {
@@ -13,10 +14,12 @@ namespace KNARZhelper
         /// </summary>
         /// <typeparam name="T">Type the JSON gets deserialized to</typeparam>
         /// <param name="apiUrl">Url to fetch the JSON result from</param>
-        /// <param name="ApiName">API name for the error message</param>
+        /// <param name="apiName">API name for the error message</param>
         /// <param name="encoding">the encoding to use</param>
+        /// <param name="useWebView">Uses an OffScreenView when this is true. When false a WebClient is used.</param>
+        /// <param name="body">the body to send to the api</param>
         /// <returns>Deserialized JSON result</returns>
-        internal static T GetJsonFromApi<T>(string apiUrl, string ApiName, Encoding encoding = null, bool useWebView = false, string body = "")
+        internal static T GetJsonFromApi<T>(string apiUrl, string apiName, Encoding encoding = null, bool useWebView = false, string body = "")
         {
             try
             {
@@ -30,35 +33,64 @@ namespace KNARZhelper
                         pageSource = webView.GetPageText();
                         webView.Close();
                     }
+
+                    return JsonConvert.DeserializeObject<T>(pageSource);
                 }
                 else
                 {
-                    if (encoding is null)
-                    {
-                        encoding = Encoding.Default;
-                    }
+                    return GetJsonFromApiAsync<T>(apiUrl, apiName, encoding, body).Result;
+                }
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex, $"Error loading data from {apiName} - {apiUrl}");
+            }
 
-                    var client = new WebClient { Encoding = encoding };
+            return default;
+        }
 
-                    client.Headers.Add("Accept", "application/json");
-                    client.Headers.Add("user-agent", "Playnite LinkUtilities AddOn");
+        /// <summary>
+        ///     Gets a JSON result from an API and deserializes it.
+        /// </summary>
+        /// <typeparam name="T">Type the JSON gets deserialized to</typeparam>
+        /// <param name="apiUrl">Url to fetch the JSON result from</param>
+        /// <param name="apiName">API name for the error message</param>
+        /// <param name="encoding">the encoding to use</param>
+        /// <param name="body">the body to send to the api</param>
+        /// <returns>Deserialized JSON result</returns>
+        internal static async Task<T> GetJsonFromApiAsync<T>(string apiUrl, string apiName, Encoding encoding = null, string body = "")
+        {
+            try
+            {
+                var pageSource = string.Empty;
 
-                    if (body.Length == 0)
-                    {
-                        pageSource = client.DownloadString(apiUrl);
-                    }
-                    else
-                    {
-                        client.Headers.Add("Content-Type", "application/json");
-                        pageSource = client.UploadString(apiUrl, body);
-                    }
+                if (encoding is null)
+                {
+                    encoding = Encoding.Default;
+                }
+
+                var client = new WebClient { Encoding = encoding };
+
+                client.Headers.Add("Accept", "application/json");
+                client.Headers.Add("user-agent", "Playnite LinkUtilities AddOn");
+
+                var uri = new Uri(apiUrl);
+
+                if (body.Length == 0)
+                {
+                    pageSource = await client.DownloadStringTaskAsync(uri);
+                }
+                else
+                {
+                    client.Headers.Add("Content-Type", "application/json");
+                    pageSource = await client.UploadStringTaskAsync(uri, body);
                 }
 
                 return JsonConvert.DeserializeObject<T>(pageSource);
             }
             catch (Exception ex)
             {
-                Log.Error(ex, $"Error loading data from {ApiName} - {apiUrl}");
+                Log.Error(ex, $"Error loading data from {apiName} - {apiUrl}");
             }
 
             return default;
