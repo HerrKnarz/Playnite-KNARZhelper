@@ -2,9 +2,11 @@
 using Playnite.SDK;
 using Playnite.SDK.Data;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace KNARZhelper.ScreenshotsCommon.Models
@@ -99,15 +101,24 @@ namespace KNARZhelper.ScreenshotsCommon.Models
         /// <returns>True if new screenshots were downloaded.</returns>
         public async Task<bool> DownloadAllAsync(int thumbNailHeight)
         {
-            var downloaded = false;
-
-            foreach (var group in this)
+            var bag = new ConcurrentBag<bool>();
+            var maxParallel = 2;
+            var throttler = new SemaphoreSlim(initialCount: maxParallel);
+            var tasks = this.Select(async group =>
             {
-                downloaded |= await group.DownloadAsync(thumbNailHeight);
-                group.Save();
-            }
+                await throttler.WaitAsync();
+                try
+                {
+                    bag.Add(await group.DownloadAsync(thumbNailHeight));
+                }
+                finally
+                {
+                    throttler.Release();
+                }
+            });
+            await Task.WhenAll(tasks);
 
-            return downloaded;
+            return bag.Any(x => x);
         }
 
         /// <summary>
