@@ -1,5 +1,6 @@
 ﻿using ImageMagick;
 using System.IO;
+using System.Threading.Tasks;
 
 namespace KNARZhelper.FilesCommon
 {
@@ -15,7 +16,7 @@ namespace KNARZhelper.FilesCommon
         /// <param name="thumbNailHeight">Height of the thumbnails that will be generated</param>
         /// <param name="thumbnailFileName">The path to the thumbnail image file.</param>
         /// <returns>The FileInfo of the created thumbnail image.</returns>
-        public static FileInfo CreateThumbnailImage(string imageFileName, int thumbNailHeight, string thumbnailFileName = "")
+        public static async Task<FileInfo> CreateThumbnailImage(string imageFileName, int thumbNailHeight, string thumbnailFileName = "")
         {
             if (string.IsNullOrEmpty(thumbnailFileName))
             {
@@ -36,7 +37,7 @@ namespace KNARZhelper.FilesCommon
 
                 image.Format = MagickFormat.Jpg;
 
-                image.Write(thumbnailFileName);
+                await image.WriteAsync(thumbnailFileName);
             }
 
             return new FileInfo(thumbnailFileName);

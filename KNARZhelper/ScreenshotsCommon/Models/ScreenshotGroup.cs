@@ -1,10 +1,9 @@
 ﻿using KNARZhelper.FilesCommon;
-using Playnite.SDK;
 using Playnite.SDK.Data;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
+using System.Threading.Tasks;
 
 namespace KNARZhelper.ScreenshotsCommon.Models
 {
@@ -58,45 +57,26 @@ namespace KNARZhelper.ScreenshotsCommon.Models
         /// </summary>
         /// <param name="thumbNailHeight">Height of the thumbnails that will be generated</param>
         /// <returns>True if new screenshots were downloaded.</returns>
-        public bool Download(int thumbNailHeight)
+        public async Task<bool> DownloadAsync(int thumbNailHeight)
         {
             var downloaded = false;
 
-            var globalProgressOptions = new GlobalProgressOptions(
-                $"{ResourceProvider.GetString("LOCScreenshotUtilitiesMenuDownloadingScreenshots")} {DisplayName}",
-                true
-            )
+            try
             {
-                IsIndeterminate = false
-            };
+                foreach (var screenshot in Screenshots)
+                {
+                    downloaded |= await screenshot.DownloadAsync(BasePath);
+                    downloaded |= await screenshot.GenerateThumbnailAsync(thumbNailHeight);
+                }
 
-            API.Instance.Dialogs.ActivateGlobalProgress((activateGlobalProgress) =>
+                return downloaded;
+            }
+            catch (Exception ex)
             {
-                try
-                {
-                    activateGlobalProgress.ProgressMaxValue = Screenshots.Count();
+                Log.Error(ex);
 
-                    foreach (var screenshot in Screenshots)
-                    {
-                        if (activateGlobalProgress.CancelToken.IsCancellationRequested)
-                        {
-                            break;
-                        }
-
-                        downloaded |= screenshot.Download(BasePath);
-
-                        screenshot.GenerateThumbnail(thumbNailHeight);
-
-                        activateGlobalProgress.CurrentProgressValue++;
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Log.Error(ex);
-                }
-            }, globalProgressOptions);
-
-            return downloaded;
+                return false;
+            }
         }
 
         /// <summary>
@@ -104,41 +84,21 @@ namespace KNARZhelper.ScreenshotsCommon.Models
         /// </summary>
         /// <param name="thumbNailHeight">Height of the thumbnails that will be generated</param>
         /// <returns>True if new thumbnails were generated.</returns>
-        public bool RefreshThumbnails(int thumbNailHeight)
+        public async Task<bool> RefreshThumbnailsAsync(int thumbNailHeight)
         {
             var generated = false;
 
-            var globalProgressOptions = new GlobalProgressOptions(
-                $"{ResourceProvider.GetString("LOCScreenshotUtilitiesMenuGeneratingThumbnails")} {DisplayName}",
-                true
-            )
+            try
             {
-                IsIndeterminate = false
-            };
-
-            API.Instance.Dialogs.ActivateGlobalProgress((activateGlobalProgress) =>
+                foreach (var screenshot in Screenshots)
+                {
+                    generated |= await screenshot.GenerateThumbnailAsync(thumbNailHeight, true);
+                }
+            }
+            catch (Exception ex)
             {
-                try
-                {
-                    activateGlobalProgress.ProgressMaxValue = Screenshots.Count();
-
-                    foreach (var screenshot in Screenshots)
-                    {
-                        if (activateGlobalProgress.CancelToken.IsCancellationRequested)
-                        {
-                            break;
-                        }
-
-                        generated |= screenshot.GenerateThumbnail(thumbNailHeight, true);
-
-                        activateGlobalProgress.CurrentProgressValue++;
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Log.Error(ex);
-                }
-            }, globalProgressOptions);
+                Log.Error(ex);
+            }
 
             return generated;
         }

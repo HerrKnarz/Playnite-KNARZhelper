@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media.Imaging;
 
@@ -41,7 +42,7 @@ namespace KNARZhelper.ScreenshotsCommon.Models
         /// </summary>
         /// <param name="path">Path to the folder where the screenshot will be downloaded.</param>
         /// <returns>True if new screenshots were downloaded.</returns>
-        public bool Download(string path)
+        public async Task<bool> DownloadAsync(string path)
         {
             if (!PathIsUrl || IsDownloaded)
             {
@@ -51,7 +52,7 @@ namespace KNARZhelper.ScreenshotsCommon.Models
             try
             {
                 path = System.IO.Path.Combine(path, $"{Id}{FileHelper.GetFileExtensionFromUrl(Path)}");
-                var image = FileDownloader.Instance().DownloadFileAsync(path, new Uri(Path)).Result;
+                var image = await FileDownloader.Instance().DownloadFileAsync(path, new Uri(Path));
                 DownloadedPath = image.FullName;
 
                 return true;
@@ -69,7 +70,7 @@ namespace KNARZhelper.ScreenshotsCommon.Models
         /// <param name="thumbNailHeight">Height of the thumbnails that will be generated</param>
         /// <param name="replaceExisting">When true existing thumbnails will be regenerated</param>
         /// <returns>True if new thumbnails were generated.</returns>
-        public bool GenerateThumbnail(int thumbNailHeight, bool replaceExisting = false)
+        public async Task<bool> GenerateThumbnailAsync(int thumbNailHeight, bool replaceExisting = false)
         {
             if (!IsDownloaded || !File.Exists(DownloadedPath)
                 || (!string.IsNullOrEmpty(DownloadedThumbnailPath) && !replaceExisting))
@@ -79,7 +80,7 @@ namespace KNARZhelper.ScreenshotsCommon.Models
 
             try
             {
-                var thumb = ImageHelper.CreateThumbnailImage(DownloadedPath, thumbNailHeight);
+                var thumb = await ImageHelper.CreateThumbnailImage(DownloadedPath, thumbNailHeight);
                 DownloadedThumbnailPath = thumb.FullName;
                 return true;
             }

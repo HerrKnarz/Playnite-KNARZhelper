@@ -5,6 +5,7 @@ using System;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace KNARZhelper.ScreenshotsCommon.Models
 {
@@ -96,13 +97,13 @@ namespace KNARZhelper.ScreenshotsCommon.Models
         /// </summary>
         /// <param name="thumbNailHeight">Height of the thumbnails that will be generated</param>
         /// <returns>True if new screenshots were downloaded.</returns>
-        public bool DownloadAll(int thumbNailHeight)
+        public async Task<bool> DownloadAllAsync(int thumbNailHeight)
         {
             var downloaded = false;
 
             foreach (var group in this)
             {
-                downloaded |= group.Download(thumbNailHeight);
+                downloaded |= await group.DownloadAsync(thumbNailHeight);
                 group.Save();
             }
 
@@ -114,13 +115,13 @@ namespace KNARZhelper.ScreenshotsCommon.Models
         /// </summary>
         /// <param name="thumbNailHeight">Height of the thumbnails that will be generated</param>
         /// <returns>True if new thumbnails were generated.</returns>
-        public bool RefreshAllThumbnails(int thumbNailHeight)
+        public async Task<bool> RefreshAllThumbnailsAsync(int thumbNailHeight)
         {
             var generated = false;
 
             foreach (var group in this)
             {
-                generated |= group.RefreshThumbnails(thumbNailHeight);
+                generated |= await group.RefreshThumbnailsAsync(thumbNailHeight);
                 group.Save();
             }
 
