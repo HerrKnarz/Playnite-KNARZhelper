@@ -15,15 +15,16 @@ namespace KNARZhelper.ScreenshotsCommon.Models
     /// </summary>
     public class ScreenshotGroup : ObservableObject
     {
+        private string _basePath;
         private string _description;
+        private string _fileName;
         private Guid _id = Guid.NewGuid();
+        private DateTime _lastUpdate;
         private string _name;
         private ScreenshotProvider _provider;
         private RangeObservableCollection<Screenshot> _screenshots = new RangeObservableCollection<Screenshot>();
         private Screenshot _selectedScreenshot;
         private int _sortOrder = 0;
-        private string _basePath;
-        private string _fileName;
 
         /// <summary>
         /// Creates a new instance of the ScreenshotGroup class.
@@ -220,6 +221,16 @@ namespace KNARZhelper.ScreenshotsCommon.Models
         {
             get => _id;
             set => SetValue(ref _id, value);
+        }
+
+        /// <summary>
+        /// Last time the screenshots were updated from the provider.
+        /// </summary>
+        [SerializationPropertyName("lastUpdate")]
+        public DateTime LastUpdate
+        {
+            get => _lastUpdate;
+            set => SetValue(ref _lastUpdate, value);
         }
 
         /// <summary>

@@ -46,6 +46,7 @@ namespace KNARZhelper.ScreenshotsCommon
             }
 
             group.FileName = GenerateFileName(game.Id, group.Provider.Id, group.Id);
+            group.LastUpdate = DateTime.Now;
             group.Save();
         }
     }

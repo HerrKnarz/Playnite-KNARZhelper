@@ -5,6 +5,6 @@ namespace KNARZhelper.ScreenshotsCommon
 {
     public interface IScreenshotProvider
     {
-        Task<bool> GetScreenshotsAsync(Game game);
+        Task<bool> GetScreenshotsAsync(Game game, int daysSinceLastUpdate, bool forceUpdate);
     }
 }
