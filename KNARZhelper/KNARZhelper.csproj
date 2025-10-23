@@ -70,6 +70,7 @@
     <Compile Include="ApiHelper.cs" />
     <Compile Include="Controls\AspectRatioLayoutDecorator.cs" />
     <Compile Include="Controls\ListBoxScrollIntoViewBehavior.cs" />
+    <Compile Include="Controls\LocalFileImageConverter.cs" />
     <Compile Include="FilesCommon\FileDownloader.cs" />
     <Compile Include="FilesCommon\FileHelper.cs" />
     <Compile Include="FilesCommon\ImageHelper.cs" />

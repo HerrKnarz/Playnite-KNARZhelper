@@ -84,6 +84,11 @@ namespace KNARZhelper.ScreenshotsCommon.Models
                 });
                 await Task.WhenAll(tasks);
 
+                if (bag.Count > 0)
+                {
+                    Save();
+                }
+
                 return bag.Any(x => x);
             }
             catch (Exception ex)
