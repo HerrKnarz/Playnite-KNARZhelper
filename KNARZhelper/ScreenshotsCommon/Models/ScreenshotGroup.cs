@@ -3,6 +3,7 @@ using Playnite.SDK.Data;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -98,6 +99,11 @@ namespace KNARZhelper.ScreenshotsCommon.Models
                 return false;
             }
         }
+
+        /// <summary>
+        /// Opens the path to the json file in windows explorer.
+        /// </summary>
+        public void OpenContainingFolder() => Process.Start("explorer.exe", BasePath);
 
         /// <summary>
         /// Creates thumbnails to all screenshots in the group and regenerates already existing ones.
