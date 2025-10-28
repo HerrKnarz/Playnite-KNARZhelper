@@ -1,4 +1,4 @@
-﻿using Playnite.SDK;
+﻿using KNARZhelper.ScreenshotsCommon.Models;
 using Playnite.SDK.Models;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -8,7 +8,7 @@ namespace KNARZhelper.ScreenshotsCommon
     /// <summary>
     /// Interface for Screenshot Utilities Provider addons for methods and properties used by the main Screenshot Utilities addon.
     /// </summary>
-    public interface IScreenshotProvider
+    public interface IScreenshotProviderPlugin
     {
         /// <summary>
         /// Asynchronous method to add screenshots to a game. This method gets called when the automatic 
@@ -34,7 +34,7 @@ namespace KNARZhelper.ScreenshotsCommon
         /// <param name="searchResult">Search result the user selected. This should have the information
         /// needed to unambiguously get screenshots for the game.</param>
         /// <returns>True if new screenshots were added.</returns>
-        Task<bool> GetScreenshotsManualAsync(Game game, GenericItemOption searchResult);
+        Task<bool> GetScreenshotsManualAsync(Game game, ScreenshotSearchResult searchResult);
 
         /// <summary>
         /// Synchronous method to provide search results for a given search term or game. This is called when
@@ -45,7 +45,7 @@ namespace KNARZhelper.ScreenshotsCommon
         /// <param name="searchTerm">Term to search for. When empty the addon needs to use the appropriate 
         /// info from the game (usually the name of the game)</param>
         /// <returns></returns>
-        List<GenericItemOption> GetScreenshotSearchResult(Game game, string searchTerm);
+        List<ScreenshotSearchResult> GetScreenshotSearchResult(Game game, string searchTerm);
 
         /// <summary>
         /// Returns true if the provider addon supports finding images automatically with the information
