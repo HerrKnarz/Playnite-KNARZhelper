@@ -98,7 +98,7 @@ namespace KNARZhelper.FilesCommon
         {
             try
             {
-                return string.IsNullOrEmpty(url) ? string.Empty : Path.GetExtension(new Uri(url).GetLeftPart(UriPartial.Path));
+                return string.IsNullOrEmpty(url) ? string.Empty : Path.GetExtension(url.StripUriParams());
             }
             catch (Exception ex)
             {

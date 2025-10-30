@@ -180,6 +180,8 @@ namespace KNARZhelper
             return str;
         }
 
+        public static string StripUriParams(this string str) => new Uri(str).GetLeftPart(UriPartial.Path);
+
         /// <summary>
         /// Converts a string to title case (first letter of each word capitalized).
         /// </summary>
