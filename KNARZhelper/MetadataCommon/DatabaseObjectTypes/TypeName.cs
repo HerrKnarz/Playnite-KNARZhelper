@@ -24,9 +24,9 @@ namespace KNARZhelper.MetadataCommon.DatabaseObjectTypes
 
         public override void EmptyFieldInGame(Game game) => API.Instance.MainView.UIDispatcher.Invoke(() => game.Name = default);
 
-        public override bool FieldInGameIsEmpty(Game game) => !game.Name.Trim().Any();
+        public override bool FieldInGameIsEmpty(Game game) => !game?.Name?.Trim().Any() ?? true;
 
-        public override bool GameContainsValue(Game game, string value) => game.Name.RegExIsMatch(value);
+        public override bool GameContainsValue(Game game, string value) => value != null && (game?.Name?.RegExIsMatch(value) ?? false);
 
         public override string GetValue(Game game) => game.Name;
     }
