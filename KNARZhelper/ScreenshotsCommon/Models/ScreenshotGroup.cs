@@ -139,7 +139,7 @@ namespace KNARZhelper.ScreenshotsCommon.Models
                 return;
             }
 
-            var serializedData = Serialization.ToJson(this);
+            var serializedData = Serialization.ToJson(this, true);
             FileHelper.WriteStringToFile(FileName, serializedData, true);
         }
 
