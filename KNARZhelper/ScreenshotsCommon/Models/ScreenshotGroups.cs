@@ -146,6 +146,12 @@ namespace KNARZhelper.ScreenshotsCommon.Models
         public bool HasMoreThanOneGroup => Count > 1;
 
         /// <summary>
+        /// Number of screenshots in all groups
+        /// </summary>
+        [DontSerialize]
+        public int ScreenshotCount => Count == 0 ? 0 : this.Sum(g => g.Screenshots.Count);
+
+        /// <summary>
         /// Resets the collection by clearing all groups.
         /// </summary>
         public void Reset() => Clear();

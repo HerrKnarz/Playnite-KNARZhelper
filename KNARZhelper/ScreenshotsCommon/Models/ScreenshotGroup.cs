@@ -19,6 +19,7 @@ namespace KNARZhelper.ScreenshotsCommon.Models
         private string _basePath;
         private string _description;
         private string _fileName;
+        private string _gameIdentifier;
         private Guid _id = Guid.NewGuid();
         private DateTime _lastUpdate;
         private string _name;
@@ -222,6 +223,16 @@ namespace KNARZhelper.ScreenshotsCommon.Models
         {
             get => _fileName;
             set => SetValue(ref _fileName, value);
+        }
+
+        /// <summary>
+        /// Unique identifier for the game for the provider (e.g. steam id for steam).
+        /// </summary>
+        [SerializationPropertyName("gameIdentifier")]
+        public string GameIdentifier
+        {
+            get => _gameIdentifier;
+            set => SetValue(ref _gameIdentifier, value);
         }
 
         /// <summary>
