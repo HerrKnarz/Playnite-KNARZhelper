@@ -29,8 +29,6 @@ namespace KNARZhelper.WebCommon
 
     public static class WebHelper
     {
-        private static bool _allowRedirects = true;
-
         public static readonly string AgentString =
             "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36";
 
@@ -67,7 +65,7 @@ namespace KNARZhelper.WebCommon
         /// </summary>
         /// <param name="allowRedirects">If true, redirects are allowed</param>
         /// <returns>Configured HtmlWeb instance</returns>
-        private static HtmlWeb GetHtmlWeb(bool allowRedirects)
+        private static HtmlWeb GetHtmlWeb(bool allowRedirects, TaskCompletionSource<HttpWebResponse> postTask = null)
         {
             var web = new HtmlWeb
             {
@@ -78,8 +76,21 @@ namespace KNARZhelper.WebCommon
 
             if (allowRedirects)
             {
-                _allowRedirects = allowRedirects;
-                web.PreRequest = OnPreRequest;
+                web.PreRequest = delegate (HttpWebRequest request)
+                {
+                    request.AllowAutoRedirect = allowRedirects;
+                    request.KeepAlive = false;
+                    request.Timeout = 10 * 1000;
+                    return true;
+                };
+            }
+
+            if (postTask != null)
+            {
+                web.PostResponse = delegate (HttpWebRequest request, HttpWebResponse response)
+                {
+                    postTask.SetResult(response);
+                };
             }
 
             return web;
@@ -98,15 +109,18 @@ namespace KNARZhelper.WebCommon
 
             try
             {
-                var htmlWeb = GetHtmlWeb(allowRedirects);
+                var tcs = new TaskCompletionSource<HttpWebResponse>();
+                var htmlWeb = GetHtmlWeb(allowRedirects, tcs);
 
-                result.Document = await htmlWeb.LoadFromWebAsync(url);
+                result.Document = htmlWeb.Load(url);
 
-                result.StatusCode = htmlWeb.StatusCode == HttpStatusCode.OK
-                    ? checkForContent.Length == 0 || result.Document.DocumentNode.InnerHtml.Contains(checkForContent) ? htmlWeb.StatusCode : HttpStatusCode.NotFound
-                    : htmlWeb.StatusCode;
+                var httpWebResponse = await tcs.Task;
 
-                result.ResponseUrl = htmlWeb?.ResponseUri?.AbsoluteUri;
+                result.StatusCode = httpWebResponse.StatusCode == HttpStatusCode.OK
+                    ? checkForContent.Length == 0 || result.Document.DocumentNode.InnerHtml.Contains(checkForContent) ? httpWebResponse.StatusCode : HttpStatusCode.NotFound
+                    : httpWebResponse.StatusCode;
+
+                result.ResponseUrl = httpWebResponse?.ResponseUri?.AbsoluteUri;
             }
             catch (Exception exception)
             {
@@ -167,17 +181,6 @@ namespace KNARZhelper.WebCommon
             }
 
             return result;
-        }
-
-        /// <summary>
-        ///     PreRequest event for the HtmlWeb class. Is used to disable redirects,
-        /// </summary>
-        /// <param name="request">The request to be executed</param>
-        /// <returns>True, if the request can be executed.</returns>
-        private static bool OnPreRequest(HttpWebRequest request)
-        {
-            request.AllowAutoRedirect = _allowRedirects;
-            return true;
         }
 
         /// <summary>
