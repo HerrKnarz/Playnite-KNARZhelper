@@ -34,7 +34,7 @@ namespace KNARZhelper.ScreenshotsCommon.Models
         {
             _id = id == default ? _id : id;
             _path = path;
-            _name = name == string.Empty ? System.IO.Path.GetFileNameWithoutExtension(path) : name;
+            _name = name;
         }
 
         /// <summary>
