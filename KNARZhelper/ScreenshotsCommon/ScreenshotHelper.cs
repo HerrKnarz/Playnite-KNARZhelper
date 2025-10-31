@@ -2,6 +2,7 @@
 using Playnite.SDK;
 using Playnite.SDK.Models;
 using System;
+using System.Collections.Generic;
 using System.IO;
 
 namespace KNARZhelper.ScreenshotsCommon
@@ -32,6 +33,27 @@ namespace KNARZhelper.ScreenshotsCommon
         }
 
         internal static bool IsScreenshotUtilitiesInstalled => API.Instance.Addons.Plugins.Exists(p => p.Id == ScreenshotUtilitiesId);
+
+        internal static (bool, ScreenshotGroup) LoadGroups(Game game, string providerName, Guid providerId, string categoryName = default, Guid categoryId = default)
+        {
+            categoryName = string.IsNullOrEmpty(categoryName) ? providerName : categoryName;
+            categoryId = categoryId == default ? providerId : categoryId;
+
+            var screenshotGroup = ScreenshotGroup.CreateFromFile(new FileInfo(GenerateFileName(game.Id, providerId, categoryId)));
+
+            if (screenshotGroup == null)
+            {
+                screenshotGroup = new ScreenshotGroup(categoryName, categoryId)
+                {
+                    Provider = new ScreenshotProvider(providerName, providerId),
+                    Screenshots = new RangeObservableCollection<Screenshot>()
+                };
+
+                return (false, screenshotGroup);
+            }
+
+            return (true, screenshotGroup);
+        }
 
         internal static void SaveScreenshotGroupJson(Game game, ScreenshotGroup group)
         {

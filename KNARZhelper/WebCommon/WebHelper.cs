@@ -5,8 +5,7 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Net;
-using System.Threading;
-using System.Windows.Forms;
+using System.Threading.Tasks;
 
 namespace KNARZhelper.WebCommon
 {
@@ -15,22 +14,17 @@ namespace KNARZhelper.WebCommon
         /// <summary>
         /// Loads only the header of the URL. This is fast, but many websites return 403 without a real browser.
         /// </summary>
-        Header,
+        Header = 0,
         /// <summary>
         /// Loads the URL via the simple Load method of HtmlAgilityPack
         /// </summary>
-        Load,
-        /// <summary>
-        /// Loads the URL using HtmlAgilityPack via a browser instance. This is slower, but can handle
-        /// more complex sites. It causes some websites to time out though.
-        /// </summary>
-        LoadFromBrowser,
+        Load = 1,
         /// <summary>
         /// Loads the URL using an offscreen browser instance. This is slower, but can handle
         /// more complex sites. We don't get a StatusCode though, so the validity must be checked
         /// in the document content individually.
         /// </summary>
-        OffscreenView
+        OffscreenView = 3 // has to be 3, since we removed an unused one in between.
     }
 
     public static class WebHelper
@@ -39,6 +33,34 @@ namespace KNARZhelper.WebCommon
 
         public static readonly string AgentString =
             "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36";
+
+        private static void CatchError(UrlLoadResult urlLoadResult, Exception exception, string url)
+        {
+            if (exception is WebException webEx)
+            {
+                if (webEx.Response != null)
+                {
+                    var response = webEx.Response;
+                    var dataStream = response.GetResponseStream();
+
+                    if (dataStream != null)
+                    {
+                        var reader = new StreamReader(dataStream);
+                        urlLoadResult.ErrorDetails = reader.ReadToEnd();
+                        urlLoadResult.StatusCode = ((HttpWebResponse)response).StatusCode;
+                        reader.Close();
+
+                        Log.Debug($"Error loading url {url} => status code {urlLoadResult.StatusCode}");
+                    }
+                }
+            }
+            else if (exception is Exception ex)
+            {
+                urlLoadResult.ErrorDetails = ex.Message;
+                urlLoadResult.StatusCode = HttpStatusCode.BadRequest;
+                Log.Error(ex, $"Error loading url {url} => {urlLoadResult.ErrorDetails}");
+            }
+        }
 
         /// <summary>
         ///     Creates a new instance of HtmlWeb with some default settings.
@@ -69,85 +91,29 @@ namespace KNARZhelper.WebCommon
         /// <param name="url">url to load</param>
         /// <param name="allowRedirects">If true, redirects are allowed</param>
         /// <param name="checkForContent">Content to check for. If the document doesn't contain this content, it's considered the wrong page.</param>
-        /// <returns>The document, response url, status code and an object containing a possible exception</returns>
-        private static (HtmlAgilityPack.HtmlDocument, string, HttpStatusCode, object) LoadHtmlDocumentSimple(string url, bool allowRedirects = false, string checkForContent = "")
+        /// <returns>the url load result</returns>
+        private static async Task<UrlLoadResult> LoadHtmlDocumentSimpleAsync(string url, bool allowRedirects = false, string checkForContent = "")
         {
-            HtmlAgilityPack.HtmlDocument document = null;
-            string responseUrl = null;
-            var statusCode = HttpStatusCode.OK;
-            object exception = null;
+            var result = new UrlLoadResult();
 
             try
             {
                 var htmlWeb = GetHtmlWeb(allowRedirects);
-                htmlWeb.BrowserTimeout = new TimeSpan(0, 0, 10);
 
-                document = htmlWeb.Load(url);
+                result.Document = await htmlWeb.LoadFromWebAsync(url);
 
-                statusCode = htmlWeb.StatusCode == HttpStatusCode.OK
-                    ? checkForContent.Length == 0 || document.DocumentNode.InnerHtml.Contains(checkForContent) ? htmlWeb.StatusCode : HttpStatusCode.NotFound
+                result.StatusCode = htmlWeb.StatusCode == HttpStatusCode.OK
+                    ? checkForContent.Length == 0 || result.Document.DocumentNode.InnerHtml.Contains(checkForContent) ? htmlWeb.StatusCode : HttpStatusCode.NotFound
                     : htmlWeb.StatusCode;
 
-                responseUrl = htmlWeb.ResponseUri.AbsoluteUri;
+                result.ResponseUrl = htmlWeb?.ResponseUri?.AbsoluteUri;
             }
-            catch (Exception ex)
+            catch (Exception exception)
             {
-                exception = ex;
+                CatchError(result, exception, url);
             }
 
-            return (document, responseUrl, statusCode, exception);
-        }
-
-        /// <summary>
-        /// Loads the HTML document using HtmlAgilityPack via a browser instance. This is slower, but can handle JavaScript heavy sites.
-        /// </summary>
-        /// <param name="url">url to load</param>
-        /// <param name="allowRedirects">If true, redirects are allowed</param>
-        /// <param name="checkForContent">Content to check for. If the document doesn't contain this content, it's considered the wrong page.</param>
-        /// <returns>The document, response url, status code and an object containing a possible exception</returns>
-        private static (HtmlAgilityPack.HtmlDocument, string, HttpStatusCode, object) LoadHtmlDocumentFromBrowser(string url, bool allowRedirects = false, string checkForContent = "")
-        {
-            object doc = null;
-            string responseUrl = null;
-            var statusCode = HttpStatusCode.OK;
-            object exception = null;
-
-            var thread = new Thread(
-                      () =>
-                      {
-                          try
-                          {
-                              var web = GetHtmlWeb(allowRedirects);
-                              web.BrowserTimeout = new TimeSpan(0, 0, 10);
-
-                              doc = checkForContent.Length > 0
-                                  ? web.LoadFromBrowser(url, o =>
-                                  {
-                                      using (var webBrowser = (WebBrowser)o)
-                                      {
-                                          return webBrowser.Document.Body.InnerHtml.Contains(checkForContent);
-                                      }
-                                  })
-                                  : web.LoadFromBrowser(url);
-
-                              statusCode = web.StatusCode;
-                              responseUrl = web.ResponseUri.AbsoluteUri;
-                          }
-                          catch (Exception ex)
-                          {
-                              exception = ex;
-                          }
-                      });
-
-            thread.SetApartmentState(ApartmentState.STA);
-            thread.Start();
-
-            if (!thread.Join(new TimeSpan(0, 0, 15)))
-            {
-                thread.Abort();
-            }
-
-            return (doc as HtmlAgilityPack.HtmlDocument, responseUrl, statusCode, exception);
+            return result;
         }
 
         /// <summary>
@@ -157,12 +123,9 @@ namespace KNARZhelper.WebCommon
         /// <param name="url">url to load</param>
         /// <param name="checkForContent">Content to check for. If the document doesn't contain this content, it's considered the wrong page.</param>
         /// <returns>The HTML source, response url, status code and an object containing a possible exception</returns>
-        private static (string, string, HttpStatusCode, object) LoadHtmlDocumentFromOffscreenView(string url, string checkForContent = "")
+        private static UrlLoadResult LoadHtmlDocumentFromOffscreenView(string url, string checkForContent = "")
         {
-            string responseUrl = null;
-            string htmlSource = null;
-            var statusCode = HttpStatusCode.OK;
-            object exception = null;
+            var result = new UrlLoadResult();
 
             try
             {
@@ -177,24 +140,33 @@ namespace KNARZhelper.WebCommon
                     try
                     {
                         webView.NavigateAndWait(url);
-                        responseUrl = webView.GetCurrentAddress();
-                        htmlSource = webView.GetPageSource();
+                        result.ResponseUrl = webView.GetCurrentAddress();
+                        var htmlSource = webView.GetPageSource();
                         webView.Close();
+
+                        result.StatusCode = checkForContent.Length == 0 || htmlSource.Contains(checkForContent) ? HttpStatusCode.OK : HttpStatusCode.NotFound;
+
+                        if (result.StatusCode != HttpStatusCode.OK)
+                        {
+                            return result;
+                        }
+
+                        result.Document = new HtmlDocument();
+                        result.Document.LoadHtml(htmlSource);
+
                     }
-                    catch (Exception ex)
+                    catch (Exception exception)
                     {
-                        exception = ex;
+                        CatchError(result, exception, url);
                     }
                 }
-
-                statusCode = checkForContent.Length == 0 || htmlSource.Contains(checkForContent) ? HttpStatusCode.OK : HttpStatusCode.NotFound;
             }
-            catch (Exception ex)
+            catch (Exception exception)
             {
-                exception = ex;
+                CatchError(result, exception, url);
             }
 
-            return (htmlSource, responseUrl, statusCode, exception);
+            return result;
         }
 
         /// <summary>
@@ -224,11 +196,9 @@ namespace KNARZhelper.WebCommon
         /// <param name="url">url to check</param>
         /// <param name="allowRedirects">If true, redirects are allowed</param>
         /// <returns>The response url, status code and an object containing a possible exception</returns>
-        public static (string, HttpStatusCode, object) CheckUrlSimple(string url, bool allowRedirects = false)
+        public static async Task<UrlLoadResult> CheckUrlSimpleAsync(string url, bool allowRedirects = false)
         {
-            string responseUrl = null;
-            var statusCode = HttpStatusCode.OK;
-            object exception = null;
+            var result = new UrlLoadResult();
 
             try
             {
@@ -237,19 +207,19 @@ namespace KNARZhelper.WebCommon
                 request.AllowAutoRedirect = allowRedirects;
                 request.UserAgent = AgentString;
                 request.Timeout = 10000;
-                using (var response = request.GetResponse() as HttpWebResponse)
+                using (var response = await request.GetResponseAsync() as HttpWebResponse)
                 {
-                    statusCode = response.StatusCode;
-                    responseUrl = response.ResponseUri.AbsoluteUri;
+                    result.StatusCode = response.StatusCode;
+                    result.ResponseUrl = response.ResponseUri.AbsoluteUri;
                     response.Close();
                 }
             }
-            catch (Exception ex)
+            catch (Exception exception)
             {
-                exception = ex;
+                CatchError(result, exception, url);
             }
 
-            return (responseUrl, statusCode, exception);
+            return result;
         }
 
         /// <summary>
@@ -305,78 +275,38 @@ namespace KNARZhelper.WebCommon
         ///     Content to check for. Is used to determine if the returned document is valid. For LoadFromBrowser it also is used
         ///     to determine if the document is fully loaded</param>
         /// <returns>Loading result</returns>
-        public static UrlLoadResult LoadHtmlDocument(string url, UrlLoadMethod method = UrlLoadMethod.Load, bool allowRedirects = false, bool needDocument = true, string checkForContent = "")
+        public static UrlLoadResult LoadHtmlDocument(string url, UrlLoadMethod method = UrlLoadMethod.Load, bool allowRedirects = false, bool needDocument = true, string checkForContent = "") => LoadHtmlDocumentAsync(url, method, allowRedirects, needDocument, checkForContent).Result;
+
+        /// <summary>
+        ///     Asynchronously loads an HTML document from a URL using the specified method.
+        /// </summary>
+        /// <param name="url">URL to load</param>
+        /// <param name="method">Loading method</param>
+        /// <param name="allowRedirects">If true, redirects are allowed</param>
+        /// <param name="needDocument">
+        ///     If true, the loaded document will be returned in the result. Set to false if you only want to check for validity
+        ///     and don't need the actual document</param>
+        /// <param name="checkForContent">
+        ///     Content to check for. Is used to determine if the returned document is valid. For LoadFromBrowser it also is used
+        ///     to determine if the document is fully loaded</param>
+        /// <returns>Loading result</returns>
+        public static async Task<UrlLoadResult> LoadHtmlDocumentAsync(string url, UrlLoadMethod method = UrlLoadMethod.Load, bool allowRedirects = false, bool needDocument = true, string checkForContent = "")
         {
             var result = new UrlLoadResult();
 
             try
             {
-                HtmlAgilityPack.HtmlDocument document = null;
-                object exception = null;
-
                 switch (method)
                 {
                     case UrlLoadMethod.Header:
-                        (result.ResponseUrl, result.StatusCode, exception) = CheckUrlSimple(url, allowRedirects);
+                        result = await CheckUrlSimpleAsync(url, allowRedirects);
                         break;
                     case UrlLoadMethod.Load:
-                        (document, result.ResponseUrl, result.StatusCode, exception) = LoadHtmlDocumentSimple(url, allowRedirects, checkForContent);
-                        break;
-                    case UrlLoadMethod.LoadFromBrowser:
-                        (document, result.ResponseUrl, result.StatusCode, exception) = LoadHtmlDocumentFromBrowser(url, allowRedirects, checkForContent);
+                        result = await LoadHtmlDocumentSimpleAsync(url, allowRedirects, checkForContent);
                         break;
                     default:
-                        {
-                            var htmlSource = string.Empty;
-
-                            (htmlSource, result.ResponseUrl, result.StatusCode, exception) = LoadHtmlDocumentFromOffscreenView(url, checkForContent);
-
-                            if (result.StatusCode != HttpStatusCode.OK)
-                            {
-                                break;
-                            }
-
-                            try
-                            {
-                                document = new HtmlAgilityPack.HtmlDocument();
-                                document.LoadHtml(htmlSource);
-                            }
-                            catch (Exception ex)
-                            {
-                                exception = ex;
-                            }
-
-                            break;
-                        }
-                }
-
-                if (exception is WebException webEx)
-                {
-                    if (webEx.Response != null)
-                    {
-                        var response = webEx.Response;
-                        var dataStream = response.GetResponseStream();
-
-                        if (dataStream != null)
-                        {
-                            var reader = new StreamReader(dataStream);
-                            result.ErrorDetails = reader.ReadToEnd();
-                            result.StatusCode = ((HttpWebResponse)response).StatusCode;
-                            reader.Close();
-
-                            Log.Debug($"Error loading url {url} => status code {result.StatusCode}");
-                        }
-                    }
-
-                    return result;
-                }
-                else if (exception is Exception ex)
-                {
-                    result.ErrorDetails = ex.Message;
-                    result.StatusCode = HttpStatusCode.BadRequest;
-                    Log.Error(ex, $"Error loading url {url} => {result.ErrorDetails}");
-
-                    return result;
+                        result = LoadHtmlDocumentFromOffscreenView(url, checkForContent);
+                        break;
                 }
 
                 if (method == UrlLoadMethod.Header)
@@ -384,30 +314,26 @@ namespace KNARZhelper.WebCommon
                     return result;
                 }
 
-                if (document == null)
+                if (result.Document == null)
                 {
                     result.ErrorDetails = $"Error loading HTML document from {url}";
                     result.StatusCode = HttpStatusCode.BadRequest;
                     return result;
                 }
 
-                result.PageTitle = document?.DocumentNode?.SelectSingleNode("html/head/title")?.InnerText.Trim();
+                result.PageTitle = result.Document?.DocumentNode?.SelectSingleNode("html/head/title")?.InnerText.Trim();
 
-                if (needDocument)
+                if (!needDocument)
                 {
-                    result.Document = document;
+                    result.Document = null;
                 }
-
-                return result;
             }
-            catch (Exception ex)
+            catch (Exception exception)
             {
-                result.ErrorDetails = ex.Message;
-                result.StatusCode = HttpStatusCode.BadRequest;
-                Log.Error(ex, $"Error loading HTML document from {url}");
-
-                return result;
+                CatchError(result, exception, url);
             }
+
+            return result;
         }
     }
 }
