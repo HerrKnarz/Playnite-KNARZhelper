@@ -173,8 +173,6 @@ namespace KNARZhelper.ScreenshotsCommon.Models
 
             API.Instance.MainView.UIDispatcher.Invoke(delegate
             {
-                // TODO: Online images have to be downloaded first before they can be set as media.
-
                 var image = API.Instance.Database.AddFile(DownloadedPath, game.Id);
 
                 switch (mediaType)
