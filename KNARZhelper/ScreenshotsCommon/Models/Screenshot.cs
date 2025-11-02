@@ -1,5 +1,8 @@
 ﻿using KNARZhelper.FilesCommon;
+using Playnite.SDK;
 using Playnite.SDK.Data;
+using Playnite.SDK.Models;
+using Playnite.SDK.Plugins;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -35,6 +38,31 @@ namespace KNARZhelper.ScreenshotsCommon.Models
             _id = id == default ? _id : id;
             _path = path;
             _name = name;
+        }
+
+        /// <summary>
+        /// Copies the screenshot image to the clipboard.
+        /// </summary>
+        public void CopyToClipboard()
+        {
+            if (string.IsNullOrEmpty(DownloadedPath))
+            {
+                return;
+            }
+
+            var fileInfo = new FileInfo(DownloadedPath);
+
+            if (fileInfo.Exists)
+            {
+                try
+                {
+                    Clipboard.SetImage(BitmapFrame.Create(new Uri(DownloadedPath, UriKind.Absolute)));
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"Failed to copy screenshot to clipboard: {ex}");
+                }
+            }
         }
 
         /// <summary>
@@ -136,29 +164,36 @@ namespace KNARZhelper.ScreenshotsCommon.Models
             }
         }
 
-        /// <summary>
-        /// Copies the screenshot image to the clipboard.
-        /// </summary>
-        public void CopyToClipboard()
+        public void SetAs(Game game, MetadataField mediaType = MetadataField.BackgroundImage)
         {
             if (string.IsNullOrEmpty(DownloadedPath))
             {
                 return;
             }
 
-            var fileInfo = new FileInfo(DownloadedPath);
-
-            if (fileInfo.Exists)
+            API.Instance.MainView.UIDispatcher.Invoke(delegate
             {
-                try
+                // TODO: Online images have to be downloaded first before they can be set as media.
+
+                var image = API.Instance.Database.AddFile(DownloadedPath, game.Id);
+
+                switch (mediaType)
                 {
-                    Clipboard.SetImage(BitmapFrame.Create(new Uri(DownloadedPath, UriKind.Absolute)));
+                    case MetadataField.BackgroundImage:
+                        game.BackgroundImage = image;
+                        break;
+                    case MetadataField.CoverImage:
+                        game.CoverImage = image;
+                        break;
+                    case MetadataField.Icon:
+                        game.Icon = image;
+                        break;
+                    default:
+                        throw new NotSupportedException($"Media type {mediaType} is not supported.");
                 }
-                catch (Exception ex)
-                {
-                    Debug.WriteLine($"Failed to copy screenshot to clipboard: {ex}");
-                }
-            }
+
+                API.Instance.Database.Games.Update(game);
+            });
         }
 
         /// <summary>
