@@ -1,5 +1,4 @@
-﻿using KNARZhelper.FilesCommon;
-using Playnite.SDK;
+﻿using Playnite.SDK;
 using Playnite.SDK.Data;
 using System;
 using System.Collections.Concurrent;
@@ -57,7 +56,7 @@ namespace KNARZhelper.ScreenshotsCommon.Models
                 return;
             }
 
-            var path = FileHelper.GetDownloadPath(basePath, gameId);
+            var path = ScreenshotHelper.GetDownloadPath(basePath, gameId);
 
             if (!path.Exists)
             {

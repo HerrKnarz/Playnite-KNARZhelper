@@ -58,38 +58,6 @@ namespace KNARZhelper.FilesCommon
         }
 
         /// <summary>
-        /// Gets the download path based on the base path, game ID, and provider ID.
-        /// </summary>
-        /// <param name="basePath">The base path for the download location.</param>
-        /// <param name="gameId">The ID of the game.</param>
-        /// <param name="providerId">The ID of the provider.</param>
-        /// <returns>The directory info for the download path.</returns>
-        public static DirectoryInfo GetDownloadPath(string basePath, Guid gameId = default, Guid providerId = default)
-        {
-            try
-            {
-                if (string.IsNullOrEmpty(basePath) || !Directory.Exists(basePath))
-                {
-                    return null;
-                }
-
-                var path = Path.Combine(basePath,
-                    gameId == default ? string.Empty : gameId.ToString(),
-                    providerId == default ? string.Empty : providerId.ToString());
-
-                var directoryInfo = new DirectoryInfo(path);
-
-                return directoryInfo;
-            }
-            catch (Exception ex)
-            {
-                Log.Error(ex, "Failed to create download path.");
-
-                return null;
-            }
-        }
-
-        /// <summary>
         /// Gets the file extension from a URL.
         /// </summary>
         /// <param name="url">The URL to get the file extension from.</param>
