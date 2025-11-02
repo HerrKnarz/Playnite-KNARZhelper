@@ -9,6 +9,16 @@ namespace KNARZhelper.ScreenshotsCommon
     public interface IScreenshotProviderPlugin
     {
         /// <summary>
+        /// Asynchronous method to clean up screenshots for a given game. This gets called when a game is 
+        /// loaded in Playnite. Can be used to delete orphaned json files of make adjustments in them. 
+        /// Usually it's not needed to delete orphaned screenshot or thumbnail files as those are handled
+        /// by the main Screenshot Utilities addon.
+        /// </summary>
+        /// <param name="game">Game to clean up</param>
+        /// <returns>True if something was cleaned up</returns>
+        Task<bool> CleanUpAsync(Game game);
+
+        /// <summary>
         /// Asynchronous method to add screenshots to a game. This method gets called when the automatic 
         /// screenshot refresh is running. The addon needs to look for an already existing json file and 
         /// refresh the screenshots in it or create a new one for the game if none exists already. When no

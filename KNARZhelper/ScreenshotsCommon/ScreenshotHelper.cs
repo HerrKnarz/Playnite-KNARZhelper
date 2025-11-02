@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace KNARZhelper.ScreenshotsCommon
@@ -12,6 +13,55 @@ namespace KNARZhelper.ScreenshotsCommon
     internal static class ScreenshotHelper
     {
         internal static Guid ScreenshotUtilitiesId = Guid.Parse("485d682f-73e9-4d54-b16f-b8dd49e88f90");
+
+        /// <summary>
+        /// Deletes orphaned JSON files in the specified game's provider directory,
+        /// </summary>
+        /// <param name="gameId">Id of the game</param>
+        /// <param name="providerId">Id of the provider</param>
+        /// <param name="filesToKeep">List of file IDs to keep</param>
+        /// <returns>True, if files were deleted</returns>
+        internal static async Task<bool> DeleteOrphanedJsonFiles(Guid gameId, Guid providerId, List<Guid> filesToKeep = null)
+        {
+            if (!IsScreenshotUtilitiesInstalled)
+            {
+                return false;
+            }
+
+            var directoryInfo = GetDownloadPath(gameId: gameId, providerId: providerId);
+
+            if (directoryInfo is null || !directoryInfo.Exists)
+            {
+                return false;
+            }
+
+            if (filesToKeep is null)
+            {
+                filesToKeep = new List<Guid>() { providerId };
+            }
+
+            var jsonFiles = directoryInfo.GetFiles("*.json");
+
+            var result = false;
+
+            foreach (var jsonFile in jsonFiles)
+            {
+                if (filesToKeep == null || !filesToKeep.Any(file => jsonFile.Name.Contains(file.ToString())))
+                {
+                    jsonFile.Delete();
+
+                    result = true;
+                }
+            }
+
+            if (result)
+            {
+                // We wait a bit to ensure the file system has updated
+                await Task.Delay(TimeSpan.FromMilliseconds(100));
+            }
+
+            return result;
+        }
 
         internal static string GenerateFileName(Guid gameId, Guid providerId, Guid groupId)
         {
