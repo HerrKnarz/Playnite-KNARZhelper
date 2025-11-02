@@ -112,7 +112,10 @@ namespace KNARZhelper.ScreenshotsCommon.Models
             {
                 var directoryInfo = ScreenshotHelper.GetDownloadPath(gameId: _gameId, createDir: false);
 
-                if (directoryInfo is null || !directoryInfo.Exists)
+                if (directoryInfo is null
+                    || !directoryInfo.Exists
+                    || !directoryInfo.FullName.Contains(_gameId.ToString())
+                    || !directoryInfo.FullName.Contains(ScreenshotHelper.ScreenshotUtilitiesId.ToString()))
                 {
                     return false;
                 }
@@ -128,7 +131,12 @@ namespace KNARZhelper.ScreenshotsCommon.Models
                     filesToKeep.UnionWith(group.Screenshots.Where(s => !string.IsNullOrEmpty(s.DownloadedPath)).Select(s => s.DownloadedPath));
                 }
 
-                var files = directoryInfo.EnumerateFiles("*", SearchOption.AllDirectories);
+                var files = directoryInfo.EnumerateFiles("*", SearchOption.AllDirectories).ToList();
+
+                if (!files.Any())
+                {
+                    return false;
+                }
 
                 var result = false;
 
