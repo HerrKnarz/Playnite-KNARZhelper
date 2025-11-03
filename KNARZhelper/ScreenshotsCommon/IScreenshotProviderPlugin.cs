@@ -56,6 +56,11 @@ namespace KNARZhelper.ScreenshotsCommon
         string GetScreenshotSearchResult(Game game, string searchTerm);
 
         /// <summary>
+        /// Name of the provider to be displayed in the UI.
+        /// </summary>
+        string Name { get; set; }
+
+        /// <summary>
         /// Returns true if the provider addon supports finding images automatically with the information
         /// from the game alone.
         /// </summary>
