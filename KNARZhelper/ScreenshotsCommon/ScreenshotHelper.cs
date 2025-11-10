@@ -63,6 +63,13 @@ namespace KNARZhelper.ScreenshotsCommon
             return result;
         }
 
+        /// <summary>
+        /// Generates the file name for the screenshot group JSON file.
+        /// </summary>
+        /// <param name="gameId">Id of the game</param>
+        /// <param name="providerId">Id of the provider</param>
+        /// <param name="groupId">Id of the group</param>
+        /// <returns>The generated file name</returns>
         internal static string GenerateFileName(Guid gameId, Guid providerId, Guid groupId)
         {
             if (!IsScreenshotUtilitiesInstalled)
@@ -124,9 +131,21 @@ namespace KNARZhelper.ScreenshotsCommon
             }
         }
 
+        /// <summary>
+        /// Checks if Screenshot Utilities plugin is installed.
+        /// </summary>
         internal static bool IsScreenshotUtilitiesInstalled => API.Instance.Addons.Plugins.Exists(p => p.Id == ScreenshotUtilitiesId);
 
-        internal static (bool, ScreenshotGroup) LoadGroups(Game game, string providerName, Guid providerId, string categoryName = default, Guid categoryId = default)
+        /// <summary>
+        /// Loads the screenshot group from file or creates a new one if it doesn't exist.
+        /// </summary>
+        /// <param name="game">The game associated with the screenshot group.</param>
+        /// <param name="providerName">The name of the screenshot provider.</param>
+        /// <param name="providerId">The ID of the screenshot provider.</param>
+        /// <param name="categoryName">The name of the screenshot category.</param>
+        /// <param name="categoryId">The ID of the screenshot category.</param>
+        /// <returns>A tuple indicating whether the group was loaded from file and the loaded or newly created screenshot group.</returns>
+        internal static (bool, ScreenshotGroup) LoadGroup(Game game, string providerName, Guid providerId, string categoryName = default, Guid categoryId = default)
         {
             categoryName = string.IsNullOrEmpty(categoryName) ? providerName : categoryName;
             categoryId = categoryId == default ? providerId : categoryId;
@@ -147,9 +166,16 @@ namespace KNARZhelper.ScreenshotsCommon
             return (true, screenshotGroup);
         }
 
-        internal static bool RemoveScreenshots(Game game, bool showNotification = true)
+        /// <summary>
+        /// Removes the screenshots for the specified game and provider.
+        /// </summary>
+        /// <param name="game">The game associated with the screenshots.</param>
+        /// <param name="showNotification">Whether to show a notification if the deletion fails.</param>
+        /// <param name="providerId">The ID of the provider. When set to default the screenshots of all providers will be removed.</param>
+        /// <returns>True if the screenshots were successfully removed; otherwise, false.</returns>
+        internal static bool RemoveScreenshots(Game game, bool showNotification = true, Guid providerId = default)
         {
-            var path = GetDownloadPath(gameId: game.Id, createDir: false);
+            var path = GetDownloadPath(gameId: game.Id, providerId: providerId, createDir: false);
             var succeeded = false;
 
             try
@@ -182,6 +208,11 @@ namespace KNARZhelper.ScreenshotsCommon
             return succeeded;
         }
 
+        /// <summary>
+        /// Saves the screenshot group to a JSON file.
+        /// </summary>
+        /// <param name="game">The game associated with the screenshot group.</param>
+        /// <param name="group">The screenshot group to save.</param>
         internal static void SaveScreenshotGroupJson(Game game, ScreenshotGroup group)
         {
             if (!IsScreenshotUtilitiesInstalled

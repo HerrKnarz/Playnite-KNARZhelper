@@ -177,7 +177,7 @@ namespace KNARZhelper.ScreenshotsCommon.Models
             var bag = new ConcurrentBag<bool>();
             var maxParallel = 2;
             var throttler = new SemaphoreSlim(initialCount: maxParallel);
-            var tasks = this.Where(g => providerGuid == default || g.Provider.Id == providerGuid).Select(async group =>
+            var tasks = this.Where(g => providerGuid == default || g.Provider.Id.Equals(providerGuid)).Select(async group =>
             {
                 await throttler.WaitAsync();
                 try
@@ -198,12 +198,13 @@ namespace KNARZhelper.ScreenshotsCommon.Models
         /// Refreshes all screenshots in all groups.
         /// </summary>
         /// <param name="thumbNailHeight">Height of the thumbnails that will be generated</param>
+        /// <param name="providerId">Optional provider GUID to filter which groups to refresh.</param>
         /// <returns>True if new thumbnails were generated.</returns>
-        public async Task<bool> RefreshAllThumbnailsAsync(int thumbNailHeight)
+        public async Task<bool> RefreshAllThumbnailsAsync(int thumbNailHeight, Guid providerId = default)
         {
             var generated = false;
 
-            foreach (var group in this)
+            foreach (var group in this.Where(g => providerId == default || g.Provider.Id.Equals(providerId)))
             {
                 generated |= await group.RefreshThumbnailsAsync(thumbNailHeight);
                 group.Save();
