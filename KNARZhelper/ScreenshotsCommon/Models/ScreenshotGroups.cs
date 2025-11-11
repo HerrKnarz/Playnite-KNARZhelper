@@ -90,7 +90,13 @@ namespace KNARZhelper.ScreenshotsCommon.Models
             {
                 try
                 {
-                    Add(ScreenshotGroup.CreateFromFile(file));
+                    var group = ScreenshotGroup.CreateFromFile(file);
+
+                    if (group?.Screenshots?.Count > 0)
+                    {
+                        Add(group);
+                        continue;
+                    }
                 }
                 catch (Exception ex)
                 {
