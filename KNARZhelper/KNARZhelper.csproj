@@ -74,6 +74,7 @@
     <Compile Include="FilesCommon\FileDownloader.cs" />
     <Compile Include="FilesCommon\FileHelper.cs" />
     <Compile Include="FilesCommon\ImageHelper.cs" />
+    <Compile Include="MetadataCommon\MetadataHelper.cs" />
     <Compile Include="MetadataCommon\DatabaseObjectTypes\BaseBooleanType.cs" />
     <Compile Include="MetadataCommon\DatabaseObjectTypes\BaseCompanyType.cs" />
     <Compile Include="MetadataCommon\DatabaseObjectTypes\BaseDateType.cs" />
