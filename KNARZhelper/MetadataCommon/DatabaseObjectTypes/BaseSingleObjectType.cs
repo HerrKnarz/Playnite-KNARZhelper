@@ -32,6 +32,9 @@ namespace KNARZhelper.MetadataCommon.DatabaseObjectTypes
             }
         }
 
+        public override bool CopyValueToGame(Game sourceGame, Game targetGame, bool replaceValue = false, bool onlyIfEmpty = false) =>
+            sourceGame != null && targetGame != null && (replaceValue || (onlyIfEmpty && FieldInGameIsEmpty(targetGame))) && AddValueToGame(targetGame, GetValue(sourceGame));
+
         public override bool DbObjectInGame(Game game, Guid id) => GetValue(game) == id;
 
         public override bool DbObjectInUse(Guid id, bool ignoreHiddenGames = false) =>
@@ -144,8 +147,5 @@ namespace KNARZhelper.MetadataCommon.DatabaseObjectTypes
         /// <param name="game">Game to set the value in</param>
         /// <param name="id">Id of the value</param>
         internal abstract void SetValue(Game game, Guid id);
-
-        public override bool CopyValueToGame(Game sourceGame, Game targetGame, bool replaceValue = false, bool onlyIfEmpty = false) =>
-            sourceGame != null && targetGame != null && (replaceValue || (onlyIfEmpty && FieldInGameIsEmpty(targetGame))) && AddValueToGame(targetGame, GetValue(sourceGame));
     }
 }

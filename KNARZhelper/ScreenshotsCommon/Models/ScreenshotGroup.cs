@@ -40,6 +40,133 @@ namespace KNARZhelper.ScreenshotsCommon.Models
         }
 
         /// <summary>
+        /// Base path where screenshots are downloaded. This is also where the JSON file is stored.
+        /// </summary>
+        [DontSerialize]
+        public string BasePath
+        {
+            get => _basePath;
+            set => SetValue(ref _basePath, value);
+        }
+
+        /// <summary>
+        /// Description of the screenshot group.
+        /// </summary>
+        [SerializationPropertyName("description")]
+        public string Description
+        {
+            get => _description;
+            set => SetValue(ref _description, value);
+        }
+
+        /// <summary>
+        /// Display name of the screenshot group, combining provider name and group name.
+        /// </summary>
+        [DontSerialize]
+        public string DisplayName => Provider == null || string.IsNullOrEmpty(Provider.Name) ? Name
+                    : string.IsNullOrEmpty(Name) ? (Provider?.Name)
+                    : Provider.Name.Equals(Name) ? Name
+                    : $"{Provider?.Name}: {Name}";
+
+        /// <summary>
+        /// Gets or sets the name of the JSON file associated with this instance.
+        /// </summary>
+        [DontSerialize]
+        public string FileName
+        {
+            get => _fileName;
+            set => SetValue(ref _fileName, value);
+        }
+
+        /// <summary>
+        /// Unique identifier for the game for the provider (e.g. steam id for steam).
+        /// </summary>
+        [SerializationPropertyName("gameIdentifier")]
+        public string GameIdentifier
+        {
+            get => _gameIdentifier;
+            set => SetValue(ref _gameIdentifier, value);
+        }
+
+        /// <summary>
+        /// Unique identifier for the screenshot group.
+        /// </summary>
+        [SerializationPropertyName("id")]
+        public Guid Id
+        {
+            get => _id;
+            set => SetValue(ref _id, value);
+        }
+
+        /// <summary>
+        /// Last time the screenshots were updated from the provider.
+        /// </summary>
+        [SerializationPropertyName("lastUpdate")]
+        public DateTime LastUpdate
+        {
+            get => _lastUpdate;
+            set => SetValue(ref _lastUpdate, value);
+        }
+
+        /// <summary>
+        /// Gets or sets the name of the screenshot group. Will be displayed in the UI.
+        /// </summary>
+        [SerializationPropertyName("name")]
+        public string Name
+        {
+            get => _name;
+            set => SetValue(ref _name, value);
+        }
+
+        /// <summary>
+        /// Gets or sets the provider of the screenshots in this group. This usually is the playnite
+        /// add-on providing the screenshots.
+        /// </summary>
+        [SerializationPropertyName("provider")]
+        public ScreenshotProvider Provider
+        {
+            get => _provider;
+            set => SetValue(ref _provider, value);
+        }
+
+        /// <summary>
+        /// Collection of screenshots in this group.
+        /// </summary>
+        [SerializationPropertyName("screenshots")]
+        public RangeObservableCollection<Screenshot> Screenshots
+        {
+            get => _screenshots;
+            set
+            {
+                SetValue(ref _screenshots, value);
+
+                Sort();
+
+                SelectedScreenshot = value != null && value.Count > 0 ? value[0] : null;
+            }
+        }
+
+        /// <summary>
+        /// Currently selected screenshot in the group.
+        /// </summary>
+        [DontSerialize]
+        public Screenshot SelectedScreenshot
+        {
+            get => _selectedScreenshot;
+            set => SetValue(ref _selectedScreenshot, value);
+        }
+
+        /// <summary>
+        /// Gets or sets the sort order of the screenshot group in a list of groups.
+        /// </summary>
+        [SerializationPropertyName("sortOrder")]
+        public int SortOrder
+        {
+            get => _sortOrder;
+            set => SetValue(ref _sortOrder, value);
+        }
+
+        /// <summary>
         /// Creates a ScreenshotGroup instance from a JSON file with the same structure.
         /// </summary>
         /// <param name="file">The JSON file to read from.</param>
@@ -165,7 +292,8 @@ namespace KNARZhelper.ScreenshotsCommon.Models
         }
 
         /// <summary>
-        /// Selects the previous screenshot in the group. Loops back to the last screenshot if at the beginning.
+        /// Selects the previous screenshot in the group. Loops back to the last screenshot if at
+        /// the beginning.
         /// </summary>
         public void SelectPreviousScreenshot()
         {
@@ -185,131 +313,5 @@ namespace KNARZhelper.ScreenshotsCommon.Models
         }
 
         public void Sort() => _screenshots.Sort(s => s.SortOrder);
-
-        /// <summary>
-        /// Base path where screenshots are downloaded. This is also where the JSON file is stored.
-        /// </summary>
-        [DontSerialize]
-        public string BasePath
-        {
-            get => _basePath;
-            set => SetValue(ref _basePath, value);
-        }
-
-        /// <summary>
-        /// Description of the screenshot group.
-        /// </summary>
-        [SerializationPropertyName("description")]
-        public string Description
-        {
-            get => _description;
-            set => SetValue(ref _description, value);
-        }
-
-        /// <summary>
-        /// Display name of the screenshot group, combining provider name and group name.
-        /// </summary>
-        [DontSerialize]
-        public string DisplayName => Provider == null || string.IsNullOrEmpty(Provider.Name) ? Name
-                    : string.IsNullOrEmpty(Name) ? (Provider?.Name)
-                    : Provider.Name.Equals(Name) ? Name
-                    : $"{Provider?.Name}: {Name}";
-
-        /// <summary>
-        /// Gets or sets the name of the JSON file associated with this instance.
-        /// </summary>
-        [DontSerialize]
-        public string FileName
-        {
-            get => _fileName;
-            set => SetValue(ref _fileName, value);
-        }
-
-        /// <summary>
-        /// Unique identifier for the game for the provider (e.g. steam id for steam).
-        /// </summary>
-        [SerializationPropertyName("gameIdentifier")]
-        public string GameIdentifier
-        {
-            get => _gameIdentifier;
-            set => SetValue(ref _gameIdentifier, value);
-        }
-
-        /// <summary>
-        /// Unique identifier for the screenshot group.
-        /// </summary>
-        [SerializationPropertyName("id")]
-        public Guid Id
-        {
-            get => _id;
-            set => SetValue(ref _id, value);
-        }
-
-        /// <summary>
-        /// Last time the screenshots were updated from the provider.
-        /// </summary>
-        [SerializationPropertyName("lastUpdate")]
-        public DateTime LastUpdate
-        {
-            get => _lastUpdate;
-            set => SetValue(ref _lastUpdate, value);
-        }
-
-        /// <summary>
-        /// Gets or sets the name of the screenshot group. Will be displayed in the UI.
-        /// </summary>
-        [SerializationPropertyName("name")]
-        public string Name
-        {
-            get => _name;
-            set => SetValue(ref _name, value);
-        }
-
-        /// <summary>
-        /// Gets or sets the provider of the screenshots in this group. This usually is the playnite add-on providing the screenshots.
-        /// </summary>
-        [SerializationPropertyName("provider")]
-        public ScreenshotProvider Provider
-        {
-            get => _provider;
-            set => SetValue(ref _provider, value);
-        }
-
-        /// <summary>
-        /// Collection of screenshots in this group.
-        /// </summary>
-        [SerializationPropertyName("screenshots")]
-        public RangeObservableCollection<Screenshot> Screenshots
-        {
-            get => _screenshots;
-            set
-            {
-                SetValue(ref _screenshots, value);
-
-                Sort();
-
-                SelectedScreenshot = value != null && value.Count > 0 ? value[0] : null;
-            }
-        }
-
-        /// <summary>
-        /// Currently selected screenshot in the group.
-        /// </summary>
-        [DontSerialize]
-        public Screenshot SelectedScreenshot
-        {
-            get => _selectedScreenshot;
-            set => SetValue(ref _selectedScreenshot, value);
-        }
-
-        /// <summary>
-        /// Gets or sets the sort order of the screenshot group in a list of groups.
-        /// </summary>
-        [SerializationPropertyName("sortOrder")]
-        public int SortOrder
-        {
-            get => _sortOrder;
-            set => SetValue(ref _sortOrder, value);
-        }
     }
 }

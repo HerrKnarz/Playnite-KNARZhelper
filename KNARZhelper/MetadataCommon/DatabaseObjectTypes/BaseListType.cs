@@ -30,6 +30,30 @@ namespace KNARZhelper.MetadataCommon.DatabaseObjectTypes
             }
         }
 
+        public override bool CopyValueToGame(Game sourceGame, Game targetGame, bool replaceValue = false, bool onlyIfEmpty = false)
+        {
+            if (sourceGame == null || targetGame == null)
+            {
+                return false;
+            }
+
+            var result = false;
+
+            if (replaceValue || !onlyIfEmpty || FieldInGameIsEmpty(targetGame))
+            {
+                if (replaceValue && !FieldInGameIsEmpty(targetGame))
+                {
+                    result = true;
+
+                    EmptyFieldInGame(targetGame);
+                }
+
+                result |= AddValueToGame(targetGame, LoadGameMetadata(sourceGame).Select(x => x.Id).ToList());
+            }
+
+            return result;
+        }
+
         public override bool DbObjectInGame(Game game, Guid id) => GameGuids(game).Contains(id);
 
         public override bool DbObjectInUse(Guid id, bool ignoreHiddenGames = false) =>
@@ -94,7 +118,9 @@ namespace KNARZhelper.MetadataCommon.DatabaseObjectTypes
         /// List of GUIDs of the database objects of this type in the specified game.
         /// </summary>
         /// <param name="game">Game to get the GUIDs from</param>
-        /// <param name="writeable">Determines if this should be a writeable copy to not change the values in the original list.</param>
+        /// <param name="writeable">
+        /// Determines if this should be a writeable copy to not change the values in the original list.
+        /// </param>
         /// <returns></returns>
         internal abstract List<Guid> GameGuids(Game game, bool writeable = false);
 
@@ -112,34 +138,13 @@ namespace KNARZhelper.MetadataCommon.DatabaseObjectTypes
         /// Loads all unused metadata objects of this type in the database.
         /// </summary>
         /// <typeparam name="T">Type of the metadata object</typeparam>
-        /// <param name="ignoreHiddenGames">Determines if hidden games should be ignored. When true items only used in hidden games will be considered unused.</param>
+        /// <param name="ignoreHiddenGames">
+        /// Determines if hidden games should be ignored. When true items only used in hidden games
+        /// will be considered unused.
+        /// </param>
         /// <param name="collection">Collection of metadata objects to search</param>
         /// <returns>List of unused metadata objects</returns>
         internal List<DatabaseObject> LoadUnusedMetadata<T>(bool ignoreHiddenGames, IItemCollection<T> collection) where T : DatabaseObject =>
             collection.Where(x => !DbObjectInUse(x.Id, ignoreHiddenGames)).Select(x => new DatabaseObject() { Id = x.Id, Name = x.Name }).ToList();
-
-        public override bool CopyValueToGame(Game sourceGame, Game targetGame, bool replaceValue = false, bool onlyIfEmpty = false)
-        {
-            if (sourceGame == null || targetGame == null)
-            {
-                return false;
-            }
-
-            var result = false;
-
-            if (replaceValue || !onlyIfEmpty || FieldInGameIsEmpty(targetGame))
-            {
-                if (replaceValue && !FieldInGameIsEmpty(targetGame))
-                {
-                    result = true;
-
-                    EmptyFieldInGame(targetGame);
-                }
-
-                result |= AddValueToGame(targetGame, LoadGameMetadata(sourceGame).Select(x => x.Id).ToList());
-            }
-
-            return result;
-        }
     }
 }

@@ -21,40 +21,10 @@ namespace KNARZhelper.Controls
                  ),
               ValidateAspectRatio);
 
-        private static bool ValidateAspectRatio(object value)
-        {
-            if (!(value is double))
-            {
-                return false;
-            }
-
-            var aspectRatio = (double)value;
-            return aspectRatio > 0
-                     && !double.IsInfinity(aspectRatio)
-                     && !double.IsNaN(aspectRatio);
-        }
-
         public double AspectRatio
         {
             get => (double)GetValue(AspectRatioProperty);
             set => SetValue(AspectRatioProperty, value);
-        }
-
-        protected override Size MeasureOverride(Size constraint)
-        {
-            if (Child != null)
-            {
-                constraint = SizeToRatio(constraint, false);
-                Child.Measure(constraint);
-
-                return double.IsInfinity(constraint.Width)
-                   || double.IsInfinity(constraint.Height)
-                    ? SizeToRatio(Child.DesiredSize, true)
-                    : constraint;
-            }
-
-            // we don't have a child, so we don't need any space
-            return new Size(0, 0);
         }
 
         public Size SizeToRatio(Size size, bool expand)
@@ -107,6 +77,36 @@ namespace KNARZhelper.Controls
             }
 
             return arrangeSize;
+        }
+
+        protected override Size MeasureOverride(Size constraint)
+        {
+            if (Child != null)
+            {
+                constraint = SizeToRatio(constraint, false);
+                Child.Measure(constraint);
+
+                return double.IsInfinity(constraint.Width)
+                   || double.IsInfinity(constraint.Height)
+                    ? SizeToRatio(Child.DesiredSize, true)
+                    : constraint;
+            }
+
+            // we don't have a child, so we don't need any space
+            return new Size(0, 0);
+        }
+
+        private static bool ValidateAspectRatio(object value)
+        {
+            if (!(value is double))
+            {
+                return false;
+            }
+
+            var aspectRatio = (double)value;
+            return aspectRatio > 0
+                     && !double.IsInfinity(aspectRatio)
+                     && !double.IsNaN(aspectRatio);
         }
     }
 }

@@ -5,7 +5,8 @@ using System.Windows.Controls;
 namespace KNARZhelper.Controls
 {
     /// <summary>
-    /// A behavior that automatically scrolls the selected item of a ListBox into view when the selection changes.
+    /// A behavior that automatically scrolls the selected item of a ListBox into view when the
+    /// selection changes.
     /// </summary>
     public class ScrollIntoViewBehavior : Behavior<ListBox>
     {

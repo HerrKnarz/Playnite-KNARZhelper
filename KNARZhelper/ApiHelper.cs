@@ -10,13 +10,15 @@ namespace KNARZhelper
     internal static class ApiHelper
     {
         /// <summary>
-        ///     Gets a JSON result from an API and deserializes it.
+        /// Gets a JSON result from an API and deserializes it.
         /// </summary>
         /// <typeparam name="T">Type the JSON gets deserialized to</typeparam>
         /// <param name="apiUrl">Url to fetch the JSON result from</param>
         /// <param name="apiName">API name for the error message</param>
         /// <param name="encoding">the encoding to use</param>
-        /// <param name="useWebView">Uses an OffScreenView when this is true. When false a WebClient is used.</param>
+        /// <param name="useWebView">
+        /// Uses an OffScreenView when this is true. When false a WebClient is used.
+        /// </param>
         /// <param name="body">the body to send to the api</param>
         /// <returns>Deserialized JSON result</returns>
         internal static T GetJsonFromApi<T>(string apiUrl, string apiName, Encoding encoding = null, bool useWebView = false, string body = "")
@@ -50,7 +52,7 @@ namespace KNARZhelper
         }
 
         /// <summary>
-        ///     Gets a JSON result from an API and deserializes it.
+        /// Gets a JSON result from an API and deserializes it.
         /// </summary>
         /// <typeparam name="T">Type the JSON gets deserialized to</typeparam>
         /// <param name="apiUrl">Url to fetch the JSON result from</param>

@@ -14,15 +14,15 @@ namespace KNARZhelper.MetadataCommon
     /// </summary>
     public class BaseMetadataObject : DatabaseObject
     {
+        internal Guid _id;
+        internal FieldType _type;
         private string _cleanedUpName;
         private string _editName;
         private int _gameCount;
-        internal Guid _id;
         private string _name = string.Empty;
         private string _prefix = string.Empty;
         private bool _selected;
         private bool _showGrouped;
-        internal FieldType _type;
         private IMetadataFieldType _typeManager;
 
         /// <summary>
@@ -48,6 +48,11 @@ namespace KNARZhelper.MetadataCommon
             Type = type;
             Name = name;
         }
+
+        /// <summary>
+        /// Event that is triggered when the metadata object is renamed.
+        /// </summary>
+        public event RenameObjectEventHandler RenameObject;
 
         /// <summary>
         /// Gets or sets the cleaned up name of the metadata object.
@@ -102,7 +107,7 @@ namespace KNARZhelper.MetadataCommon
         }
 
         /// <summary>
-        ///  Gets or sets the ID of the metadata object.
+        /// Gets or sets the ID of the metadata object.
         /// </summary>
         [DontSerialize]
         public new Guid Id
@@ -124,7 +129,13 @@ namespace KNARZhelper.MetadataCommon
         }
 
         /// <summary>
-        ///  Gets or sets the name of the metadata object.
+        /// Specifies whether hidden games should be ignored when counting associated games.
+        /// </summary>
+        [DontSerialize]
+        public virtual bool IgnoreHiddenGamesInCount => false;
+
+        /// <summary>
+        /// Gets or sets the name of the metadata object.
         /// </summary>
         public new string Name
         {
@@ -155,12 +166,6 @@ namespace KNARZhelper.MetadataCommon
                 DisplayName = GetDisplayName();
             }
         }
-
-        /// <summary>
-        /// Specifies whether hidden games should be ignored when counting associated games.
-        /// </summary>
-        [DontSerialize]
-        public virtual bool IgnoreHiddenGamesInCount => false;
 
         /// <summary>
         /// Gets or sets the prefix of the metadata object.
@@ -252,7 +257,8 @@ namespace KNARZhelper.MetadataCommon
             {
                 Id = editableType.AddDbObject(Name);
             }
-            // If we can't add the item, for consistency we still get the id, since adding also returns the id.
+            // If we can't add the item, for consistency we still get the id, since adding also
+            // returns the id.
             else
             {
                 RefreshId();
@@ -269,7 +275,8 @@ namespace KNARZhelper.MetadataCommon
         public bool AddToGame(Game game) => TypeManager is IEditableObjectType type && type.AddValueToGame(game, Id);
 
         /// <summary>
-        /// Checks if the metadata object is part of a group based on the provided groups dictionary and sets it to be shown in a group.
+        /// Checks if the metadata object is part of a group based on the provided groups dictionary
+        /// and sets it to be shown in a group.
         /// </summary>
         /// <param name="groups">Dictionary to check for the object</param>
         public void CheckGroup(Dictionary<string, int> groups) => ShowGrouped = groups.TryGetValue(CleanedUpName, out var count) && count > 1;
@@ -317,6 +324,7 @@ namespace KNARZhelper.MetadataCommon
                     }
 
                     return newName;
+
                 default:
                     return EditName.RemoveDiacritics().RemoveSpecialChars().ToLower().Replace("-", "").Replace(" ", "");
             }
@@ -366,9 +374,19 @@ namespace KNARZhelper.MetadataCommon
         /// <summary>
         /// Specifies whether the metadata object is used in any game.
         /// </summary>
-        /// <param name="ignoreHiddenGames">Specifies if hodden games will be ignored when checking for the object.</param>
+        /// <param name="ignoreHiddenGames">
+        /// Specifies if hodden games will be ignored when checking for the object.
+        /// </param>
         /// <returns></returns>
         public bool IsUsed(bool ignoreHiddenGames = false) => TypeManager is IObjectType type && type.DbObjectInUse(Id, ignoreHiddenGames);
+
+        /// <summary>
+        /// Notifies that the metadata object is missing in the database. Does nothing by default.
+        /// </summary>
+        public virtual void NotifyMissingItem()
+        {
+            // Implementation for notifying about a missing item
+        }
 
         /// <summary>
         /// Refreshes the ID of the metadata object from the database.
@@ -393,11 +411,6 @@ namespace KNARZhelper.MetadataCommon
         public bool RemoveFromGame(Game game) => TypeManager is IEditableObjectType type && type.RemoveObjectFromGame(game, Id);
 
         /// <summary>
-        /// Event that is triggered when the metadata object is renamed.
-        /// </summary>
-        public event RenameObjectEventHandler RenameObject;
-
-        /// <summary>
         /// Updates the metadata object with a new name.
         /// </summary>
         /// <param name="newName">New name of the object</param>
@@ -414,14 +427,6 @@ namespace KNARZhelper.MetadataCommon
             return TypeManager is IEditableObjectType type
                 ? type.UpdateName(Id, Name, newName)
                 : DbInteractionResult.Error;
-        }
-
-        /// <summary>
-        /// Notifies that the metadata object is missing in the database. Does nothing by default.
-        /// </summary>
-        public virtual void NotifyMissingItem()
-        {
-            // Implementation for notifying about a missing item
         }
     }
 }

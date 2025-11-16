@@ -38,7 +38,8 @@ namespace KNARZhelper.MetadataCommon.ViewModels
         }
 
         /// <summary>
-        /// Gets or sets a value indicating whether to filter the list to show only selected metadata objects.
+        /// Gets or sets a value indicating whether to filter the list to show only selected
+        /// metadata objects.
         /// </summary>
         public bool FilterSelected
         {

@@ -15,13 +15,13 @@ namespace KNARZhelper
     /// </summary>
     public static class MiscHelper
     {
-        private static readonly Regex _regexNumbers = new Regex("[^0-9.-]+");
-
         /// <summary>
         /// Regex to remove company form from company names.
         /// </summary>
         public static readonly Regex CompanyFormRegex =
             new Regex(@",?\s+((co[,.\s]+)?ltd|(l\.)?inc|s\.?l|a[./]?s|limited|l\.?l\.?(c|p)|s\.?a(\.?r\.?l)?|s\.?r\.?o|gmbh|ab|corp|pte|ace|co|pty|pty\sltd|srl)\.?\s*$", RegexOptions.IgnoreCase | RegexOptions.Compiled);
+
+        private static readonly Regex _regexNumbers = new Regex("[^0-9.-]+");
 
         /// <summary>
         /// Adds a TextBlock with IcoFont font to the application resources. Can be used in menus as icons.
@@ -43,7 +43,9 @@ namespace KNARZhelper
         /// </summary>
         /// <typeparam name="T">Type if the object</typeparam>
         /// <param name="self">The instance of the object itself</param>
-        /// <returns>Clone of the given object instance with all including objects cloned as well</returns>
+        /// <returns>
+        /// Clone of the given object instance with all including objects cloned as well
+        /// </returns>
         public static T DeepClone<T>(this T self) where T : class => Serialization.GetClone(self);
 
         /// <summary>
@@ -53,14 +55,6 @@ namespace KNARZhelper
         /// <returns>The last day of the month for the given date</returns>
         public static DateTime EndOfMonth(this DateTime date)
                             => date.StartOfMonth().AddMonths(1).AddDays(-1);
-
-        /// <summary>
-        /// Checks if the given item is one of the given options.
-        /// </summary>
-        /// <param name="item">Item to check</param>
-        /// <param name="options">Options to check against</param>
-        /// <returns>True if the item is one of the options, false otherwise</returns>
-        public static bool IsOneOf(this object item, params object[] options) => options.Contains(item);
 
         /// <summary>
         /// Finds a parent of a given item on the visual tree.
@@ -90,6 +84,14 @@ namespace KNARZhelper
                 }
             }
         }
+
+        /// <summary>
+        /// Checks if the given item is one of the given options.
+        /// </summary>
+        /// <param name="item">Item to check</param>
+        /// <param name="options">Options to check against</param>
+        /// <returns>True if the item is one of the options, false otherwise</returns>
+        public static bool IsOneOf(this object item, params object[] options) => options.Contains(item);
 
         /// <summary>
         /// Checks if the given text contains only numbers (0-9), dots (.) or minus (-) signs.

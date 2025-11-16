@@ -12,6 +12,34 @@ namespace KNARZhelper.MetadataCommon.DatabaseObjectTypes
     {
         private List<DatabaseObject> _libraries;
 
+        public bool CanBeAdded => false;
+
+        public bool CanBeClearedInGame => false;
+
+        public bool CanBeDeleted => false;
+
+        public bool CanBeEmptyInGame => false;
+
+        public bool CanBeModified => false;
+
+        public bool CanBeSetByMetadataAddOn => false;
+
+        public bool CanBeSetInGame => false;
+
+        public int Count => Libraries.Count;
+
+        public bool IsDefaultToCopy => false;
+
+        public bool IsList => false;
+
+        public string LabelPlural => ResourceProvider.GetString("LOCLibraries");
+
+        public string LabelSingular => ResourceProvider.GetString("LOCLibrary");
+
+        public FieldType Type => FieldType.Library;
+
+        public ItemValueType ValueType => ItemValueType.ItemList;
+
         private List<DatabaseObject> Libraries
         {
             get
@@ -35,22 +63,9 @@ namespace KNARZhelper.MetadataCommon.DatabaseObjectTypes
             }
         }
 
-        public bool CanBeAdded => false;
-        public bool CanBeClearedInGame => false;
-        public bool CanBeDeleted => false;
-        public bool CanBeEmptyInGame => false;
-        public bool CanBeModified => false;
-        public bool CanBeSetByMetadataAddOn => false;
-        public bool CanBeSetInGame => false;
-        public int Count => Libraries.Count;
-        public bool IsDefaultToCopy => false;
-        public bool IsList => false;
-        public string LabelPlural => ResourceProvider.GetString("LOCLibraries");
-        public string LabelSingular => ResourceProvider.GetString("LOCLibrary");
-        public FieldType Type => FieldType.Library;
-        public ItemValueType ValueType => ItemValueType.ItemList;
-
         public bool AddValueToGame<T>(Game game, T value) => false;
+
+        public bool CopyValueToGame(Game sourceGame, Game targetGame, bool replaceValue = false, bool onlyIfEmpty = false) => false;
 
         public bool DbObjectExists(string name) => Libraries?.Any(x => x.Name == name) ?? false;
 
@@ -101,7 +116,5 @@ namespace KNARZhelper.MetadataCommon.DatabaseObjectTypes
             !API.Instance.Database.Games.Any(g => !(ignoreHiddenGames && g.Hidden) && g.PluginId == x.Id)).ToList();
 
         public bool NameExists(string name, Guid id) => true;
-
-        public bool CopyValueToGame(Game sourceGame, Game targetGame, bool replaceValue = false, bool onlyIfEmpty = false) => false;
     }
 }

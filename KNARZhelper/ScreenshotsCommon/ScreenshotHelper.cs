@@ -15,6 +15,55 @@ namespace KNARZhelper.ScreenshotsCommon
         internal static Guid ScreenshotUtilitiesId = Guid.Parse("485d682f-73e9-4d54-b16f-b8dd49e88f90");
 
         /// <summary>
+        /// Checks if Screenshot Utilities plugin is installed.
+        /// </summary>
+        internal static bool IsScreenshotUtilitiesInstalled => API.Instance.Addons.Plugins.Exists(p => p.Id == ScreenshotUtilitiesId);
+
+        /// <summary>
+        /// Gets the download path based on the base path, game ID, and provider ID.
+        /// </summary>
+        /// <param name="basePath">The base path for the download location.</param>
+        /// <param name="gameId">The ID of the game.</param>
+        /// <param name="providerId">The ID of the provider.</param>
+        /// <returns>The directory info for the download path.</returns>
+        public static DirectoryInfo GetDownloadPath(string basePath = null, Guid gameId = default, Guid providerId = default, bool createDir = true)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(basePath))
+                {
+                    basePath = API.Instance.Addons.Plugins.Find(p => p.Id == ScreenshotUtilitiesId).GetPluginUserDataPath();
+                }
+
+                if (string.IsNullOrEmpty(basePath) || !Directory.Exists(basePath))
+                {
+                    return null;
+                }
+
+                var path = Path.Combine(basePath,
+                    gameId == default ? string.Empty : gameId.ToString(),
+                    providerId == default ? string.Empty : providerId.ToString());
+
+                var directoryInfo = new DirectoryInfo(path);
+
+                if (createDir && !directoryInfo.Exists)
+                {
+                    directoryInfo.Create();
+                    Task.Delay(TimeSpan.FromMilliseconds(100));
+                    directoryInfo.Refresh();
+                }
+
+                return directoryInfo;
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex, "Failed to create download path.");
+
+                return null;
+            }
+        }
+
+        /// <summary>
         /// Deletes orphaned JSON files in the specified game's provider directory,
         /// </summary>
         /// <param name="gameId">Id of the game</param>
@@ -88,55 +137,6 @@ namespace KNARZhelper.ScreenshotsCommon
         }
 
         /// <summary>
-        /// Gets the download path based on the base path, game ID, and provider ID.
-        /// </summary>
-        /// <param name="basePath">The base path for the download location.</param>
-        /// <param name="gameId">The ID of the game.</param>
-        /// <param name="providerId">The ID of the provider.</param>
-        /// <returns>The directory info for the download path.</returns>
-        public static DirectoryInfo GetDownloadPath(string basePath = null, Guid gameId = default, Guid providerId = default, bool createDir = true)
-        {
-            try
-            {
-                if (string.IsNullOrEmpty(basePath))
-                {
-                    basePath = API.Instance.Addons.Plugins.Find(p => p.Id == ScreenshotUtilitiesId).GetPluginUserDataPath();
-                }
-
-                if (string.IsNullOrEmpty(basePath) || !Directory.Exists(basePath))
-                {
-                    return null;
-                }
-
-                var path = Path.Combine(basePath,
-                    gameId == default ? string.Empty : gameId.ToString(),
-                    providerId == default ? string.Empty : providerId.ToString());
-
-                var directoryInfo = new DirectoryInfo(path);
-
-                if (createDir && !directoryInfo.Exists)
-                {
-                    directoryInfo.Create();
-                    Task.Delay(TimeSpan.FromMilliseconds(100));
-                    directoryInfo.Refresh();
-                }
-
-                return directoryInfo;
-            }
-            catch (Exception ex)
-            {
-                Log.Error(ex, "Failed to create download path.");
-
-                return null;
-            }
-        }
-
-        /// <summary>
-        /// Checks if Screenshot Utilities plugin is installed.
-        /// </summary>
-        internal static bool IsScreenshotUtilitiesInstalled => API.Instance.Addons.Plugins.Exists(p => p.Id == ScreenshotUtilitiesId);
-
-        /// <summary>
         /// Loads the screenshot group from file or creates a new one if it doesn't exist.
         /// </summary>
         /// <param name="game">The game associated with the screenshot group.</param>
@@ -144,7 +144,10 @@ namespace KNARZhelper.ScreenshotsCommon
         /// <param name="providerId">The ID of the screenshot provider.</param>
         /// <param name="categoryName">The name of the screenshot category.</param>
         /// <param name="categoryId">The ID of the screenshot category.</param>
-        /// <returns>A tuple indicating whether the group was loaded from file and the loaded or newly created screenshot group.</returns>
+        /// <returns>
+        /// A tuple indicating whether the group was loaded from file and the loaded or newly
+        /// created screenshot group.
+        /// </returns>
         internal static (bool, ScreenshotGroup) LoadGroup(Game game, string providerName, Guid providerId, string categoryName = default, Guid categoryId = default)
         {
             categoryName = string.IsNullOrEmpty(categoryName) ? providerName : categoryName;
@@ -171,7 +174,9 @@ namespace KNARZhelper.ScreenshotsCommon
         /// </summary>
         /// <param name="game">The game associated with the screenshots.</param>
         /// <param name="showNotification">Whether to show a notification if the deletion fails.</param>
-        /// <param name="providerId">The ID of the provider. When set to default the screenshots of all providers will be removed.</param>
+        /// <param name="providerId">
+        /// The ID of the provider. When set to default the screenshots of all providers will be removed.
+        /// </param>
         /// <returns>True if the screenshots were successfully removed; otherwise, false.</returns>
         internal static bool RemoveScreenshots(Game game, bool showNotification = true, Guid providerId = default)
         {

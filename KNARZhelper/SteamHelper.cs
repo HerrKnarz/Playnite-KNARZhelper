@@ -8,26 +8,17 @@ namespace KNARZhelper
 {
     internal static class SteamHelper
     {
+        internal static Guid SteamId = Guid.Parse("cb91dfc9-b977-43bf-8e70-55f46e410fab");
         private static readonly string _steamAppPrefix = "steam://openurl/";
         private static readonly Regex _steamLinkRegex = new Regex(@"https?:\/\/(?:store\.steampowered|steamcommunity)\.com\/app\/(\d+)", RegexOptions.None);
 
-        internal static Guid SteamId = Guid.Parse("cb91dfc9-b977-43bf-8e70-55f46e410fab");
-
-        internal static string GetSteamId(Game game)
+        internal static string ChangeSteamLink(string url, bool toStoreLink = false)
         {
-            if (game.PluginId == SteamId)
-            {
-                return game.GameId;
-            }
-
-            if (game?.Links == null || !game.Links.Any())
-            {
-                return string.Empty;
-            }
-
-            var steamLink = game.Links.FirstOrDefault(l => _steamLinkRegex.Match(l.Url).Success);
-
-            return steamLink == null ? string.Empty : GetSteamIdFromUrl(steamLink.Url);
+            return toStoreLink && url.StartsWith("http")
+                ? _steamAppPrefix + url
+                : !toStoreLink && url.StartsWith(_steamAppPrefix)
+                ? url.Replace(_steamAppPrefix, string.Empty)
+                : url;
         }
 
         internal static bool ChangeSteamLinks(Game game, bool toStoreLink = false, bool updateDb = false, bool onlyATest = false)
@@ -81,6 +72,23 @@ namespace KNARZhelper
             return true;
         }
 
+        internal static string GetSteamId(Game game)
+        {
+            if (game.PluginId == SteamId)
+            {
+                return game.GameId;
+            }
+
+            if (game?.Links == null || !game.Links.Any())
+            {
+                return string.Empty;
+            }
+
+            var steamLink = game.Links.FirstOrDefault(l => _steamLinkRegex.Match(l.Url).Success);
+
+            return steamLink == null ? string.Empty : GetSteamIdFromUrl(steamLink.Url);
+        }
+
         internal static string GetSteamIdFromUrl(string url)
         {
             try
@@ -98,15 +106,6 @@ namespace KNARZhelper
             {
                 return string.Empty;
             }
-        }
-
-        internal static string ChangeSteamLink(string url, bool toStoreLink = false)
-        {
-            return toStoreLink && url.StartsWith("http")
-                ? _steamAppPrefix + url
-                : !toStoreLink && url.StartsWith(_steamAppPrefix)
-                ? url.Replace(_steamAppPrefix, string.Empty)
-                : url;
         }
     }
 }

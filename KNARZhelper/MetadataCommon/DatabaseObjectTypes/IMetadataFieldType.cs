@@ -3,13 +3,15 @@
 namespace KNARZhelper.MetadataCommon.DatabaseObjectTypes
 {
     /// <summary>
-    /// Represents the metadata field type, defining its characteristics and constraints regarding how it can be used,
-    /// modified, and represented within the system.
+    /// Represents the metadata field type, defining its characteristics and constraints regarding
+    /// how it can be used, modified, and represented within the system.
     /// </summary>
-    /// <remarks>This interface provides properties to determine the capabilities and limitations of a
-    /// metadata field, such as whether it can be added, modified, or cleared in specific contexts. It also includes
-    /// properties for retrieving the field's type, value type, and singular/plural labels for display
-    /// purposes.</remarks>
+    /// <remarks>
+    /// This interface provides properties to determine the capabilities and limitations of a
+    /// metadata field, such as whether it can be added, modified, or cleared in specific contexts.
+    /// It also includes properties for retrieving the field's type, value type, and singular/plural
+    /// labels for display purposes.
+    /// </remarks>
     public interface IMetadataFieldType
     {
         /// <summary>

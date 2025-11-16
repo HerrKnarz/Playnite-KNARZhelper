@@ -28,13 +28,25 @@ namespace KNARZhelper.ScreenshotsCommon.Models
         /// <summary>
         /// Creates a new instance of the ScreenshotGroups class and populates it from JSON files.
         /// </summary>
-        /// <param name="basePath">Base path where the JSON files are located. This is the add-on data path containing folders for each game.</param>
-        /// <param name="gameId">Unique identifier for the game. This is the name of the sub folder in the base path</param>
+        /// <param name="basePath">
+        /// Base path where the JSON files are located. This is the add-on data path containing
+        /// folders for each game.
+        /// </param>
+        /// <param name="gameId">
+        /// Unique identifier for the game. This is the name of the sub folder in the base path
+        /// </param>
         public ScreenshotGroups(string basePath, Guid gameId)
         {
             _gameId = gameId;
             CreateGroupsFromFiles(basePath, gameId);
         }
+
+        /// <summary>
+        /// True if there is more than one screenshot group in the collection. Can be used to
+        /// differentiate singular and plural.
+        /// </summary>
+        [DontSerialize]
+        public bool HasMoreThanOneGroup => Count > 1;
 
         /// <summary>
         /// Specifies whether all screenshots in all groups have been downloaded.
@@ -43,10 +55,21 @@ namespace KNARZhelper.ScreenshotsCommon.Models
         public bool IsEverythingDownloaded => !this.Any(g => g.Screenshots.Any(s => !s.IsDownloaded || string.IsNullOrEmpty(s.DownloadedThumbnailPath)));
 
         /// <summary>
+        /// Number of screenshots in all groups
+        /// </summary>
+        [DontSerialize]
+        public int ScreenshotCount => Count == 0 ? 0 : this.Sum(g => g.Screenshots.Count);
+
+        /// <summary>
         /// Creates screenshot groups from JSON files located in the specified base path and game ID.
         /// </summary>
-        /// <param name="basePath">Base path where the JSON files are located. This is the add-on data path containing folders for each game.</param>
-        /// <param name="gameId">Unique identifier for the game. This is the name of the sub folder in the base path</param>
+        /// <param name="basePath">
+        /// Base path where the JSON files are located. This is the add-on data path containing
+        /// folders for each game.
+        /// </param>
+        /// <param name="gameId">
+        /// Unique identifier for the game. This is the name of the sub folder in the base path
+        /// </param>
         /// <param name="createEmptyGroupOnError"></param>
         public void CreateGroupsFromFiles(string basePath, Guid gameId, bool createEmptyGroupOnError = true)
         {
@@ -176,7 +199,9 @@ namespace KNARZhelper.ScreenshotsCommon.Models
         /// Downloads all screenshots in all groups.
         /// </summary>
         /// <param name="thumbNailHeight">Height of the thumbnails that will be generated</param>
-        /// <param name="providerGuid">Optional provider GUID to filter which groups to download from.</param>
+        /// <param name="providerGuid">
+        /// Optional provider GUID to filter which groups to download from.
+        /// </param>
         /// <returns>True if new screenshots were downloaded.</returns>
         public async Task<bool> DownloadAllAsync(int thumbNailHeight, Guid providerGuid = default)
         {
@@ -220,21 +245,8 @@ namespace KNARZhelper.ScreenshotsCommon.Models
         }
 
         /// <summary>
-        /// True if there is more than one screenshot group in the collection. Can be used to differentiate singular and plural.
-        /// </summary>
-        [DontSerialize]
-        public bool HasMoreThanOneGroup => Count > 1;
-
-        /// <summary>
-        /// Number of screenshots in all groups
-        /// </summary>
-        [DontSerialize]
-        public int ScreenshotCount => Count == 0 ? 0 : this.Sum(g => g.Screenshots.Count);
-
-        /// <summary>
         /// Resets the collection by clearing all groups.
         /// </summary>
         public void Reset() => Clear();
-
     }
 }

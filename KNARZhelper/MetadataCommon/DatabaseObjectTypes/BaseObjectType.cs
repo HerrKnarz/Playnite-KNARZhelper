@@ -51,6 +51,8 @@ namespace KNARZhelper.MetadataCommon.DatabaseObjectTypes
 
         public abstract bool AddValueToGame<T>(Game game, T value);
 
+        public abstract bool CopyValueToGame(Game sourceGame, Game targetGame, bool replaceValue = false, bool onlyIfEmpty = false);
+
         public abstract bool DbObjectExists(string name);
 
         public abstract bool DbObjectExists(Guid id);
@@ -146,7 +148,8 @@ namespace KNARZhelper.MetadataCommon.DatabaseObjectTypes
             collection?.FirstOrDefault(x => x.Name == name)?.Id ?? Guid.Empty;
 
         /// <summary>
-        /// Loads all metadata objects of this type from the specified collection, ignoring the ones in the ignore list.
+        /// Loads all metadata objects of this type from the specified collection, ignoring the ones
+        /// in the ignore list.
         /// </summary>
         /// <typeparam name="T">Type of the database object</typeparam>
         /// <param name="collection">Collection to load the metadata from</param>
@@ -156,7 +159,8 @@ namespace KNARZhelper.MetadataCommon.DatabaseObjectTypes
             collection.Where(x => !itemsToIgnore.Contains(x.Id)).Select(x => new DatabaseObject() { Name = x.Name, Id = x.Id }).ToList();
 
         /// <summary>
-        /// Checks if a name exists in the specified collection, excluding the object with the specified ID.
+        /// Checks if a name exists in the specified collection, excluding the object with the
+        /// specified ID.
         /// </summary>
         /// <typeparam name="T">Type of the database object</typeparam>
         /// <param name="name">Name of the database object</param>
@@ -167,7 +171,8 @@ namespace KNARZhelper.MetadataCommon.DatabaseObjectTypes
             collection?.Any(x => x.Name == name && x.Id != id) ?? false;
 
         /// <summary>
-        /// Removes a database object with the specified ID from the specified collection if it exists and is not in use.
+        /// Removes a database object with the specified ID from the specified collection if it
+        /// exists and is not in use.
         /// </summary>
         /// <typeparam name="T">Type of the database object</typeparam>
         /// <param name="id">Id of the database object</param>
@@ -199,7 +204,5 @@ namespace KNARZhelper.MetadataCommon.DatabaseObjectTypes
                 collection.Update(item);
             });
         }
-
-        public abstract bool CopyValueToGame(Game sourceGame, Game targetGame, bool replaceValue = false, bool onlyIfEmpty = false);
     }
 }

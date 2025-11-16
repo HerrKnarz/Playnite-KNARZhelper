@@ -25,18 +25,16 @@ namespace KNARZhelper.MetadataCommon.DatabaseObjectTypes
 
         public abstract bool AddValueToGame(Game game, string value);
 
+        public bool CopyValueToGame(Game sourceGame, Game targetGame, bool replaceValue = false, bool onlyIfEmpty = false) => sourceGame != null
+                && targetGame != null
+                && (replaceValue || (onlyIfEmpty && FieldInGameIsEmpty(targetGame)))
+                && AddValueToGame(targetGame, GetValue(sourceGame));
+
         public abstract void EmptyFieldInGame(Game game);
 
         public abstract bool FieldInGameIsEmpty(Game game);
 
         public bool GameContainsValue<T>(Game game, T value) => value is string stringValue && GameContainsValue(game, stringValue);
-
-        /// <summary>
-        /// Gets the string value of the field for the specified game.
-        /// </summary>
-        /// <param name="game">Game to get the value from</param>
-        /// <returns>Retrieved string value</returns>
-        public abstract string GetValue(Game game);
 
         /// <summary>
         /// Checks if the field in the specified game contains the specified string value.
@@ -46,9 +44,11 @@ namespace KNARZhelper.MetadataCommon.DatabaseObjectTypes
         /// <returns>True if the game contains the value, otherwise false</returns>
         public abstract bool GameContainsValue(Game game, string value);
 
-        public bool CopyValueToGame(Game sourceGame, Game targetGame, bool replaceValue = false, bool onlyIfEmpty = false) => sourceGame != null
-                && targetGame != null
-                && (replaceValue || (onlyIfEmpty && FieldInGameIsEmpty(targetGame)))
-                && AddValueToGame(targetGame, GetValue(sourceGame));
+        /// <summary>
+        /// Gets the string value of the field for the specified game.
+        /// </summary>
+        /// <param name="game">Game to get the value from</param>
+        /// <returns>Retrieved string value</returns>
+        public abstract string GetValue(Game game);
     }
 }

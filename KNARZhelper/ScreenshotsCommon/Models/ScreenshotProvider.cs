@@ -5,7 +5,8 @@ using System.Collections.Generic;
 namespace KNARZhelper.ScreenshotsCommon.Models
 {
     /// <summary>
-    /// Class representing a screenshot provider with properties for ID and name. This usually is the add-on providing the screenshots.
+    /// Class representing a screenshot provider with properties for ID and name. This usually is
+    /// the add-on providing the screenshots.
     /// </summary>
     public class ScreenshotProvider : ObservableObject
     {
@@ -16,7 +17,9 @@ namespace KNARZhelper.ScreenshotsCommon.Models
         /// Creates a new instance of the ScreenshotProvider class.
         /// </summary>
         /// <param name="name">Name of the provider</param>
-        /// <param name="id">Unique identifier of the provider. Should be the same as the id of the provider add-on itself.</param>
+        /// <param name="id">
+        /// Unique identifier of the provider. Should be the same as the id of the provider add-on itself.
+        /// </param>
         public ScreenshotProvider(string name = "", Guid id = default)
         {
             _id = id == default ? _id : id;

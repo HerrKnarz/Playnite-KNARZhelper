@@ -17,12 +17,11 @@ namespace KNARZhelper.MetadataCommon.DatabaseObjectTypes
         public bool CanBeModified => false;
         public bool CanBeSetByMetadataAddOn => true;
         public bool CanBeSetInGame => true;
+        public bool IsDefaultToCopy => true;
         public string LabelPlural => LabelSingular;
         public abstract string LabelSingular { get; }
         public abstract FieldType Type { get; }
         public ItemValueType ValueType => ItemValueType.Media;
-
-        public bool IsDefaultToCopy => true;
 
         public bool AddValueToGame<T>(Game game, T value)
         {

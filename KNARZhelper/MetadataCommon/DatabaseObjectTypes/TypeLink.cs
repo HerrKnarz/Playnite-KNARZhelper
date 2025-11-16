@@ -41,12 +41,6 @@ namespace KNARZhelper.MetadataCommon.DatabaseObjectTypes
 
         public bool AddValueToGame<T>(Game game, T value) => false; // TODO: implement
 
-        public void EmptyFieldInGame(Game game) => game.Links?.Clear();
-
-        public bool FieldInGameIsEmpty(Game game) => game.Links == null || game.Links?.Count == 0;
-
-        public bool GameContainsValue<T>(Game game, T value) => false; // TODO: implement
-
         public bool CopyValueToGame(Game sourceGame, Game targetGame, bool replaceValue = false, bool onlyIfEmpty = false)
         {
             if (!replaceValue && FieldInGameIsEmpty(sourceGame))
@@ -73,5 +67,11 @@ namespace KNARZhelper.MetadataCommon.DatabaseObjectTypes
 
             return true;
         }
+
+        public void EmptyFieldInGame(Game game) => game.Links?.Clear();
+
+        public bool FieldInGameIsEmpty(Game game) => game.Links == null || game.Links?.Count == 0;
+
+        public bool GameContainsValue<T>(Game game, T value) => false; // TODO: implement
     }
 }

@@ -46,7 +46,8 @@ namespace KNARZhelper
         }
 
         /// <summary>
-        /// Creates a window with the given size. If widthToMax or heightToMax is true, the window will be as high or wide as the screen allows.
+        /// Creates a window with the given size. If widthToMax or heightToMax is true, the window
+        /// will be as high or wide as the screen allows.
         /// </summary>
         /// <param name="title">Title of the window</param>
         /// <param name="width">Width of the window</param>
@@ -97,7 +98,8 @@ namespace KNARZhelper
         }
 
         /// <summary>
-        /// Creates a window that sizes itself to its content, but has a minimum size and won't exceed the screen size.
+        /// Creates a window that sizes itself to its content, but has a minimum size and won't
+        /// exceed the screen size.
         /// </summary>
         /// <param name="title">Title of the window</param>
         /// <param name="minWidth">Minimum width of the window</param>
