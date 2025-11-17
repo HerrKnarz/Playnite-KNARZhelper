@@ -224,13 +224,13 @@ namespace KNARZhelper.MetadataCommon
         /// Gets the type label and name of the metadata object.
         /// </summary>
         [DontSerialize]
-        public string TypeAndName => Name.Any() ? $"{TypeLabel}: {Name}" : TypeLabel;
+        public string TypeAndName => (Name?.Any() == false) ? $"{TypeLabel}: {Name}" : TypeLabel;
 
         /// <summary>
         /// Label of the metadata object type.
         /// </summary>
         [DontSerialize]
-        public string TypeLabel => TypeManager.LabelSingular;
+        public string TypeLabel => TypeManager?.LabelSingular ?? string.Empty;
 
         /// <summary>
         /// Gets or sets the type manager of the metadata object.
