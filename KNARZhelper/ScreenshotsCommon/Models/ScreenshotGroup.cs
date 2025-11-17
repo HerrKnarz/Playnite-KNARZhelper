@@ -21,6 +21,7 @@ namespace KNARZhelper.ScreenshotsCommon.Models
         private string _fileName;
         private string _gameIdentifier;
         private Guid _id = Guid.NewGuid();
+        private bool _ignoreGame = false;
         private DateTime _lastUpdate;
         private string _name;
         private ScreenshotProvider _provider;
@@ -99,13 +100,31 @@ namespace KNARZhelper.ScreenshotsCommon.Models
         }
 
         /// <summary>
+        /// Gets or sets a value indicating whether the game should be ignored during processing.
+        /// </summary>
+        public bool IgnoreGame
+        {
+            get => _ignoreGame;
+            set => SetValue(ref _ignoreGame, value);
+        }
+
+        /// <summary>
         /// Last time the screenshots were updated from the provider.
         /// </summary>
         [SerializationPropertyName("lastUpdate")]
         public DateTime LastUpdate
         {
             get => _lastUpdate;
-            set => SetValue(ref _lastUpdate, value);
+            set
+            {
+                // If there are screenshots in the group when updating, we cannot ignore the game.
+                if (_screenshots?.Count > 0)
+                {
+                    IgnoreGame = false;
+                }
+
+                SetValue(ref _lastUpdate, value);
+            }
         }
 
         /// <summary>
