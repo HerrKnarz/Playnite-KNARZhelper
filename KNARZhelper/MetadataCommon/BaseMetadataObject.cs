@@ -224,7 +224,7 @@ namespace KNARZhelper.MetadataCommon
         /// Gets the type label and name of the metadata object.
         /// </summary>
         [DontSerialize]
-        public string TypeAndName => (Name?.Any() == false) ? $"{TypeLabel}: {Name}" : TypeLabel;
+        public string TypeAndName => (Name?.Any() == true) ? $"{TypeLabel}: {Name}" : TypeLabel;
 
         /// <summary>
         /// Label of the metadata object type.
