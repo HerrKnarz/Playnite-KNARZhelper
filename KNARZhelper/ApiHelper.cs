@@ -78,15 +78,23 @@ namespace KNARZhelper
 
                 var uri = new Uri(apiUrl);
 
+                var task = default(Task<string>);
+
                 if (body.Length == 0)
                 {
-                    pageSource = await client.DownloadStringTaskAsync(uri);
+                    task = client.DownloadStringTaskAsync(uri);
                 }
                 else
                 {
                     client.Headers.Add("Content-Type", "application/json");
-                    pageSource = await client.UploadStringTaskAsync(uri, body);
+
+                    task = client.UploadStringTaskAsync(uri, body);
                 }
+
+                pageSource = await Task.WhenAny(task, Task.Delay(10000)) == task
+                    ? task.Result
+                    : throw new Exception(
+                        $"Timeout loading data from {apiName} - {apiUrl}");
 
                 return JsonConvert.DeserializeObject<T>(pageSource);
             }
