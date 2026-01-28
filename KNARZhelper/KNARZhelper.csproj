@@ -152,6 +152,7 @@
     <Compile Include="MetadataCommon\Views\SelectMetadataView.xaml.cs">
       <DependentUpon>SelectMetadataView.xaml</DependentUpon>
     </Compile>
+    <Compile Include="WebCommon\LinkWorker.cs" />
     <Compile Include="WebCommon\Models\UrlLoadResult.cs" />
     <Compile Include="WebCommon\WebHelper.cs" />
     <Compile Include="WindowHelper.cs" />

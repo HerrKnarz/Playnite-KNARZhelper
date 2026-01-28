@@ -35,6 +35,34 @@ namespace KNARZhelper.WebCommon
         public static readonly string AgentString =
             "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36";
 
+        public static void CatchError(UrlLoadResult urlLoadResult, Exception exception, string url)
+        {
+            if (exception is WebException webEx)
+            {
+                if (webEx.Response != null)
+                {
+                    var response = webEx.Response;
+                    var dataStream = response.GetResponseStream();
+
+                    if (dataStream != null)
+                    {
+                        var reader = new StreamReader(dataStream);
+                        urlLoadResult.ErrorDetails = reader.ReadToEnd();
+                        urlLoadResult.StatusCode = ((HttpWebResponse)response).StatusCode;
+                        reader.Close();
+
+                        Log.Debug($"Error loading url {url} => status code {urlLoadResult.StatusCode}");
+                    }
+                }
+            }
+            else if (exception is Exception ex)
+            {
+                urlLoadResult.ErrorDetails = ex.Message;
+                urlLoadResult.StatusCode = HttpStatusCode.BadRequest;
+                Log.Error(ex, $"Error loading url {url} => {urlLoadResult.ErrorDetails}");
+            }
+        }
+
         /// <summary>
         /// tries to reach a URL and returns response infos like status code.
         /// </summary>
@@ -200,34 +228,6 @@ namespace KNARZhelper.WebCommon
                        ? linkCheckResult.StatusCode == HttpStatusCode.OK && linkCheckResult.ResponseUrl == url
                        : linkCheckResult.StatusCode == HttpStatusCode.OK) &&
                    (wrongTitle == string.Empty || linkCheckResult.PageTitle != wrongTitle);
-        }
-
-        private static void CatchError(UrlLoadResult urlLoadResult, Exception exception, string url)
-        {
-            if (exception is WebException webEx)
-            {
-                if (webEx.Response != null)
-                {
-                    var response = webEx.Response;
-                    var dataStream = response.GetResponseStream();
-
-                    if (dataStream != null)
-                    {
-                        var reader = new StreamReader(dataStream);
-                        urlLoadResult.ErrorDetails = reader.ReadToEnd();
-                        urlLoadResult.StatusCode = ((HttpWebResponse)response).StatusCode;
-                        reader.Close();
-
-                        Log.Debug($"Error loading url {url} => status code {urlLoadResult.StatusCode}");
-                    }
-                }
-            }
-            else if (exception is Exception ex)
-            {
-                urlLoadResult.ErrorDetails = ex.Message;
-                urlLoadResult.StatusCode = HttpStatusCode.BadRequest;
-                Log.Error(ex, $"Error loading url {url} => {urlLoadResult.ErrorDetails}");
-            }
         }
 
         /// <summary>
