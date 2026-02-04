@@ -22,6 +22,8 @@ namespace KNARZhelper.WebCommon
         /// </summary>
         Load = 1,
 
+        NewDefault = 2, //TODO: This is the new default and can be removed with the others when all are switched.
+
         /// <summary>
         /// Loads the URL using an offscreen browser instance. This is slower, but can handle more
         /// complex sites. We don't get a StatusCode though, so the validity must be checked in the
@@ -162,6 +164,17 @@ namespace KNARZhelper.WebCommon
         public static async Task<UrlLoadResult> LoadHtmlDocumentAsync(string url, UrlLoadMethod method = UrlLoadMethod.Load, bool allowRedirects = false, bool needDocument = true, string checkForContent = "")
         {
             var result = new UrlLoadResult();
+
+            if (method == UrlLoadMethod.NewDefault)
+            {
+                //TODO: Remove LinkWorker file from ScreenshotUtilities addons after this is moved into LinkUtilities.
+                using (var linkWorker = new LinkWorker())
+                {
+                    result = linkWorker.LoadUrl(url, needDocument, checkForContent, true);
+                }
+
+                return result;
+            }
 
             try
             {
