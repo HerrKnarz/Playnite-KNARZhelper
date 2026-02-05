@@ -67,7 +67,7 @@ namespace KNARZhelper.WebCommon
         {
             try
             {
-                var linkCheckResult = LoadUrl(apiUrl, DocumentType.Text, string.Empty, debugMode);
+                var linkCheckResult = LoadUrl(apiUrl, DocumentType.Text, debugMode);
 
                 if (linkCheckResult.StatusCode != HttpStatusCode.OK)
                 {
@@ -95,14 +95,14 @@ namespace KNARZhelper.WebCommon
         /// <param name="wrongTitle">
         /// Returns false, if the website has this title. Is used to detect certain redirects.
         /// </param>
-        /// <param name="checkForContent">Content to check for</param>
         /// <param name="debugMode">When true debug messages will be logged</param>
+        /// <param name="checkForContent">Content to check for</param>
         /// <returns>True, if the URL is reachable</returns>
-        public bool IsUrlOk(string url, bool sameUrl = false, string wrongTitle = "", string checkForContent = "", bool debugMode = false)
+        public bool IsUrlOk(string url, bool sameUrl = false, string wrongTitle = "", bool debugMode = false, string checkForContent = "")
         {
             try
             {
-                var linkCheckResult = LoadUrl(url, DocumentType.Empty, checkForContent, debugMode);
+                var linkCheckResult = LoadUrl(url, DocumentType.Empty, debugMode, checkForContent);
 
                 return !linkCheckResult.ErrorDetails.Any() && (sameUrl
                            ? linkCheckResult.StatusCode == HttpStatusCode.OK && linkCheckResult.ResponseUrl == url
@@ -116,7 +116,7 @@ namespace KNARZhelper.WebCommon
             }
         }
 
-        public UrlLoadResult LoadUrl(string url, DocumentType documentType = DocumentType.Empty, string checkForContent = "", bool debugMode = false)
+        public UrlLoadResult LoadUrl(string url, DocumentType documentType = DocumentType.Source, bool debugMode = false, string checkForContent = "")
         {
             var result = new UrlLoadResult();
             var ts = DateTime.Now;
