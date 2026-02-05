@@ -1,13 +1,33 @@
-﻿using HtmlAgilityPack;
-using KNARZhelper.WebCommon.Models;
+﻿using KNARZhelper.WebCommon.Models;
+using Newtonsoft.Json;
 using Playnite.SDK;
 using System;
 using System.Linq;
 using System.Net;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace KNARZhelper.WebCommon
 {
+    public enum DocumentType
+    {
+        /// <summary>
+        /// Retrieves the source code of the page. Usually used for scraping data from the HTML.
+        /// </summary>
+        Source = 0,
+
+        /// <summary>
+        /// Retrieves the text of the page. Usually used for fetching API results in JSON or XML format.
+        /// </summary>
+        Text = 1,
+
+        /// <summary>
+        /// Doesn't load the content of the page and returns an empty string. Usually used when only
+        /// checking if a page is reachable.
+        /// </summary>
+        Empty = 2
+    }
+
     public class LinkWorker : IDisposable
     {
         private readonly TaskCompletionSource<UrlLoadResult> _tcs = new TaskCompletionSource<UrlLoadResult>();
@@ -43,6 +63,28 @@ namespace KNARZhelper.WebCommon
 
         public void Dispose() => _webView?.Dispose();
 
+        public T GetJsonFromApi<T>(string apiUrl, string apiName, bool debugMode = false)
+        {
+            try
+            {
+                var linkCheckResult = LoadUrl(apiUrl, DocumentType.Text, string.Empty, debugMode);
+
+                if (linkCheckResult.StatusCode != HttpStatusCode.OK)
+                {
+                    Log.Error(new Exception(linkCheckResult.ErrorDetails), $"Error loading data from {apiName} - {apiUrl} - Status code: {linkCheckResult.StatusCode}");
+                    return default;
+                }
+
+                return JsonConvert.DeserializeObject<T>(linkCheckResult.PageText);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex, $"Error loading data from {apiName} - {apiUrl}");
+            }
+
+            return default;
+        }
+
         /// <summary>
         /// Checks if a URL is reachable and returns OK
         /// </summary>
@@ -58,22 +100,30 @@ namespace KNARZhelper.WebCommon
         /// <returns>True, if the URL is reachable</returns>
         public bool IsUrlOk(string url, bool sameUrl = false, string wrongTitle = "", string checkForContent = "", bool debugMode = false)
         {
-            var linkCheckResult = LoadUrl(url, false, checkForContent, debugMode);
+            try
+            {
+                var linkCheckResult = LoadUrl(url, DocumentType.Empty, checkForContent, debugMode);
 
-            return !linkCheckResult.ErrorDetails.Any() && (sameUrl
-                       ? linkCheckResult.StatusCode == HttpStatusCode.OK && linkCheckResult.ResponseUrl == url
-                       : linkCheckResult.StatusCode == HttpStatusCode.OK) &&
-                   (wrongTitle == string.Empty || linkCheckResult.PageTitle != wrongTitle);
+                return !linkCheckResult.ErrorDetails.Any() && (sameUrl
+                           ? linkCheckResult.StatusCode == HttpStatusCode.OK && linkCheckResult.ResponseUrl == url
+                           : linkCheckResult.StatusCode == HttpStatusCode.OK) &&
+                       (wrongTitle == string.Empty || linkCheckResult.PageTitle != wrongTitle);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex, $"Error checking url {url}");
+                return false;
+            }
         }
 
-        public UrlLoadResult LoadUrl(string url, bool needDocument = true, string checkForContent = "", bool debugMode = false)
+        public UrlLoadResult LoadUrl(string url, DocumentType documentType = DocumentType.Empty, string checkForContent = "", bool debugMode = false)
         {
             var result = new UrlLoadResult();
             var ts = DateTime.Now;
 
             if (debugMode)
             {
-                Log.Debug($"Started adding link for url {url}.");
+                Log.Debug($"Started loading url {url}.");
             }
 
             try
@@ -97,8 +147,22 @@ namespace KNARZhelper.WebCommon
                 }
 
                 result.ResponseUrl = _webView.GetCurrentAddress();
-                var htmlSource = _webView.GetPageSource();
+
+                var pageText = string.Empty;
+
+                pageText = documentType == DocumentType.Text ? _webView.GetPageText() : _webView.GetPageSource();
+
                 _webView.Close();
+
+                if (pageText != null)
+                {
+                    result.PageTitle = Regex.Match(pageText, @"\<title\b[^>]*\>\s*(?<Title>[\s\S]*?)\</title\>", RegexOptions.IgnoreCase).Groups["Title"].Value;
+
+                    if (documentType != DocumentType.Empty)
+                    {
+                        result.PageText = pageText;
+                    }
+                }
 
                 if (result.StatusCode != HttpStatusCode.OK)
                 {
@@ -107,21 +171,12 @@ namespace KNARZhelper.WebCommon
 
                 if (checkForContent.Length > 0)
                 {
-                    result.StatusCode = htmlSource.Contains(checkForContent) ? HttpStatusCode.OK : HttpStatusCode.NotFound;
+                    result.StatusCode = pageText.Contains(checkForContent) ? HttpStatusCode.OK : HttpStatusCode.NotFound;
 
                     if (result.StatusCode != HttpStatusCode.OK)
                     {
                         return result;
                     }
-                }
-
-                result.Document = new HtmlDocument();
-                result.Document.LoadHtml(htmlSource);
-                result.PageTitle = result.Document?.DocumentNode?.SelectSingleNode("html/head/title")?.InnerText.Trim();
-
-                if (!needDocument)
-                {
-                    result.Document = null;
                 }
 
                 return result;
@@ -136,7 +191,7 @@ namespace KNARZhelper.WebCommon
             {
                 if (debugMode)
                 {
-                    Log.Debug($"Finished adding link for url {url} - status code {result.StatusCode} / duration: ({(DateTime.Now - ts).TotalMilliseconds} ms)  / response url: {result.ResponseUrl} / title: {result.PageTitle}.");
+                    Log.Debug($"Finished loading url {url} - status code {result.StatusCode} / duration: ({(DateTime.Now - ts).TotalMilliseconds} ms)  / response url: {result.ResponseUrl} / title: {result.PageTitle}.");
                 }
             }
         }

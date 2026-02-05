@@ -165,17 +165,6 @@ namespace KNARZhelper.WebCommon
         {
             var result = new UrlLoadResult();
 
-            if (method == UrlLoadMethod.NewDefault)
-            {
-                //TODO: Remove LinkWorker file from ScreenshotUtilities addons after this is moved into LinkUtilities.
-                using (var linkWorker = new LinkWorker())
-                {
-                    result = linkWorker.LoadUrl(url, needDocument, checkForContent, true);
-                }
-
-                return result;
-            }
-
             try
             {
                 switch (method)
