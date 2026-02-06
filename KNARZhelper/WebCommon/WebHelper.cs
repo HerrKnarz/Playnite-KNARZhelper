@@ -5,6 +5,7 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace KNARZhelper.WebCommon
@@ -128,6 +129,14 @@ namespace KNARZhelper.WebCommon
                 return url;
             }
         }
+
+        /// <summary>
+        /// Gets the content of the title tag from a html page.
+        /// </summary>
+        /// <param name="htmlSource">html page to parse</param>
+        /// <returns>decoded title of the page</returns>
+        public static string GetPageTitle(string htmlSource) =>
+            WebUtility.HtmlDecode(Regex.Match(htmlSource, @"\<title\b[^>]*\>\s*(?<Title>[\s\S]*?)\</title\>", RegexOptions.IgnoreCase).Groups["Title"].Value.Trim());
 
         /// <summary>
         /// Loads an HTML document from a URL using the specified method.

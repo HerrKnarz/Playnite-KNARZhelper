@@ -4,8 +4,7 @@ using Playnite.SDK;
 using System;
 using System.Linq;
 using System.Net;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
+using System.Threading;
 
 namespace KNARZhelper.WebCommon
 {
@@ -30,11 +29,12 @@ namespace KNARZhelper.WebCommon
 
     public class LinkWorker : IDisposable
     {
-        private readonly TaskCompletionSource<UrlLoadResult> _tcs = new TaskCompletionSource<UrlLoadResult>();
         private readonly IWebView _webView;
 
-        public LinkWorker()
+        public LinkWorker(int id)
         {
+            Id = id;
+
             var webViewSettings = new WebViewSettings
             {
                 JavaScriptEnabled = true,
@@ -42,24 +42,29 @@ namespace KNARZhelper.WebCommon
 
                 ResourceLoadedCallback = (callback) =>
                 {
-                    var result = new UrlLoadResult();
-
-                    try
+                    if (RequestUrl == callback.Request.Url)
                     {
-                        result.StatusCode = (HttpStatusCode)callback.Response.StatusCode;
+                        try
+                        {
+                            UrlLoadResult.StatusCode = (HttpStatusCode)callback.Response.StatusCode;
+                            UrlLoadResult.RequestUrl = callback.Request.Url;
+                            Log.Debug($"Worker {Id} - url {RequestUrl}: 3. ResourceLoadedCallback - callback url: {callback.Request.Url} / status code: {UrlLoadResult.StatusCode}");
+                        }
+                        catch (Exception ex)
+                        {
+                            UrlLoadResult.StatusCode = HttpStatusCode.Unused;
+                            UrlLoadResult.ErrorDetails = ex.Message;
+                        }
                     }
-                    catch (Exception ex)
-                    {
-                        result.StatusCode = HttpStatusCode.Unused;
-                        result.ErrorDetails = ex.Message;
-                    }
-
-                    _tcs.TrySetResult(result);
                 },
             };
 
             _webView = API.Instance.WebViews.CreateOffscreenView(webViewSettings);
         }
+
+        public int Id { get; } = 0;
+        public string RequestUrl { get; set; } = string.Empty;
+        public UrlLoadResult UrlLoadResult { get; set; } = new UrlLoadResult();
 
         public void Dispose() => _webView?.Dispose();
 
@@ -118,80 +123,72 @@ namespace KNARZhelper.WebCommon
 
         public UrlLoadResult LoadUrl(string url, DocumentType documentType = DocumentType.Source, bool debugMode = false, string checkForContent = "")
         {
-            var result = new UrlLoadResult();
             var ts = DateTime.Now;
+            var pageText = string.Empty;
+            UrlLoadResult = new UrlLoadResult();
 
             if (debugMode)
             {
-                Log.Debug($"Started loading url {url}.");
+                Log.Debug($"Worker {Id} - url {url}: 1. Started loading url.");
             }
 
             try
             {
-                // TODO: Add some kind of timeout handling. Check how others do it!
+                RequestUrl = url;
 
                 _webView.NavigateAndWait(url);
-
-                if (debugMode)
-                {
-                    Log.Debug($"NavigateAndWait for url {url} - duration: ({(DateTime.Now - ts).TotalMilliseconds} ms)");
-                    ts = DateTime.Now;
-                }
-
-                result = _tcs.Task.Result;
-
-                if (debugMode)
-                {
-                    Log.Debug($"Callback for url {url} - duration: ({(DateTime.Now - ts).TotalMilliseconds} ms)");
-                    ts = DateTime.Now;
-                }
-
-                result.ResponseUrl = _webView.GetCurrentAddress();
-
-                var pageText = string.Empty;
-
+                UrlLoadResult.ResponseUrl = _webView.GetCurrentAddress();
                 pageText = documentType == DocumentType.Text ? _webView.GetPageText() : _webView.GetPageSource();
 
+                // We wait 100 ms to let the callback catch up
+                Thread.Sleep(100);
                 _webView.Close();
+
+                if (debugMode)
+                {
+                    Log.Debug($"Worker {Id} - url {url}: 2. NavigateAndWait - duration: ({(DateTime.Now - ts).TotalMilliseconds} ms)");
+                    Log.Debug($"Worker {Id} - url {url}: 4. Callback: / status code {UrlLoadResult.StatusCode} / Request url: {UrlLoadResult.RequestUrl}");
+                    ts = DateTime.Now;
+                }
 
                 if (pageText != null)
                 {
-                    result.PageTitle = Regex.Match(pageText, @"\<title\b[^>]*\>\s*(?<Title>[\s\S]*?)\</title\>", RegexOptions.IgnoreCase).Groups["Title"].Value;
+                    UrlLoadResult.PageTitle = WebHelper.GetPageTitle(pageText);
 
                     if (documentType != DocumentType.Empty)
                     {
-                        result.PageText = pageText;
+                        UrlLoadResult.PageText = pageText;
                     }
                 }
 
-                if (result.StatusCode != HttpStatusCode.OK)
+                if (UrlLoadResult.StatusCode != HttpStatusCode.OK)
                 {
-                    return result;
+                    return UrlLoadResult;
                 }
 
                 if (checkForContent.Length > 0)
                 {
-                    result.StatusCode = pageText.Contains(checkForContent) ? HttpStatusCode.OK : HttpStatusCode.NotFound;
+                    UrlLoadResult.StatusCode = pageText.Contains(checkForContent) ? HttpStatusCode.OK : HttpStatusCode.ExpectationFailed;
 
-                    if (result.StatusCode != HttpStatusCode.OK)
+                    if (UrlLoadResult.StatusCode != HttpStatusCode.OK)
                     {
-                        return result;
+                        return UrlLoadResult;
                     }
                 }
 
-                return result;
+                return UrlLoadResult;
             }
             catch (Exception ex)
             {
-                WebHelper.CatchError(result, ex, url);
+                WebHelper.CatchError(UrlLoadResult, ex, url);
 
-                return result;
+                return UrlLoadResult;
             }
             finally
             {
                 if (debugMode)
                 {
-                    Log.Debug($"Finished loading url {url} - status code {result.StatusCode} / duration: ({(DateTime.Now - ts).TotalMilliseconds} ms)  / response url: {result.ResponseUrl} / title: {result.PageTitle}.");
+                    Log.Debug($"Worker {Id} - url {url}: 5. Finished loading - status code {UrlLoadResult.StatusCode} / duration: ({(DateTime.Now - ts).TotalMilliseconds} ms)  / response url: {UrlLoadResult.ResponseUrl} / title: {UrlLoadResult.PageTitle}.");
                 }
             }
         }
