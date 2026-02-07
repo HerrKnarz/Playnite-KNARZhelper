@@ -2,6 +2,7 @@
 using Newtonsoft.Json;
 using Playnite.SDK;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Threading;
@@ -29,20 +30,21 @@ namespace KNARZhelper.WebCommon
 
     public class LinkWorker : IDisposable
     {
-        private readonly IWebView _webView;
+        private readonly WebViewSettings _webViewSettings;
+        private IWebView _webView;
 
         public LinkWorker(int id)
         {
             Id = id;
 
-            var webViewSettings = new WebViewSettings
+            _webViewSettings = new WebViewSettings
             {
                 JavaScriptEnabled = true,
                 UserAgent = WebHelper.AgentString,
 
                 ResourceLoadedCallback = (callback) =>
                 {
-                    if (RequestUrl == callback.Request.Url)
+                    if (RequestUrl.Equals(callback.Request.Url) || AllowedCallbackUrls.Contains(callback.Request.Url))
                     {
                         try
                         {
@@ -58,10 +60,9 @@ namespace KNARZhelper.WebCommon
                     }
                 },
             };
-
-            _webView = API.Instance.WebViews.CreateOffscreenView(webViewSettings);
         }
 
+        public HashSet<string> AllowedCallbackUrls { get; set; } = new HashSet<string>();
         public int Id { get; } = 0;
         public string RequestUrl { get; set; } = string.Empty;
         public UrlLoadResult UrlLoadResult { get; set; } = new UrlLoadResult();
@@ -103,11 +104,11 @@ namespace KNARZhelper.WebCommon
         /// <param name="debugMode">When true debug messages will be logged</param>
         /// <param name="checkForContent">Content to check for</param>
         /// <returns>True, if the URL is reachable</returns>
-        public bool IsUrlOk(string url, bool sameUrl = false, string wrongTitle = "", bool debugMode = false, string checkForContent = "")
+        public bool IsUrlOk(string url, bool sameUrl = false, string wrongTitle = "", bool debugMode = false, string checkForContent = "", HashSet<string> allowedCallbackUrls = null)
         {
             try
             {
-                var linkCheckResult = LoadUrl(url, DocumentType.Empty, debugMode, checkForContent);
+                var linkCheckResult = LoadUrl(url, DocumentType.Empty, debugMode, checkForContent, allowedCallbackUrls);
 
                 return !linkCheckResult.ErrorDetails.Any() && (sameUrl
                            ? linkCheckResult.StatusCode == HttpStatusCode.OK && linkCheckResult.ResponseUrl == url
@@ -121,7 +122,7 @@ namespace KNARZhelper.WebCommon
             }
         }
 
-        public UrlLoadResult LoadUrl(string url, DocumentType documentType = DocumentType.Source, bool debugMode = false, string checkForContent = "")
+        public UrlLoadResult LoadUrl(string url, DocumentType documentType = DocumentType.Source, bool debugMode = false, string checkForContent = "", HashSet<string> allowedCallbackUrls = null)
         {
             var ts = DateTime.Now;
             var pageText = string.Empty;
@@ -134,11 +135,27 @@ namespace KNARZhelper.WebCommon
 
             try
             {
+                Reset();
                 RequestUrl = url;
+
+                if (allowedCallbackUrls != null)
+                {
+                    AllowedCallbackUrls = allowedCallbackUrls;
+                }
+                else
+                {
+                    AllowedCallbackUrls.Clear();
+                }
 
                 _webView.NavigateAndWait(url);
                 UrlLoadResult.ResponseUrl = _webView.GetCurrentAddress();
                 pageText = documentType == DocumentType.Text ? _webView.GetPageText() : _webView.GetPageSource();
+
+                if (debugMode)
+                {
+                    Log.Debug($"Worker {Id} - url {url}: 2. NavigateAndWait - duration: ({(DateTime.Now - ts).TotalMilliseconds} ms)");
+                    ts = DateTime.Now;
+                }
 
                 // We wait 100 ms to let the callback catch up
                 Thread.Sleep(100);
@@ -146,7 +163,6 @@ namespace KNARZhelper.WebCommon
 
                 if (debugMode)
                 {
-                    Log.Debug($"Worker {Id} - url {url}: 2. NavigateAndWait - duration: ({(DateTime.Now - ts).TotalMilliseconds} ms)");
                     Log.Debug($"Worker {Id} - url {url}: 4. Callback: / status code {UrlLoadResult.StatusCode} / Request url: {UrlLoadResult.RequestUrl}");
                     ts = DateTime.Now;
                 }
@@ -182,15 +198,30 @@ namespace KNARZhelper.WebCommon
             {
                 WebHelper.CatchError(UrlLoadResult, ex, url);
 
+                _webView.Close();
+
                 return UrlLoadResult;
             }
             finally
             {
+                AllowedCallbackUrls.Clear();
+
                 if (debugMode)
                 {
                     Log.Debug($"Worker {Id} - url {url}: 5. Finished loading - status code {UrlLoadResult.StatusCode} / duration: ({(DateTime.Now - ts).TotalMilliseconds} ms)  / response url: {UrlLoadResult.ResponseUrl} / title: {UrlLoadResult.PageTitle}.");
                 }
             }
+        }
+
+        internal void Reset()
+        {
+            if (_webView != null)
+            {
+                _webView.Close();
+                _webView.Dispose();
+            }
+
+            _webView = API.Instance.WebViews.CreateOffscreenView(_webViewSettings);
         }
     }
 }
