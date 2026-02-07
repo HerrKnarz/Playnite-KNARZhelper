@@ -5,7 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
-using System.Threading;
+using System.Threading.Tasks;
 
 namespace KNARZhelper.WebCommon
 {
@@ -30,7 +30,9 @@ namespace KNARZhelper.WebCommon
 
     public class LinkWorker : IDisposable
     {
+        private readonly bool _detailedDebug = false;
         private readonly WebViewSettings _webViewSettings;
+        private TaskCompletionSource<bool> _tcs = new TaskCompletionSource<bool>();
         private IWebView _webView;
 
         public LinkWorker(int id)
@@ -44,18 +46,25 @@ namespace KNARZhelper.WebCommon
 
                 ResourceLoadedCallback = (callback) =>
                 {
-                    if (RequestUrl.Equals(callback.Request.Url) || AllowedCallbackUrls.Contains(callback.Request.Url))
+                    if (_detailedDebug)
+                    {
+                        Log.Debug($"Worker {Id} - url {RequestUrl}: 3AAA. ResourceLoadedCallback - callback url: {callback.Request.Url} / status code: {(HttpStatusCode)callback.Response.StatusCode}");
+                    }
+
+                    if (WebHelper.CleanUpUrl(RequestUrl) == WebHelper.CleanUpUrl(callback.Request.Url) || AllowedCallbackUrls.Contains(WebHelper.CleanUpUrl(callback.Request.Url)))
                     {
                         try
                         {
                             UrlLoadResult.StatusCode = (HttpStatusCode)callback.Response.StatusCode;
                             UrlLoadResult.RequestUrl = callback.Request.Url;
                             Log.Debug($"Worker {Id} - url {RequestUrl}: 3. ResourceLoadedCallback - callback url: {callback.Request.Url} / status code: {UrlLoadResult.StatusCode}");
+                            _tcs.SetResult(true);
                         }
                         catch (Exception ex)
                         {
                             UrlLoadResult.StatusCode = HttpStatusCode.Unused;
                             UrlLoadResult.ErrorDetails = ex.Message;
+                            _tcs.SetResult(false);
                         }
                     }
                 },
@@ -137,10 +146,11 @@ namespace KNARZhelper.WebCommon
             {
                 Reset();
                 RequestUrl = url;
+                _tcs = new TaskCompletionSource<bool>();
 
                 if (allowedCallbackUrls != null)
                 {
-                    AllowedCallbackUrls = allowedCallbackUrls;
+                    AllowedCallbackUrls.UnionWith(allowedCallbackUrls.Select(WebHelper.CleanUpUrl));
                 }
                 else
                 {
@@ -157,8 +167,8 @@ namespace KNARZhelper.WebCommon
                     ts = DateTime.Now;
                 }
 
-                // We wait 100 ms to let the callback catch up
-                Thread.Sleep(100);
+                var x = MiscHelper.TimeoutAfter(_tcs.Task, TimeSpan.FromSeconds(10)).Result;
+
                 _webView.Close();
 
                 if (debugMode)
