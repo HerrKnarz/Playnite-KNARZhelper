@@ -64,7 +64,7 @@ namespace KNARZhelper.WebCommon
                         {
                             UrlLoadResult.StatusCode = HttpStatusCode.Unused;
                             UrlLoadResult.ErrorDetails = ex.Message;
-                            _tcs.SetResult(false);
+                            _tcs.TrySetResult(false);
                         }
                     }
                 },
