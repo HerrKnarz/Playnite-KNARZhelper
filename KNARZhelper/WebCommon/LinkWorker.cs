@@ -42,38 +42,16 @@ namespace KNARZhelper.WebCommon
             _webViewSettings = new WebViewSettings
             {
                 JavaScriptEnabled = true,
-                UserAgent = WebHelper.AgentString,
-
-                ResourceLoadedCallback = (callback) =>
-                {
-                    if (_detailedDebug)
-                    {
-                        Log.Debug($"Worker {Id} - url {RequestUrl}: 3AAA. ResourceLoadedCallback - callback url: {callback.Request.Url} / status code: {(HttpStatusCode)callback.Response.StatusCode}");
-                    }
-
-                    if (WebHelper.CleanUpUrl(RequestUrl) == WebHelper.CleanUpUrl(callback.Request.Url) || AllowedCallbackUrls.Contains(WebHelper.CleanUpUrl(callback.Request.Url)))
-                    {
-                        try
-                        {
-                            UrlLoadResult.StatusCode = (HttpStatusCode)callback.Response.StatusCode;
-                            UrlLoadResult.RequestUrl = callback.Request.Url;
-                            Log.Debug($"Worker {Id} - url {RequestUrl}: 3. ResourceLoadedCallback - callback url: {callback.Request.Url} / status code: {UrlLoadResult.StatusCode}");
-                            _tcs.SetResult(true);
-                        }
-                        catch (Exception ex)
-                        {
-                            UrlLoadResult.StatusCode = HttpStatusCode.Unused;
-                            UrlLoadResult.ErrorDetails = ex.Message;
-                            _tcs.TrySetResult(false);
-                        }
-                    }
-                },
+                UserAgent = WebHelper.AgentString
             };
         }
 
         public HashSet<string> AllowedCallbackUrls { get; set; } = new HashSet<string>();
+
         public int Id { get; } = 0;
+
         public string RequestUrl { get; set; } = string.Empty;
+
         public UrlLoadResult UrlLoadResult { get; set; } = new UrlLoadResult();
 
         public void Dispose() => _webView?.Dispose();
@@ -163,12 +141,28 @@ namespace KNARZhelper.WebCommon
 
                 if (debugMode)
                 {
-                    Log.Debug($"Worker {Id} - url {url}: 2. NavigateAndWait - duration: ({(DateTime.Now - ts).TotalMilliseconds} ms)");
+                    Log.Debug($"Worker {Id} - url {url}: 3. NavigateAndWait - duration: ({(DateTime.Now - ts).TotalMilliseconds} ms)");
                     ts = DateTime.Now;
                 }
 
-                var x = MiscHelper.TimeoutAfter(_tcs.Task, TimeSpan.FromSeconds(10)).Result;
+                try
+                {
+                    MiscHelper.TimeoutAfter(_tcs.Task, TimeSpan.FromSeconds(10)).Wait();
+                }
+                catch (Exception ex)
+                {
+                    if (debugMode)
+                    {
+                        Log.Debug($"Worker {Id} - url {url}: 2. ResourceLoadedCallback - timeout!");
 
+                        // Remove notification once I tested it with enough games!
+                        API.Instance.Notifications.Add("LinkUtilities",
+                        $"ResourceLoadedCallback timeout{Environment.NewLine}Checked url: {url} {Environment.NewLine}Response url: {UrlLoadResult.ResponseUrl}",
+                        NotificationType.Info);
+                    }
+                }
+
+                _webViewSettings.ResourceLoadedCallback = null;
                 _webView.Close();
 
                 if (debugMode)
@@ -208,8 +202,6 @@ namespace KNARZhelper.WebCommon
             {
                 WebHelper.CatchError(UrlLoadResult, ex, url);
 
-                _webView.Close();
-
                 return UrlLoadResult;
             }
             finally
@@ -225,13 +217,43 @@ namespace KNARZhelper.WebCommon
 
         internal void Reset()
         {
-            if (_webView != null)
-            {
-                _webView.Close();
-                _webView.Dispose();
-            }
+            _webView?.Close();
+            _webView?.Dispose();
 
+            _webViewSettings.ResourceLoadedCallback = WebViewCallback;
             _webView = API.Instance.WebViews.CreateOffscreenView(_webViewSettings);
+        }
+
+        private void WebViewCallback(WebViewResourceLoadedCallback callback)
+        {
+            try
+            {
+                if (_detailedDebug)
+                {
+                    Log.Debug($"Worker {Id} - url {RequestUrl}: 2AAA. ResourceLoadedCallback - callback url: {callback.Request.Url} / status code: {(HttpStatusCode)callback.Response.StatusCode}");
+                }
+
+                if (WebHelper.CleanUpUrl(RequestUrl) == WebHelper.CleanUpUrl(callback.Request.Url) || AllowedCallbackUrls.Contains(WebHelper.CleanUpUrl(callback.Request.Url)))
+                {
+                    try
+                    {
+                        UrlLoadResult.StatusCode = (HttpStatusCode)callback.Response.StatusCode;
+                        UrlLoadResult.RequestUrl = callback.Request.Url;
+                        Log.Debug($"Worker {Id} - url {RequestUrl}: 2. ResourceLoadedCallback - callback url: {callback.Request.Url} / status code: {UrlLoadResult.StatusCode}");
+                        _tcs.TrySetResult(true);
+                    }
+                    catch (Exception ex)
+                    {
+                        UrlLoadResult.StatusCode = HttpStatusCode.Unused;
+                        UrlLoadResult.ErrorDetails = ex.Message;
+                        _tcs.TrySetResult(false);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex, $"Worker {Id} - url {RequestUrl}: 2. ResourceLoadedCallback - error!");
+            }
         }
     }
 }
