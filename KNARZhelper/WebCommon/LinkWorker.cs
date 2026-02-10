@@ -109,7 +109,7 @@ namespace KNARZhelper.WebCommon
             }
         }
 
-        public UrlLoadResult LoadUrl(string url, DocumentType documentType = DocumentType.Source, bool debugMode = false, string checkForContent = "", HashSet<string> allowedCallbackUrls = null)
+        public UrlLoadResult LoadUrl(string url, DocumentType documentType = DocumentType.Source, bool debugMode = false, string checkForContent = "", HashSet<string> allowedCallbackUrls = null, bool waitForCallback = true)
         {
             var ts = DateTime.Now;
             var pageText = string.Empty;
@@ -145,20 +145,23 @@ namespace KNARZhelper.WebCommon
                     ts = DateTime.Now;
                 }
 
-                try
+                if (waitForCallback)
                 {
-                    MiscHelper.TimeoutAfter(_tcs.Task, TimeSpan.FromSeconds(10)).Wait();
-                }
-                catch (Exception ex)
-                {
-                    if (debugMode)
+                    try
                     {
-                        Log.Debug($"Worker {Id} - url {url}: 2. ResourceLoadedCallback - timeout!");
+                        MiscHelper.TimeoutAfter(_tcs.Task, TimeSpan.FromSeconds(10)).Wait();
+                    }
+                    catch
+                    {
+                        if (debugMode)
+                        {
+                            Log.Debug($"Worker {Id} - url {url}: 2. ResourceLoadedCallback - timeout!");
 
-                        // Remove notification once I tested it with enough games!
-                        API.Instance.Notifications.Add("LinkUtilities",
-                        $"ResourceLoadedCallback timeout{Environment.NewLine}Checked url: {url} {Environment.NewLine}Response url: {UrlLoadResult.ResponseUrl}",
-                        NotificationType.Info);
+                            // TODO: Remove notification once I tested it with enough games!
+                            API.Instance.Notifications.Add("LinkUtilities",
+                            $"ResourceLoadedCallback timeout{Environment.NewLine}Checked url: {url} {Environment.NewLine}Response url: {UrlLoadResult.ResponseUrl}",
+                            NotificationType.Info);
+                        }
                     }
                 }
 
