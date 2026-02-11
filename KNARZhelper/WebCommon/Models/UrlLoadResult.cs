@@ -7,7 +7,6 @@ namespace KNARZhelper.WebCommon.Models
 {
     public class UrlLoadResult
     {
-        // TODO: Remove HTMLAgilityPack and only return the text.
         public HtmlDocument Document { get; set; } = null;
 
         public string ErrorDetails { get; set; } = string.Empty;
