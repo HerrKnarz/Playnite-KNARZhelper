@@ -122,6 +122,15 @@ namespace KNARZhelper.WebCommon
 
             try
             {
+                if (!url.IsValidHttpUrl())
+                {
+                    UrlLoadResult.StatusCode = HttpStatusCode.BadRequest;
+                    UrlLoadResult.ErrorDetails = "Invalid URL format.";
+                    UrlLoadResult.PageTitle = "Invalid URL format.";
+                    UrlLoadResult.IsUrlValid = false;
+                    return UrlLoadResult;
+                }
+
                 Reset();
                 RequestUrl = url;
                 _tcs = new TaskCompletionSource<bool>();
@@ -167,6 +176,11 @@ namespace KNARZhelper.WebCommon
 
                 _webViewSettings.ResourceLoadedCallback = null;
                 _webView.Close();
+
+                if (UrlLoadResult.StatusCode == HttpStatusCode.Unused && UrlLoadResult.ResponseUrl.Any())
+                {
+                    UrlLoadResult.StatusCode = HttpStatusCode.SeeOther;
+                }
 
                 if (debugMode)
                 {

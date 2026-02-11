@@ -11,6 +11,7 @@ namespace KNARZhelper.WebCommon.Models
         public HtmlDocument Document { get; set; } = null;
 
         public string ErrorDetails { get; set; } = string.Empty;
+        public bool IsUrlValid { get; set; } = true;
         public string PageText { get; set; } = string.Empty;
         public string PageTitle { get; set; } = string.Empty;
         public string RequestUrl { get; set; } = string.Empty;

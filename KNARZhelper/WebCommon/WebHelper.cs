@@ -42,16 +42,6 @@ namespace KNARZhelper.WebCommon
         }
 
         /// <summary>
-        /// tries to reach a URL and returns response infos like status code.
-        /// </summary>
-        /// <param name="url">URL to check</param>
-        /// <param name="allowRedirects">If true, a redirect will count as ok.</param>
-        /// <param name="checkForContent">Content to check for</param>
-        /// <returns>Response infos</returns>
-        public static UrlLoadResult CheckUrl(string url, bool allowRedirects = true, string checkForContent = "") =>
-            LoadHtmlDocument(url, allowRedirects, false, checkForContent);
-
-        /// <summary>
         /// Removes the scheme of a URL and adds a missing trailing slash. Is used to compare URLs
         /// with different schemes
         /// </summary>
