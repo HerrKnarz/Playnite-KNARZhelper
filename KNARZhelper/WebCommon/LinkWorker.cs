@@ -158,7 +158,7 @@ namespace KNARZhelper.WebCommon
                 {
                     try
                     {
-                        MiscHelper.TimeoutAfter(_tcs.Task, TimeSpan.FromSeconds(10)).Wait();
+                        AsyncHelper.TimeoutAfter(_tcs.Task, TimeSpan.FromSeconds(10)).Wait();
                     }
                     catch
                     {

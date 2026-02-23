@@ -21,7 +21,7 @@ namespace KNARZhelper
         {
             try
             {
-                return GetJsonFromApiAsync<T>(apiUrl, apiName, encoding, body).Result;
+                return AsyncHelper.RunSync(async () => await GetJsonFromApiAsync<T>(apiUrl, apiName, encoding, body));
             }
             catch (Exception ex)
             {

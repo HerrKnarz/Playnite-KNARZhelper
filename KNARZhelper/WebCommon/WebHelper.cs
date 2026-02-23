@@ -85,7 +85,7 @@ namespace KNARZhelper.WebCommon
         /// LoadFromBrowser it also is used to determine if the document is fully loaded
         /// </param>
         /// <returns>Loading result</returns>
-        public static UrlLoadResult LoadHtmlDocument(string url, bool allowRedirects = false, bool needDocument = true, string checkForContent = "") => LoadHtmlDocumentAsync(url, allowRedirects, needDocument, checkForContent).Result;
+        public static UrlLoadResult LoadHtmlDocument(string url, bool allowRedirects = false, bool needDocument = true, string checkForContent = "") => AsyncHelper.RunSync(async () => await LoadHtmlDocumentAsync(url, allowRedirects, needDocument, checkForContent));
 
         /// <summary>
         /// Asynchronously loads an HTML document from a URL using the specified method.
