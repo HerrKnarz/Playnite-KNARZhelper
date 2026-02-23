@@ -76,6 +76,24 @@ namespace KNARZhelper
         public static bool IsValidHttpUrl(this string url) => Uri.TryCreate(url, UriKind.Absolute, out var uriResult) && (uriResult.Scheme == Uri.UriSchemeHttp || uriResult.Scheme == Uri.UriSchemeHttps);
 
         /// <summary>
+        /// Normalizes a search term by removing special characters, converting to lowercase, and
+        /// eliminating spaces and hyphens.
+        /// </summary>
+        /// <remarks>
+        /// Normalization helps ensure consistent search behavior by standardizing input format. Use
+        /// this method before performing search comparisons to reduce mismatches caused by
+        /// formatting differences.
+        /// </remarks>
+        /// <param name="searchTerm">
+        /// The search term to normalize. Cannot be null; must be a non-empty string.
+        /// </param>
+        /// <returns>
+        /// A normalized string suitable for search operations. Returns an empty string if the input
+        /// contains only removable characters.
+        /// </returns>
+        public static string NormalizeSearchTerm(this string searchTerm) => searchTerm.RemoveSpecialChars().ToLower().Replace(" ", "").Replace("-", "");
+
+        /// <summary>
         /// Checks if a string matches a regular expression.
         /// </summary>
         /// <param name="source">String to check</param>
