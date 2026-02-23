@@ -43,7 +43,7 @@ namespace KNARZhelper.WebCommon
             _httpClient.DefaultRequestHeaders.UserAgent.ParseAdd(userAgent);
         }
 
-        public string DownloadString(string url, CancellationToken cancellationToken) => DownloadStringAsync(url, cancellationToken).Result;
+        public string DownloadString(string url, CancellationToken cancellationToken) => AsyncHelper.RunSync(async () => await DownloadStringAsync(url, cancellationToken));
 
         public async Task<string> DownloadStringAsync(string url, CancellationToken cancellationToken)
         {
