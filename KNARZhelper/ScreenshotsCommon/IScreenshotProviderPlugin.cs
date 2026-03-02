@@ -12,7 +12,7 @@ namespace KNARZhelper.ScreenshotsCommon
         /// <summary>
         /// Name of the provider to be displayed in the UI.
         /// </summary>
-        string Name { get; set; }
+        string ProviderName { get; set; }
 
         /// <summary>
         /// Returns true if the provider addon supports finding images automatically with the
