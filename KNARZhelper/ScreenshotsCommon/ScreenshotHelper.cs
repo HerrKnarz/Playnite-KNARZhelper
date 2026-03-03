@@ -128,12 +128,7 @@ namespace KNARZhelper.ScreenshotsCommon
 
             var directoryInfo = GetDownloadPath(gameId: gameId, providerId: providerId);
 
-            if (directoryInfo is null || !directoryInfo.Exists)
-            {
-                return string.Empty;
-            }
-
-            return Path.Combine(directoryInfo.FullName, $"{groupId}.json");
+            return directoryInfo is null || !directoryInfo.Exists ? string.Empty : Path.Combine(directoryInfo.FullName, $"{groupId}.json");
         }
 
         /// <summary>
