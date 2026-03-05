@@ -26,6 +26,7 @@ namespace KNARZhelper.ScreenshotsCommon.Models
         Icon = 17,
         Poster = 18,
         Decal = 19,
+        Artwork = 20,
     }
 
     /// <summary>
