@@ -4,6 +4,30 @@ using System.Collections.Generic;
 
 namespace KNARZhelper.ScreenshotsCommon.Models
 {
+    public enum MediaType
+    {
+        Unknown = 0,
+        Screenshot = 1,
+        Background = 2,
+        Advertisement = 3,
+        Banner = 4,
+        BoxFront = 5,
+        BoxBack = 6,
+        BoxSpine = 7,
+        Box3D = 8,
+        Logo = 9,
+        Disc = 10,
+        Cartridge = 11,
+        ArcadeCabinet = 12,
+        ArcadeCircuit = 13,
+        ArcadeControlPanel = 14,
+        ArcadeControlsInfo = 15,
+        ArcadeMarquee = 16,
+        Icon = 17,
+        Poster = 18,
+        Decal = 19,
+    }
+
     /// <summary>
     /// Class representing a screenshot with properties and methods for managing it.
     /// </summary>
@@ -17,6 +41,7 @@ namespace KNARZhelper.ScreenshotsCommon.Models
         private string _path;
         private int _sortOrder = 0;
         private string _thumbnailPath;
+        private MediaType _type = MediaType.Screenshot;
 
         /// <summary>
         /// Creates a new instance of the Screenshot class.
@@ -140,6 +165,16 @@ namespace KNARZhelper.ScreenshotsCommon.Models
         {
             get => _thumbnailPath;
             set => SetValue(ref _thumbnailPath, value);
+        }
+
+        /// <summary>
+        /// Gets or sets the media type associated with the content.
+        /// </summary>
+        [SerializationPropertyName("type")]
+        public MediaType Type
+        {
+            get => _type;
+            set => SetValue(ref _type, value);
         }
     }
 }
