@@ -27,6 +27,9 @@ namespace KNARZhelper.ScreenshotsCommon.Models
         Poster = 18,
         Decal = 19,
         Artwork = 20,
+        Promoshot = 21,
+        SelfmadeScreenshot = 22,
+        Manual = 23
     }
 
     /// <summary>
