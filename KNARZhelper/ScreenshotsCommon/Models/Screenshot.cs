@@ -45,7 +45,7 @@ namespace KNARZhelper.ScreenshotsCommon.Models
         private string _path;
         private int _sortOrder = 0;
         private string _thumbnailPath;
-        private MediaType _type = MediaType.Screenshot;
+        private MediaType _type = MediaType.Promoshot;
 
         /// <summary>
         /// Creates a new instance of the Screenshot class.
