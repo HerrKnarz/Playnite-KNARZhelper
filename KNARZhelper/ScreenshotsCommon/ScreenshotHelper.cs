@@ -64,7 +64,7 @@ namespace KNARZhelper.ScreenshotsCommon
         }
 
         /// <summary>
-        /// Deletes orphaned JSON files in the specified game's provider directory,
+        /// Deletes orphaned JSON files in the specified game's provider directory.
         /// </summary>
         /// <param name="gameId">Id of the game</param>
         /// <param name="providerId">Id of the provider</param>

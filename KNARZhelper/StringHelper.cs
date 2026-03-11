@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.IO;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Web;
@@ -198,6 +199,31 @@ namespace KNARZhelper
             return str;
         }
 
+        /// <summary>
+        /// Replaces all invalid file name characters in the specified string with the provided
+        /// replacement string.
+        /// </summary>
+        /// <remarks>
+        /// Invalid file name characters are determined by <see
+        /// cref="System.IO.Path.GetInvalidFileNameChars"/>. This method does not validate the
+        /// resulting string as a file name.
+        /// </remarks>
+        /// <param name="str">The input string to process. Cannot be null.</param>
+        /// <param name="replaceStr">
+        /// The string to use as a replacement for each invalid file name character. If not
+        /// specified, invalid characters are removed.
+        /// </param>
+        /// <returns>
+        /// A string with all invalid file name characters replaced by the specified replacement string.
+        /// </returns>
+        public static string ReplaceInvalidFileNameChars(this string str, string replaceStr = "") => string.Join(replaceStr, str.Split(Path.GetInvalidFileNameChars()));
+
+        /// <summary>
+        /// Strips query parameters and fragments from a URL, returning only the base path. For
+        /// example, "https://example.com/page?query=123#section" would be stripped down to "https://example.com/page".
+        /// </summary>
+        /// <param name="str">The input string to process. Cannot be null.</param>
+        /// <returns>Input string with query parameters and fragments removed</returns>
         public static string StripUriParams(this string str) => new Uri(str).GetLeftPart(UriPartial.Path);
 
         /// <summary>
