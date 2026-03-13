@@ -79,5 +79,16 @@ namespace KNARZhelper.ScreenshotsCommon
         /// </param>
         /// <returns>True if new screenshots were added.</returns>
         Task<bool> GetScreenshotsManualAsync(Game game, string gameIdentifier);
+
+        /// <summary>
+        /// Handles logic to be performed when a game has stopped.
+        /// </summary>
+        /// <param name="game">The game instance that has stopped. Cannot be null.</param>
+        /// <returns>
+        /// A task that represents the asynchronous operation. The task result is <see
+        /// langword="true"/> if changes were made that require a reload of the screenshot viewers.;
+        /// otherwise, <see langword="false"/>.
+        /// </returns>
+        Task<bool> HandleGameStoppedAsync(Game game);
     }
 }
