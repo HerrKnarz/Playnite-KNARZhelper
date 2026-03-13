@@ -364,3 +364,4 @@ FodyWeavers.xsd
 
 # manual ignores
 /Source/Constants.cs
+/KNARZhelper/ScreenshotsCommon/ScreenshotUtilitiesIconTemplate.af
