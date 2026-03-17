@@ -1,5 +1,6 @@
 ﻿using KNARZhelper.FilesCommon;
 using Playnite.SDK;
+using Playnite.SDK.Data;
 using Playnite.SDK.Models;
 using Playnite.SDK.Plugins;
 using System;
@@ -18,22 +19,34 @@ namespace KNARZhelper.ScreenshotsCommon.Models
     public partial class Screenshot : ObservableObject
     {
         /// <summary>
+        /// Specifies if the screenshot can be opened locally.
+        /// </summary>
+        [DontSerialize]
+        public bool CanBeOpened => IsDownloaded || IsLocal;
+
+        /// <summary>
+        /// Specifies whether the screenshot's origin is local.
+        /// </summary>
+        [DontSerialize]
+        public bool IsLocal => File.Exists(Path);
+
+        /// <summary>
         /// Copies the screenshot image to the clipboard.
         /// </summary>
         public void CopyToClipboard()
         {
-            if (string.IsNullOrEmpty(DownloadedPath))
+            if (!CanBeOpened)
             {
                 return;
             }
 
-            var fileInfo = new FileInfo(DownloadedPath);
+            var fileInfo = new FileInfo(DisplayPath);
 
             if (fileInfo.Exists)
             {
                 try
                 {
-                    Clipboard.SetImage(BitmapFrame.Create(new Uri(DownloadedPath, UriKind.Absolute)));
+                    Clipboard.SetImage(BitmapFrame.Create(new Uri(DisplayPath, UriKind.Absolute)));
                 }
                 catch (Exception ex)
                 {
@@ -101,14 +114,16 @@ namespace KNARZhelper.ScreenshotsCommon.Models
         /// </summary>
         public void OpenContainingFolder()
         {
-            if (string.IsNullOrEmpty(DownloadedPath))
+            if (!CanBeOpened)
             {
                 return;
             }
 
-            if (new FileInfo(DownloadedPath).Directory.Exists)
+            if (new FileInfo(DisplayPath).Directory.Exists)
             {
-                Process.Start("explorer.exe", $"/select, \"{DownloadedPath}\"");
+                Process.Start("explorer.exe", $"/select, \"{DisplayPath}\"");
+
+                return;
             }
         }
 
@@ -117,12 +132,12 @@ namespace KNARZhelper.ScreenshotsCommon.Models
         /// </summary>
         public void OpenInAssociatedApplication()
         {
-            if (string.IsNullOrEmpty(DownloadedPath))
+            if (!CanBeOpened)
             {
                 return;
             }
 
-            var fileInfo = new FileInfo(DownloadedPath);
+            var fileInfo = new FileInfo(DisplayPath);
 
             if (fileInfo.Exists)
             {
@@ -143,14 +158,14 @@ namespace KNARZhelper.ScreenshotsCommon.Models
 
         public void SetAs(Game game, MetadataField mediaType = MetadataField.BackgroundImage)
         {
-            if (string.IsNullOrEmpty(DownloadedPath))
+            if (!CanBeOpened)
             {
                 return;
             }
 
             API.Instance.MainView.UIDispatcher.Invoke(delegate
             {
-                var image = API.Instance.Database.AddFile(DownloadedPath, game.Id);
+                var image = API.Instance.Database.AddFile(DisplayPath, game.Id);
 
                 switch (mediaType)
                 {
