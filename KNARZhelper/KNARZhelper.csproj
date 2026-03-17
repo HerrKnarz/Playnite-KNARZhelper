@@ -151,6 +151,7 @@
     <Compile Include="ScreenshotsCommon\Models\ScreenshotSearchResult.cs" />
     <Compile Include="ScreenshotsCommon\ScreenshotHelper.cs" />
     <Compile Include="SteamHelper.cs" />
+    <Compile Include="StringFormatter.cs" />
     <Compile Include="StringHelper.cs" />
     <Compile Include="MetadataCommon\ViewModels\SelectMetadataViewModel.cs" />
     <Compile Include="MetadataCommon\Views\SelectMetadataView.xaml.cs">
