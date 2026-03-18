@@ -70,6 +70,90 @@ namespace KNARZhelper
         public static string EscapeQuotes(this string str) => str.Replace("\"", "\\\"");
 
         /// <summary>
+        /// Formats the specified string according to the options provided in the format parameters.
+        /// </summary>
+        /// <remarks>
+        /// The formatting options are applied in a specific order. Some options may override or
+        /// interact with others; for example, whitespace transformations are applied after other
+        /// character replacements. If multiple options are enabled that affect the same characters,
+        /// the final result reflects the cumulative effect of all enabled options.
+        /// </remarks>
+        /// <param name="str">The input string to be formatted.</param>
+        /// <param name="formatParams">
+        /// An object specifying the formatting options to apply, such as removing hyphens,
+        /// converting to title case, or replacing invalid file name characters. Cannot be null.
+        /// </param>
+        /// <returns>
+        /// A new string that results from applying the specified formatting options to the input string.
+        /// </returns>
+        public static string FormatString(this string str, StringFormatParameters formatParams)
+        {
+            if (formatParams.RemoveEditionSuffix)
+            {
+                str = str.RemoveEditionSuffix();
+            }
+
+            if (formatParams.RemoveHyphens)
+            {
+                str = str.Replace("-", "");
+            }
+
+            if (formatParams.UnderscoresToWhitespaces)
+            {
+                str = str.Replace("_", " ");
+            }
+
+            if (formatParams.RemoveSpecialChars)
+            {
+                str = str.RemoveSpecialChars();
+            }
+
+            if (formatParams.RemoveDiacritics)
+            {
+                str = str.RemoveDiacritics();
+            }
+
+            if (formatParams.ToTitleCase)
+            {
+                str = str.ToTitleCase();
+            }
+
+            if (formatParams.ToLower)
+            {
+                str = str.ToLower();
+            }
+
+            str = formatParams.RemoveWhitespaces ? str.Replace(" ", "") : str.CollapseWhitespaces();
+
+            if (formatParams.WhitespacesToHyphens)
+            {
+                str = str.Replace(" ", "-");
+            }
+
+            if (formatParams.WhitespacesToUnderscores)
+            {
+                str = str.Replace(" ", "_");
+            }
+
+            if (formatParams.ReplaceInvalidFileNameChars)
+            {
+                str = str.ReplaceInvalidFileNameChars(formatParams.InvalidCharReplacement);
+            }
+
+            if (formatParams.EscapeDataString)
+            {
+                str = str.EscapeDataString();
+            }
+
+            if (formatParams.UrlEncode)
+            {
+                str = str.UrlEncode();
+            }
+
+            return str;
+        }
+
+        /// <summary>
         /// Checks if a string is a valid HTTP or HTTPS URL.
         /// </summary>
         /// <param name="url">The URL to check</param>
@@ -239,5 +323,94 @@ namespace KNARZhelper
         /// <param name="str">String to encode</param>
         /// <returns>Encoded string</returns>
         public static string UrlEncode(this string str) => HttpUtility.UrlEncode(str);
+    }
+
+    /// <summary>
+    /// Represents a set of options that control how string formatting operations are performed.
+    /// </summary>
+    /// <remarks>
+    /// Use this class to specify various transformations and sanitization behaviors when formatting
+    /// strings, such as removing diacritics, replacing invalid characters, or applying case
+    /// conversions. Each property enables or disables a specific formatting rule. This class is
+    /// typically used to configure string formatting utilities or helpers that require customizable behavior.
+    /// </remarks>
+    public class StringFormatParameters
+    {
+        /// <summary>
+        /// Indicates whether data strings should be escaped using percent-encoding.
+        /// </summary>
+        public bool EscapeDataString { get; set; } = false;
+
+        /// <summary>
+        /// String that will replace invalid file name characters when the
+        /// ReplaceInvalidFileNameChars option is enabled. If null, invalid characters will be
+        /// removed instead of replaced.
+        /// </summary>
+        public string InvalidCharReplacement { get; set; } = null;
+
+        /// <summary>
+        /// Indicates whether diacritical marks (accents) should be removed from characters in the
+        /// string. For example, "é" would be transformed to "e". This can be useful for creating
+        /// more standardized or ASCII-only strings.
+        /// </summary>
+        public bool RemoveDiacritics { get; set; } = false;
+
+        /// <summary>
+        /// Indicates whether the edition suffix should be removed from the string. Is typically
+        /// used for game names that include suffixes like "Deluxe Edition" or "Game of the Year
+        /// Edition", where the edition information is not desired in the formatted output.
+        /// </summary>
+        public bool RemoveEditionSuffix { get; set; } = false;
+
+        /// <summary>
+        /// Indicates whether hyphens should be removed from the processed text.
+        /// </summary>
+        public bool RemoveHyphens { get; set; } = false;
+
+        /// <summary>
+        /// Indicates whether special characters are removed during processing.
+        /// </summary>
+        public bool RemoveSpecialChars { get; set; } = false;
+
+        /// <summary>
+        /// Indicates whether whitespace characters should be removed during processing.
+        /// </summary>
+        public bool RemoveWhitespaces { get; set; } = false;
+
+        /// <summary>
+        /// Indicates whether invalid characters in file names are automatically replaced.
+        /// </summary>
+        public bool ReplaceInvalidFileNameChars { get; set; } = false;
+
+        /// <summary>
+        /// Indicates whether the string should be converted to lowercase.
+        /// </summary>
+        public bool ToLower { get; set; } = false;
+
+        /// <summary>
+        /// Indicates whether the string should be converted to title case, where the first letter
+        /// of each word is capitalized and the rest are lowercase.
+        /// </summary>
+        public bool ToTitleCase { get; set; } = false;
+
+        /// <summary>
+        /// Indicates whether underscores in the string should be replaced with whitespace characters.
+        /// </summary>
+        public bool UnderscoresToWhitespaces { get; set; } = false;
+
+        /// <summary>
+        /// Indicates whether the string should be URL-encoded.
+        /// </summary>
+        public bool UrlEncode { get; set; } = false;
+
+        /// <summary>
+        /// Indicates whether whitespace characters in the string should be replaced with hyphens.
+        /// </summary>
+        public bool WhitespacesToHyphens { get; set; } = false;
+
+        /// <summary>
+        /// Indicates whether whitespace characters in the string should be replaced with underscores.
+        /// </summary>
+        public bool WhitespacesToUnderscores { get; set; } = false;
     }
 }
