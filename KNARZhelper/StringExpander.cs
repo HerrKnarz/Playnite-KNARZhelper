@@ -5,12 +5,13 @@ using Playnite.SDK.Models;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 
 namespace KNARZhelper
 {
-    public class StringExpander
+    public class StringExpander : ObservableObject
     {
         private readonly Guid _gogId = Guid.Parse("aebe8b7c-6dc3-4a66-af31-e7375c6b5e9e");
         private readonly Guid _gogOssId = Guid.Parse("03689811-3F33-4DFB-A121-2EE168FB9A5C");
@@ -30,6 +31,13 @@ namespace KNARZhelper
         private readonly string _placeholderUbisoftScreenshotsDir = "{UbisoftScreenshotsDir}";
         private readonly string _placeholderXboxGamebarScreenshotsDir = "{XboxGamebarScreenshotsDir}";
 
+        private readonly string _typePlaceholderEnvVar = "ENV";
+        private readonly string _typePlaceholderEnvVarLocal = "EnvVar";
+        private readonly string _typePlaceholderFolderPath = "Folder path";
+        private readonly string _typePlaceholderFolderPathLocal = "FolderPathLocal";
+        private readonly string _typePlaceholderGameInfo = "Game info";
+        private readonly string _typePlaceholderGameInfoLocal = "GameInfo";
+
         private string _dropBoxFolder = null;
         private string _gogScreenshotDir = null;
         private string _oneDriveFolder = null;
@@ -42,6 +50,254 @@ namespace KNARZhelper
         private string _ubisoftInstallDir = null;
         private string _ubisoftScreenshotsDir = null;
         private string _xboxGamebarScreenshotDir = null;
+
+        public StringExpander(string localizationPrefix = "")
+        {
+            var tmpPlaceholders = new List<StringPlaceholder>
+            {
+                ////// Playnite variables //////
+
+                new StringPlaceholder
+                {
+                    Placeholder = "{ImagePath}",
+                    Type = _typePlaceholderFolderPath,
+                    TypeLocalizationString = localizationPrefix + _typePlaceholderFolderPathLocal,
+                    LocalizationPrefix = localizationPrefix,
+                    Description = "Game ISO/ROM path if set",
+                },
+                new StringPlaceholder
+                {
+                    Placeholder = "{InstallDir}",
+                    Type = _typePlaceholderFolderPath,
+                    TypeLocalizationString = localizationPrefix + _typePlaceholderFolderPathLocal,
+                    LocalizationPrefix = localizationPrefix,
+                    Description = "Game installation directory",
+                },
+                new StringPlaceholder
+                {
+                    Placeholder = "{InstallDirName}",
+                    Type = _typePlaceholderFolderPath,
+                    TypeLocalizationString = localizationPrefix + _typePlaceholderFolderPathLocal,
+                    LocalizationPrefix = localizationPrefix,
+                    Description = "Name of installation folder",
+                },
+                new StringPlaceholder
+                {
+                    Placeholder = "{ImageName}",
+                    Type = _typePlaceholderGameInfo,
+                    TypeLocalizationString = localizationPrefix + _typePlaceholderGameInfoLocal,
+                    LocalizationPrefix = localizationPrefix,
+                    Description = "Game ISO/ROM file name",
+                },
+                new StringPlaceholder
+                {
+                    Placeholder = "{ImageNameNoExt}",
+                    Type = _typePlaceholderGameInfo,
+                    TypeLocalizationString = localizationPrefix + _typePlaceholderGameInfoLocal,
+                    LocalizationPrefix = localizationPrefix,
+                    Description = "Game ISO/ROM file name without extension",
+                },
+                new StringPlaceholder
+                {
+                    Placeholder = "{PlayniteDir}",
+                    Type = _typePlaceholderFolderPath,
+                    TypeLocalizationString = localizationPrefix + _typePlaceholderFolderPathLocal,
+                    LocalizationPrefix = localizationPrefix,
+                    Description = "Playnite's installation directory",
+                },
+                new StringPlaceholder
+                {
+                    Placeholder = "{Name}",
+                    Type = _typePlaceholderGameInfo,
+                    TypeLocalizationString = localizationPrefix + _typePlaceholderGameInfoLocal,
+                    LocalizationPrefix = localizationPrefix,
+                    Description = "Game name",
+                },
+                new StringPlaceholder
+                {
+                    Placeholder = "{Platform}",
+                    Type = _typePlaceholderGameInfo,
+                    TypeLocalizationString = localizationPrefix + _typePlaceholderGameInfoLocal,
+                    LocalizationPrefix = localizationPrefix,
+                    Description = "Game's platform",
+                },
+                new StringPlaceholder
+                {
+                    Placeholder = "{GameId}",
+                    Type = _typePlaceholderGameInfo,
+                    TypeLocalizationString = localizationPrefix + _typePlaceholderGameInfoLocal,
+                    LocalizationPrefix = localizationPrefix,
+                    Description = "Game's ID given by the library",
+                },
+                new StringPlaceholder
+                {
+                    Placeholder = "{DatabaseId}",
+                    Type = _typePlaceholderGameInfo,
+                    TypeLocalizationString = localizationPrefix + _typePlaceholderGameInfoLocal,
+                    LocalizationPrefix = localizationPrefix,
+                    Description = "Game's database ID",
+                },
+                new StringPlaceholder
+                {
+                    Placeholder = "{PluginId}",
+                    Type = _typePlaceholderGameInfo,
+                    TypeLocalizationString = localizationPrefix + _typePlaceholderGameInfoLocal,
+                    LocalizationPrefix = localizationPrefix,
+                    Description = "Game's library plugin ID",
+                },
+                new StringPlaceholder
+                {
+                    Placeholder = "{Version}",
+                    Type = _typePlaceholderGameInfo,
+                    TypeLocalizationString = localizationPrefix + _typePlaceholderGameInfoLocal,
+                    LocalizationPrefix = localizationPrefix,
+                    Description = "Game version",
+                },
+                new StringPlaceholder
+                {
+                    Placeholder = "{EmulatorDir}",
+                    Type = _typePlaceholderFolderPath,
+                    TypeLocalizationString = localizationPrefix + _typePlaceholderFolderPathLocal,
+                    LocalizationPrefix = localizationPrefix,
+                    Description = "Emulator's installation directory",
+                },
+
+                ////// Screenshot Utilities variables //////
+
+                new StringPlaceholder
+                {
+                    Placeholder = _placeholderDropbox,
+                    Type = _typePlaceholderFolderPath,
+                    TypeLocalizationString = localizationPrefix + _typePlaceholderFolderPathLocal,
+                    LocalizationPrefix = localizationPrefix,
+                    Description = "Dropbox folder - Requires Dropbox to be installed",
+                },
+                new StringPlaceholder
+                {
+                    Placeholder = _placeholderGameName,
+                    Type = _typePlaceholderGameInfo,
+                    TypeLocalizationString = localizationPrefix + _typePlaceholderGameInfoLocal,
+                    LocalizationPrefix = localizationPrefix,
+                    Description = "Game name formatted based on the set check boxes"
+                },
+                new StringPlaceholder
+                {
+                    Placeholder = _placeholderGogId,
+                    Type = _typePlaceholderGameInfo,
+                    TypeLocalizationString = localizationPrefix + _typePlaceholderGameInfoLocal,
+                    LocalizationPrefix = localizationPrefix,
+                    Description = "Game's GOG ID if it's a GOG game"
+                },
+                new StringPlaceholder
+                {
+                    Placeholder = _placeholderGogScreenshotDir,
+                    Type = _typePlaceholderFolderPath,
+                    TypeLocalizationString = localizationPrefix + _typePlaceholderFolderPathLocal,
+                    LocalizationPrefix = localizationPrefix,
+                    Description = "GOG Galaxy screenshots folder"
+                },
+                new StringPlaceholder
+                {
+                    Placeholder = _placeholderOneDrive,
+                    Type = _typePlaceholderFolderPath,
+                    TypeLocalizationString = localizationPrefix + _typePlaceholderFolderPathLocal,
+                    LocalizationPrefix = localizationPrefix,
+                    Description = "OneDrive folder - Requires OneDrive to be installed",
+                },
+                new StringPlaceholder
+                {
+                    Placeholder = _placeholderRetroArchScreenshots,
+                    Type = _typePlaceholderFolderPath,
+                    TypeLocalizationString = localizationPrefix + _typePlaceholderFolderPathLocal,
+                    LocalizationPrefix = localizationPrefix,
+                    Description = "RetroArch screenshots folder - Requires RetroArch to be installed"
+                },
+                new StringPlaceholder
+                {
+                    Placeholder = _placeholderRomName,
+                    Type = _typePlaceholderGameInfo,
+                    TypeLocalizationString = localizationPrefix + _typePlaceholderGameInfoLocal,
+                    LocalizationPrefix = localizationPrefix,
+                    Description = "Name of the first ROM of the game without extension"
+                },
+                new StringPlaceholder
+                {
+                    Placeholder = _placeholderSteamAccountId,
+                    Type = _typePlaceholderGameInfo,
+                    TypeLocalizationString = localizationPrefix + _typePlaceholderGameInfoLocal,
+                    LocalizationPrefix = localizationPrefix,
+                    Description = "Steam account ID of the currently active Steam user"
+                },
+                new StringPlaceholder
+                {
+                    Placeholder = _placeholderSteamDir,
+                    Type = _typePlaceholderFolderPath,
+                    TypeLocalizationString = localizationPrefix + _typePlaceholderFolderPathLocal,
+                    LocalizationPrefix = localizationPrefix,
+                    Description = "Steam installation folder - Requires Steam to be installed on the system"
+                },
+                new StringPlaceholder
+                {
+                    Placeholder = _placeholderSteamId,
+                    Type = _typePlaceholderGameInfo,
+                    TypeLocalizationString = localizationPrefix + _typePlaceholderGameInfoLocal,
+                    LocalizationPrefix = localizationPrefix,
+                    Description = "Game's Steam ID if it's a Steam game or has a steam link"
+                },
+                new StringPlaceholder
+                {
+                    Placeholder = _placeholderSteamScreenshotsDir,
+                    Type = _typePlaceholderFolderPath,
+                    TypeLocalizationString = localizationPrefix + _typePlaceholderFolderPathLocal,
+                    LocalizationPrefix = localizationPrefix,
+                    Description = "Steam screenshots folder - Requires Steam to be installed"
+                },
+                new StringPlaceholder
+                {
+                    Placeholder = _placeholderUbisoftGameDir,
+                    Type = _typePlaceholderFolderPath,
+                    TypeLocalizationString = localizationPrefix + _typePlaceholderFolderPathLocal,
+                    LocalizationPrefix = localizationPrefix,
+                    Description = "Ubisoft games installation folder - Requires Ubisoft Connect to be installed"
+                },
+                new StringPlaceholder
+                {
+                    Placeholder = _placeholderUbisoftInstallDir,
+                    Type = _typePlaceholderFolderPath,
+                    TypeLocalizationString = localizationPrefix + _typePlaceholderFolderPathLocal,
+                    LocalizationPrefix = localizationPrefix,
+                    Description = "Ubisoft Connect installation folder - Requires Ubisoft Connect to be installed"
+                },
+                new StringPlaceholder
+                {
+                    Placeholder = _placeholderUbisoftScreenshotsDir,
+                    Type = _typePlaceholderFolderPath,
+                    TypeLocalizationString = localizationPrefix + _typePlaceholderFolderPathLocal,
+                    LocalizationPrefix = localizationPrefix,
+                    Description = "Ubisoft Connect screenshots folder - Requires Ubisoft Connect to be installed"
+                },
+                new StringPlaceholder
+                {
+                    Placeholder = _placeholderXboxGamebarScreenshotsDir,
+                    Type = _typePlaceholderFolderPath,
+                    TypeLocalizationString = localizationPrefix + _typePlaceholderFolderPathLocal,
+                    LocalizationPrefix = localizationPrefix,
+                    Description = "Xbox Game Bar screenshots folder"
+                }
+            };
+
+            ////// Environment variables //////
+
+            tmpPlaceholders.AddRange(Environment.GetEnvironmentVariables().Cast<DictionaryEntry>().Select(p => new StringPlaceholder
+            {
+                Placeholder = "{" + (string)p.Key + "}",
+                Type = _typePlaceholderEnvVar,
+                TypeLocalizationString = localizationPrefix + _typePlaceholderEnvVarLocal,
+                LocalizationPrefix = localizationPrefix
+            }).OrderBy(p => p.Placeholder));
+
+            Placeholders.AddMissing(tmpPlaceholders.OrderBy(p => p.Type.Equals(_typePlaceholderEnvVar) ? "X" : p.Type).ThenBy(p => p.Placeholder));
+        }
 
         public string DropBoxFolder
         {
@@ -81,6 +337,8 @@ namespace KNARZhelper
                 return _oneDriveFolder;
             }
         }
+
+        public ObservableCollection<StringPlaceholder> Placeholders { get; set; } = new ObservableCollection<StringPlaceholder>();
 
         public string RetroArchScreenshotsDir
         {
@@ -774,5 +1032,15 @@ namespace KNARZhelper
             _xboxGamebarScreenshotDir = null;
             _ubisoftDirsRead = false;
         }
+    }
+
+    public class StringPlaceholder : ObservableObject
+    {
+        public string Description { get; set; }
+        public string DescriptionLocalizationString => LocalizationPrefix + Placeholder.Replace("{", string.Empty).Replace("}", string.Empty) + "Description";
+        public string LocalizationPrefix { get; set; }
+        public string Placeholder { get; set; }
+        public string Type { get; set; }
+        public string TypeLocalizationString { get; set; }
     }
 }
