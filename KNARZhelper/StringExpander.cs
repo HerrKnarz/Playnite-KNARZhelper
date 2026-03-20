@@ -15,6 +15,7 @@ namespace KNARZhelper
     {
         private readonly Guid _gogId = Guid.Parse("aebe8b7c-6dc3-4a66-af31-e7375c6b5e9e");
         private readonly Guid _gogOssId = Guid.Parse("03689811-3F33-4DFB-A121-2EE168FB9A5C");
+        private readonly string _localizationPrefix;
         private readonly string _placeholderDropbox = "{DropboxFolder}";
         private readonly string _placeholderGameName = "{GameName}";
         private readonly string _placeholderGogId = "{GogId}";
@@ -41,6 +42,7 @@ namespace KNARZhelper
         private string _dropBoxFolder = null;
         private string _gogScreenshotDir = null;
         private string _oneDriveFolder = null;
+        private ObservableCollection<StringPlaceholder> _placeholders;
         private string _retroArchScreenshotsDir = null;
         private string _steamAccountId = null;
         private string _steamInstallDir = null;
@@ -53,252 +55,13 @@ namespace KNARZhelper
 
         public StringExpander(string localizationPrefix = "")
         {
-            var tmpPlaceholders = new List<StringPlaceholder>
-            {
-                ////// Playnite variables //////
-
-                new StringPlaceholder
-                {
-                    Placeholder = "{ImagePath}",
-                    Type = _typePlaceholderFolderPath,
-                    TypeLocalizationString = localizationPrefix + _typePlaceholderFolderPathLocal,
-                    LocalizationPrefix = localizationPrefix,
-                    Description = "Game ISO/ROM path if set",
-                },
-                new StringPlaceholder
-                {
-                    Placeholder = "{InstallDir}",
-                    Type = _typePlaceholderFolderPath,
-                    TypeLocalizationString = localizationPrefix + _typePlaceholderFolderPathLocal,
-                    LocalizationPrefix = localizationPrefix,
-                    Description = "Game installation directory",
-                },
-                new StringPlaceholder
-                {
-                    Placeholder = "{InstallDirName}",
-                    Type = _typePlaceholderFolderPath,
-                    TypeLocalizationString = localizationPrefix + _typePlaceholderFolderPathLocal,
-                    LocalizationPrefix = localizationPrefix,
-                    Description = "Name of installation folder",
-                },
-                new StringPlaceholder
-                {
-                    Placeholder = "{ImageName}",
-                    Type = _typePlaceholderGameInfo,
-                    TypeLocalizationString = localizationPrefix + _typePlaceholderGameInfoLocal,
-                    LocalizationPrefix = localizationPrefix,
-                    Description = "Game ISO/ROM file name",
-                },
-                new StringPlaceholder
-                {
-                    Placeholder = "{ImageNameNoExt}",
-                    Type = _typePlaceholderGameInfo,
-                    TypeLocalizationString = localizationPrefix + _typePlaceholderGameInfoLocal,
-                    LocalizationPrefix = localizationPrefix,
-                    Description = "Game ISO/ROM file name without extension",
-                },
-                new StringPlaceholder
-                {
-                    Placeholder = "{PlayniteDir}",
-                    Type = _typePlaceholderFolderPath,
-                    TypeLocalizationString = localizationPrefix + _typePlaceholderFolderPathLocal,
-                    LocalizationPrefix = localizationPrefix,
-                    Description = "Playnite's installation directory",
-                },
-                new StringPlaceholder
-                {
-                    Placeholder = "{Name}",
-                    Type = _typePlaceholderGameInfo,
-                    TypeLocalizationString = localizationPrefix + _typePlaceholderGameInfoLocal,
-                    LocalizationPrefix = localizationPrefix,
-                    Description = "Game name",
-                },
-                new StringPlaceholder
-                {
-                    Placeholder = "{Platform}",
-                    Type = _typePlaceholderGameInfo,
-                    TypeLocalizationString = localizationPrefix + _typePlaceholderGameInfoLocal,
-                    LocalizationPrefix = localizationPrefix,
-                    Description = "Game's platform",
-                },
-                new StringPlaceholder
-                {
-                    Placeholder = "{GameId}",
-                    Type = _typePlaceholderGameInfo,
-                    TypeLocalizationString = localizationPrefix + _typePlaceholderGameInfoLocal,
-                    LocalizationPrefix = localizationPrefix,
-                    Description = "Game's ID given by the library",
-                },
-                new StringPlaceholder
-                {
-                    Placeholder = "{DatabaseId}",
-                    Type = _typePlaceholderGameInfo,
-                    TypeLocalizationString = localizationPrefix + _typePlaceholderGameInfoLocal,
-                    LocalizationPrefix = localizationPrefix,
-                    Description = "Game's database ID",
-                },
-                new StringPlaceholder
-                {
-                    Placeholder = "{PluginId}",
-                    Type = _typePlaceholderGameInfo,
-                    TypeLocalizationString = localizationPrefix + _typePlaceholderGameInfoLocal,
-                    LocalizationPrefix = localizationPrefix,
-                    Description = "Game's library plugin ID",
-                },
-                new StringPlaceholder
-                {
-                    Placeholder = "{Version}",
-                    Type = _typePlaceholderGameInfo,
-                    TypeLocalizationString = localizationPrefix + _typePlaceholderGameInfoLocal,
-                    LocalizationPrefix = localizationPrefix,
-                    Description = "Game version",
-                },
-                new StringPlaceholder
-                {
-                    Placeholder = "{EmulatorDir}",
-                    Type = _typePlaceholderFolderPath,
-                    TypeLocalizationString = localizationPrefix + _typePlaceholderFolderPathLocal,
-                    LocalizationPrefix = localizationPrefix,
-                    Description = "Emulator's installation directory",
-                },
-
-                ////// Screenshot Utilities variables //////
-
-                new StringPlaceholder
-                {
-                    Placeholder = _placeholderDropbox,
-                    Type = _typePlaceholderFolderPath,
-                    TypeLocalizationString = localizationPrefix + _typePlaceholderFolderPathLocal,
-                    LocalizationPrefix = localizationPrefix,
-                    Description = "Dropbox folder - Requires Dropbox to be installed",
-                },
-                new StringPlaceholder
-                {
-                    Placeholder = _placeholderGameName,
-                    Type = _typePlaceholderGameInfo,
-                    TypeLocalizationString = localizationPrefix + _typePlaceholderGameInfoLocal,
-                    LocalizationPrefix = localizationPrefix,
-                    Description = "Game name formatted based on the set check boxes"
-                },
-                new StringPlaceholder
-                {
-                    Placeholder = _placeholderGogId,
-                    Type = _typePlaceholderGameInfo,
-                    TypeLocalizationString = localizationPrefix + _typePlaceholderGameInfoLocal,
-                    LocalizationPrefix = localizationPrefix,
-                    Description = "Game's GOG ID if it's a GOG game"
-                },
-                new StringPlaceholder
-                {
-                    Placeholder = _placeholderGogScreenshotDir,
-                    Type = _typePlaceholderFolderPath,
-                    TypeLocalizationString = localizationPrefix + _typePlaceholderFolderPathLocal,
-                    LocalizationPrefix = localizationPrefix,
-                    Description = "GOG Galaxy screenshots folder"
-                },
-                new StringPlaceholder
-                {
-                    Placeholder = _placeholderOneDrive,
-                    Type = _typePlaceholderFolderPath,
-                    TypeLocalizationString = localizationPrefix + _typePlaceholderFolderPathLocal,
-                    LocalizationPrefix = localizationPrefix,
-                    Description = "OneDrive folder - Requires OneDrive to be installed",
-                },
-                new StringPlaceholder
-                {
-                    Placeholder = _placeholderRetroArchScreenshots,
-                    Type = _typePlaceholderFolderPath,
-                    TypeLocalizationString = localizationPrefix + _typePlaceholderFolderPathLocal,
-                    LocalizationPrefix = localizationPrefix,
-                    Description = "RetroArch screenshots folder - Requires RetroArch to be installed"
-                },
-                new StringPlaceholder
-                {
-                    Placeholder = _placeholderRomName,
-                    Type = _typePlaceholderGameInfo,
-                    TypeLocalizationString = localizationPrefix + _typePlaceholderGameInfoLocal,
-                    LocalizationPrefix = localizationPrefix,
-                    Description = "Name of the first ROM of the game without extension"
-                },
-                new StringPlaceholder
-                {
-                    Placeholder = _placeholderSteamAccountId,
-                    Type = _typePlaceholderGameInfo,
-                    TypeLocalizationString = localizationPrefix + _typePlaceholderGameInfoLocal,
-                    LocalizationPrefix = localizationPrefix,
-                    Description = "Steam account ID of the currently active Steam user"
-                },
-                new StringPlaceholder
-                {
-                    Placeholder = _placeholderSteamDir,
-                    Type = _typePlaceholderFolderPath,
-                    TypeLocalizationString = localizationPrefix + _typePlaceholderFolderPathLocal,
-                    LocalizationPrefix = localizationPrefix,
-                    Description = "Steam installation folder - Requires Steam to be installed on the system"
-                },
-                new StringPlaceholder
-                {
-                    Placeholder = _placeholderSteamId,
-                    Type = _typePlaceholderGameInfo,
-                    TypeLocalizationString = localizationPrefix + _typePlaceholderGameInfoLocal,
-                    LocalizationPrefix = localizationPrefix,
-                    Description = "Game's Steam ID if it's a Steam game or has a steam link"
-                },
-                new StringPlaceholder
-                {
-                    Placeholder = _placeholderSteamScreenshotsDir,
-                    Type = _typePlaceholderFolderPath,
-                    TypeLocalizationString = localizationPrefix + _typePlaceholderFolderPathLocal,
-                    LocalizationPrefix = localizationPrefix,
-                    Description = "Steam screenshots folder - Requires Steam to be installed"
-                },
-                new StringPlaceholder
-                {
-                    Placeholder = _placeholderUbisoftGameDir,
-                    Type = _typePlaceholderFolderPath,
-                    TypeLocalizationString = localizationPrefix + _typePlaceholderFolderPathLocal,
-                    LocalizationPrefix = localizationPrefix,
-                    Description = "Ubisoft games installation folder - Requires Ubisoft Connect to be installed"
-                },
-                new StringPlaceholder
-                {
-                    Placeholder = _placeholderUbisoftInstallDir,
-                    Type = _typePlaceholderFolderPath,
-                    TypeLocalizationString = localizationPrefix + _typePlaceholderFolderPathLocal,
-                    LocalizationPrefix = localizationPrefix,
-                    Description = "Ubisoft Connect installation folder - Requires Ubisoft Connect to be installed"
-                },
-                new StringPlaceholder
-                {
-                    Placeholder = _placeholderUbisoftScreenshotsDir,
-                    Type = _typePlaceholderFolderPath,
-                    TypeLocalizationString = localizationPrefix + _typePlaceholderFolderPathLocal,
-                    LocalizationPrefix = localizationPrefix,
-                    Description = "Ubisoft Connect screenshots folder - Requires Ubisoft Connect to be installed"
-                },
-                new StringPlaceholder
-                {
-                    Placeholder = _placeholderXboxGamebarScreenshotsDir,
-                    Type = _typePlaceholderFolderPath,
-                    TypeLocalizationString = localizationPrefix + _typePlaceholderFolderPathLocal,
-                    LocalizationPrefix = localizationPrefix,
-                    Description = "Xbox Game Bar screenshots folder"
-                }
-            };
-
-            ////// Environment variables //////
-
-            tmpPlaceholders.AddRange(Environment.GetEnvironmentVariables().Cast<DictionaryEntry>().Select(p => new StringPlaceholder
-            {
-                Placeholder = "{" + (string)p.Key + "}",
-                Type = _typePlaceholderEnvVar,
-                TypeLocalizationString = localizationPrefix + _typePlaceholderEnvVarLocal,
-                LocalizationPrefix = localizationPrefix
-            }).OrderBy(p => p.Placeholder));
-
-            Placeholders.AddMissing(tmpPlaceholders.OrderBy(p => p.Type.Equals(_typePlaceholderEnvVar) ? "X" : p.Type).ThenBy(p => p.Placeholder));
+            _localizationPrefix = localizationPrefix;
         }
 
+        /// <summary>
+        /// Returns the Dropbox folder using the Dropbox configuration file located in the user's
+        /// AppData directory.
+        /// </summary>
         public string DropBoxFolder
         {
             get
@@ -312,6 +75,10 @@ namespace KNARZhelper
             }
         }
 
+        /// <summary>
+        /// Returns the GOG screenshot directory path based on the standard location in the user's
+        /// Documents folder.
+        /// </summary>
         public string GogScreenshotDir
         {
             get
@@ -325,6 +92,10 @@ namespace KNARZhelper
             }
         }
 
+        /// <summary>
+        /// Returns the OneDrive folder path by reading the OneDrive registry key. If the key cannot
+        /// be read or does not exist, an empty string is returned.
+        /// </summary>
         public string OneDriveFolder
         {
             get
@@ -338,21 +109,51 @@ namespace KNARZhelper
             }
         }
 
-        public ObservableCollection<StringPlaceholder> Placeholders { get; set; } = new ObservableCollection<StringPlaceholder>();
+        public ObservableCollection<StringPlaceholder> Placeholders
+        {
+            get
+            {
+                if (_placeholders == null)
+                {
+                    _placeholders = new ObservableCollection<StringPlaceholder>();
+                    PopulatePlaceholders();
+                }
 
+                return _placeholders;
+            }
+        }
+
+        /// <summary>
+        /// Returns the RetroArch screenshots directory by reading the "screenshot_directory"
+        /// setting from the RetroArch configuration file. If the configuration file cannot be read
+        /// or does not contain the necessary information, an empty string is returned. To locate
+        /// the RetroArch installation, the method checks the list of emulators in the Playnite
+        /// database for one with "RetroArch" in its name and reads the configuration file from that
+        /// location. If no such emulator is found, an empty string is returned.
+        /// </summary>
         public string RetroArchScreenshotsDir
         {
             get
             {
                 if (_retroArchScreenshotsDir == null)
                 {
-                    _retroArchScreenshotsDir = GetRetroArchScreenshotDir();
+                    _retroArchScreenshotsDir = GetRetroArchScreenshotsDir();
                 }
 
                 return _retroArchScreenshotsDir;
             }
         }
 
+        /// <summary>
+        /// Returns the Steam account ID of the currently active Steam user by reading the Steam
+        /// userdata directory. The method locates the Steam installation directory using the
+        /// registry, then looks for the "userdata" folder within it. It retrieves the list of
+        /// subdirectories in "userdata", which correspond to different Steam accounts, and selects
+        /// the one with the most recent "config" folder modification date as the active account. If
+        /// any step of this process fails (e.g., if the Steam installation cannot be found, if the
+        /// userdata directory does not exist, or if there are no valid user directories), an empty
+        /// string is returned.
+        /// </summary>
         public string SteamAccountId
         {
             get
@@ -366,6 +167,10 @@ namespace KNARZhelper
             }
         }
 
+        /// <summary>
+        /// Returns the Steam installation directory by reading the "SteamPath" value from the Steam
+        /// registry key. If the registry key cannot be read or does not exist, an empty string is returned.
+        /// </summary>
         public string SteamInstallDir
         {
             get
@@ -379,19 +184,41 @@ namespace KNARZhelper
             }
         }
 
+        /// <summary>
+        /// Returns the Steam screenshots directory path by combining the Steam installation
+        /// directory, the "userdata" folder, the active Steam account ID, and the standard path to
+        /// the screenshots folder within a Steam user's data. If any of the required components
+        /// (Steam installation directory, account ID) cannot be retrieved, or if the resulting
+        /// screenshots directory does not exist, an empty string is returned.
+        /// </summary>
+        /// <param name="str">
+        /// A reference to the string in which the Steam screenshot folder placeholder will be
+        /// replaced. The string will be modified if the placeholder is found and resolved.
+        /// </param>
+        /// <returns>
+        /// true if the placeholder was found and replaced or wasn't present in the string;
+        /// otherwise, false.
+        /// </returns>
         public string SteamScreenshotsDir
         {
             get
             {
                 if (_steamScreenshotsDir == null)
                 {
-                    _steamScreenshotsDir = GetSteamScreenshotDir();
+                    _steamScreenshotsDir = GetSteamScreenshotsDir();
                 }
 
                 return _steamScreenshotsDir;
             }
         }
 
+        /// <summary>
+        /// Returns the Ubisoft game installation directory by reading the Ubisoft Game Launcher
+        /// settings file located in the user's AppData directory. The method retrieves the
+        /// "game_installation_path" value from the settings file, which specifies the default
+        /// installation directory for Ubisoft games. If the settings file cannot be read or does
+        /// not contain the necessary information, an empty string is returned.
+        /// </summary>
         public string UbisoftGameDir
         {
             get
@@ -405,6 +232,13 @@ namespace KNARZhelper
             }
         }
 
+        /// <summary>
+        /// Returns the Ubisoft game installation directory by reading the Ubisoft Game Launcher
+        /// settings file located in the user's AppData directory. The method retrieves the
+        /// "installer_cache_path" value from the settings file, which specifies the installation
+        /// directory for the Ubisoft Connect client itself. If the settings file cannot be read or
+        /// does not contain the necessary information, an empty string is returned.
+        /// </summary>
         public string UbisoftInstallDir
         {
             get
@@ -418,6 +252,13 @@ namespace KNARZhelper
             }
         }
 
+        /// <summary>
+        /// Returns the Ubisoft game installation directory by reading the Ubisoft Game Launcher
+        /// settings file located in the user's AppData directory. The method retrieves the
+        /// "screenshot_root_path" value from the settings file, which specifies the root directory
+        /// for Ubisoft Connect screenshots. If the settings file cannot be read or does not contain
+        /// the necessary information, an empty string is returned.
+        /// </summary>
         public string UbisoftScreenshotsDir
         {
             get
@@ -431,6 +272,11 @@ namespace KNARZhelper
             }
         }
 
+        /// <summary>
+        /// Returns the Xbox Game Bar screenshots directory path, which is typically located in the
+        /// "Captures" folder within the "Videos" library of the user's profile. If the directory
+        /// does not exist, an empty string is returned.
+        /// </summary>
         public string XboxGamebarScreenshotDir
         {
             get
@@ -484,359 +330,45 @@ namespace KNARZhelper
 
             str = API.Instance.ExpandGameVariables(game, str);
 
-            if (ReplaceSteamAccountIdPlaceholder(ref str)
-                && ReplaceSteamDirPlaceholder(ref str)
-                && ReplaceSteamIdPlaceholder(ref str, game)
-                && ReplaceSteamScreenshotDirPlaceholder(ref str)
-                && ReplaceGameNamePlaceholder(ref str, gameName)
-                && ReplaceGogIdPlaceholder(ref str, game)
-                && ReplaceGogScreenshotDirPlaceholder(ref str)
-                && ReplaceDropBoxPlaceholder(ref str)
-                && ReplaceOneDrivePlaceholder(ref str)
-                && ReplaceRetroArchPlaceholder(ref str)
-                && ReplaceRomNamePlaceholder(ref str, game)
-                && ReplaceUbisoftGameDirPlaceholder(ref str)
-                && ReplaceUbisoftInstallDirPlaceholder(ref str)
-                && ReplaceUbisoftScreenshotsDirPlaceholder(ref str)
-                && ReplaceXboxGamebarScreenshotDirPlaceholder(ref str))
+            foreach (var placeholder in Placeholders.Where(p => !p.IsPlayniteVar && str.Contains(p.Placeholder)))
             {
-                // Replace environment variables last to avoid conflicts with other placeholders
-                str = ReplaceEnvironmentVariables(str);
-
-                return str;
-            }
-
-            return string.Empty;
-        }
-
-        /// <summary>
-        /// Replaces the Dropbox folder placeholder in the specified string with the actual Dropbox
-        /// folder path, if available.
-        /// </summary>
-        /// <remarks>
-        /// This method searches for a Dropbox folder placeholder in the input string and attempts
-        /// to resolve it using the Dropbox configuration file located in the user's AppData directory.
-        /// </remarks>
-        /// <param name="str">
-        /// A reference to the string in which the Dropbox folder placeholder will be replaced. The
-        /// string will be modified if the placeholder is found and resolved.
-        /// </param>
-        /// <returns>
-        /// true if the placeholder was found and replaced or wasn't present in the string;
-        /// otherwise, false.
-        /// </returns>
-        public bool ReplaceDropBoxPlaceholder(ref string str)
-            => ReplaceSinglePlaceholder(ref str, _placeholderDropbox, DropBoxFolder);
-
-        /// <summary>
-        /// Replaces placeholders in the string with the values of corresponding environment variables.
-        /// </summary>
-        /// <remarks>
-        /// Placeholders must match the names of environment variables exactly, including case
-        /// sensitivity. If an environment variable is not set, its placeholder will just be removed.
-        /// </remarks>
-        /// <param name="str">
-        /// The input string containing placeholders in the format "{VARIABLE_NAME}" to be replaced
-        /// with environment variable values.
-        /// </param>
-        /// <returns>
-        /// A string with all recognized environment variable placeholders replaced by their values.
-        /// Returns the original string if no placeholders are found or if the input is null or empty.
-        /// </returns>
-        public string ReplaceEnvironmentVariables(string str)
-        {
-            if (string.IsNullOrEmpty(str))
-            {
-                return str;
-            }
-
-            foreach (DictionaryEntry envVar in Environment.GetEnvironmentVariables())
-            {
-                var placeholder = "{" + (string)envVar.Key + "}";
-
-                if (str.Contains(placeholder))
+                if (placeholder.GameDependent)
                 {
-                    str = str.Replace(placeholder, (string)envVar.Value);
+                    if (placeholder.Placeholder == _placeholderGameName)
+                    {
+                        ReplaceSinglePlaceholder(ref str, placeholder.Placeholder, gameName);
+                    }
+                    else if (!ReplaceSinglePlaceholder(ref str, placeholder.Placeholder, placeholder.ResultFunc(game)))
+                    {
+                        return string.Empty;
+                    }
+                }
+                else if (!ReplaceSinglePlaceholder(ref str, placeholder.Placeholder, placeholder.Result))
+                {
+                    return string.Empty;
                 }
             }
 
-            return str;
+            return str.Contains("{") ? string.Empty : str;
         }
 
-        /// <summary>
-        /// Replaces the game name placeholder in the specified string with the provided game name.
-        /// </summary>
-        /// <param name="str">
-        /// A reference to the string in which the game name placeholder will be replaced. The
-        /// string will be modified if the placeholder is found and resolved.
-        /// </param>
-        /// <param name="gameName">The game name to substitute for the placeholder.</param>
-        /// <returns>
-        /// true if the placeholder was found and replaced or wasn't present in the string;
-        /// otherwise, false.
-        /// </returns>
-        public bool ReplaceGameNamePlaceholder(ref string str, string gameName)
-            => ReplaceSinglePlaceholder(ref str, _placeholderGameName, gameName);
+        public void ResetCache() => PopulatePlaceholders();
 
-        /// <summary>
-        /// Replaces the GOG Id placeholder in the specified string with the GOG game identifier if applicable.
-        /// </summary>
-        /// <param name="str">
-        /// A reference to the string in which the GOG Id placeholder will be replaced. The string
-        /// will be modified if the placeholder is found and resolved.
-        /// </param>
-        /// <param name="game">The game instance providing the GOG Id and plugin information.</param>
-        /// <returns>
-        /// true if the placeholder was found and replaced or wasn't present in the string;
-        /// otherwise, false.
-        /// </returns>
-        public bool ReplaceGogIdPlaceholder(ref string str, Game game)
+        public void TestExpansions(Game game, bool showResult = false)
         {
-            var gogGameId = game.PluginId.IsOneOf(_gogId, _gogOssId) ? game.GameId : string.Empty;
+            Placeholders.Where(p => p.GameDependent).ForEach(placeholder =>
+            {
+                placeholder.Result = placeholder.IsPlayniteVar
+                    ? API.Instance.ExpandGameVariables(game, placeholder.Placeholder)
+                    : placeholder.Placeholder == _placeholderGameName ? game.Name : placeholder.ResultFunc(game);
+            });
 
-            return ReplaceSinglePlaceholder(ref str, _placeholderGogId, gogGameId);
-        }
+            if (showResult)
+            {
+                var resultString = string.Join("\n", Placeholders.Select(p => $"{p.Placeholder}: {p.Result}"));
 
-        /// <summary>
-        /// Replaces the GOG screenshot dir placeholder in the specified string with the actual GOG
-        /// screenshot dir.
-        /// </summary>
-        /// <param name="str">
-        /// A reference to the string in which the GOG screenshot dir placeholder will be replaced.
-        /// The string will be modified if the placeholder is found and resolved.
-        /// </param>
-        /// <returns>
-        /// true if the placeholder was found and replaced or wasn't present in the string;
-        /// otherwise, false.
-        /// </returns>
-        public bool ReplaceGogScreenshotDirPlaceholder(ref string str)
-            => ReplaceSinglePlaceholder(ref str, _placeholderGogScreenshotDir, GogScreenshotDir);
-
-        /// <summary>
-        /// Replaces the OneDrive folder placeholder in the specified string with the actual
-        /// OneDrive folder path, if available.
-        /// </summary>
-        /// <remarks>
-        /// This method searches for a OneDrive folder placeholder in the input string and attempts
-        /// to resolve it using the OneDrive registry key.
-        /// </remarks>
-        /// <param name="str">
-        /// A reference to the string in which the OneDrive folder placeholder will be replaced. The
-        /// string will be modified if the placeholder is found and resolved.
-        /// </param>
-        /// <returns>
-        /// true if the placeholder was found and replaced or wasn't present in the string;
-        /// otherwise, false.
-        /// </returns>
-        public bool ReplaceOneDrivePlaceholder(ref string str)
-            => ReplaceSinglePlaceholder(ref str, _placeholderOneDrive, OneDriveFolder);
-
-        /// <summary>
-        /// Replaces the RetroArch screenshot folder placeholder in the specified string with the
-        /// actual directory path, if available.
-        /// </summary>
-        /// <param name="str">
-        /// A reference to the string in which the RetroArch screenshot folder placeholder will be
-        /// replaced. The string will be modified if the placeholder is found and resolved.
-        /// </param>
-        /// <returns>
-        /// true if the placeholder was found and replaced or wasn't present in the string;
-        /// otherwise, false.
-        /// </returns>
-        public bool ReplaceRetroArchPlaceholder(ref string str)
-            => ReplaceSinglePlaceholder(ref str, _placeholderRetroArchScreenshots, RetroArchScreenshotsDir);
-
-        /// <summary>
-        /// Replaces the ROM name placeholder in the specified string with the file name of the
-        /// first ROM associated with the given game, if available.
-        /// </summary>
-        /// <param name="str">
-        /// A reference to the string in which the ROM name placeholder will be replaced. The string
-        /// will be modified if the placeholder is found and resolved.
-        /// </param>
-        /// <param name="game">
-        /// The game whose ROM file name is used to replace the placeholder. Must not be null.
-        /// </param>
-        /// <returns>
-        /// true if the placeholder was found and replaced or wasn't present in the string;
-        /// otherwise, false.
-        /// </returns>
-        public bool ReplaceRomNamePlaceholder(ref string str, Game game)
-        {
-            var romName = game.IsInstalled && (game.Roms?.Any() ?? false) ? Path.GetFileNameWithoutExtension(game.Roms[0].Path) : string.Empty;
-
-            return ReplaceSinglePlaceholder(ref str, _placeholderRomName, romName);
-        }
-
-        /// <summary>
-        /// Replaces the Steam account ID placeholder in the specified string with the actual Steam
-        /// account ID.
-        /// </summary>
-        /// <param name="str">
-        /// A reference to the string in which the Steam account ID placeholder will be replaced.
-        /// The string will be modified if the placeholder is found and resolved.
-        /// </param>
-        /// <returns>
-        /// true if the placeholder was found and replaced or wasn't present in the string;
-        /// otherwise, false.
-        /// </returns>
-        public bool ReplaceSteamAccountIdPlaceholder(ref string str)
-            => ReplaceSinglePlaceholder(ref str, _placeholderSteamAccountId, SteamAccountId);
-
-        /// <summary>
-        /// Replaces the Steam folder placeholder in the specified string with the actual Steam
-        /// folder path, if available.
-        /// </summary>
-        /// <remarks>
-        /// This method searches for a Steam folder placeholder in the input string and attempts to
-        /// resolve it using the Steam registry key.
-        /// </remarks>
-        /// <param name="str">
-        /// A reference to the string in which the Steam folder placeholder will be replaced. The
-        /// string will be modified if the placeholder is found and resolved.
-        /// </param>
-        /// <returns>
-        /// true if the placeholder was found and replaced or wasn't present in the string;
-        /// otherwise, false.
-        /// </returns>
-        public bool ReplaceSteamDirPlaceholder(ref string str)
-            => ReplaceSinglePlaceholder(ref str, _placeholderSteamDir, SteamInstallDir);
-
-        /// <summary>
-        /// Replaces the Steam ID placeholder in the specified string with the Steam ID associated
-        /// with the given game.
-        /// </summary>
-        /// <param name="str">
-        /// A reference to the string in which the Steam ID placeholder will be replaced. The string
-        /// will be modified if the placeholder is found and resolved.
-        /// </param>
-        /// <param name="game">The game instance used to retrieve the Steam ID for replacement.</param>
-        /// <returns>
-        /// true if the placeholder was found and replaced or wasn't present in the string;
-        /// otherwise, false.
-        /// </returns>
-        public bool ReplaceSteamIdPlaceholder(ref string str, Game game)
-        {
-            var steamGameId = SteamHelper.GetSteamId(game);
-
-            return ReplaceSinglePlaceholder(ref str, _placeholderSteamId, steamGameId);
-        }
-
-        /// <summary>
-        /// Replaces the Steam screenshot folder placeholder in the specified string with the Steam
-        /// ID associated with the given game.
-        /// </summary>
-        /// <param name="str">
-        /// A reference to the string in which the Steam screenshot folder placeholder will be
-        /// replaced. The string will be modified if the placeholder is found and resolved.
-        /// </param>
-        /// <returns>
-        /// true if the placeholder was found and replaced or wasn't present in the string;
-        /// otherwise, false.
-        /// </returns>
-        public bool ReplaceSteamScreenshotDirPlaceholder(ref string str)
-            => ReplaceSinglePlaceholder(ref str, _placeholderSteamScreenshotsDir, SteamScreenshotsDir);
-
-        /// <summary>
-        /// Replaces the Ubisoft game dir placeholder in the specified string with the actual
-        /// Ubisoft game dir.
-        /// </summary>
-        /// <remarks>
-        /// The directory is retrieved from the Ubisoft Game Launcher settings file. If the file
-        /// cannot be read or does not contain the necessary information, the placeholder will not
-        /// be replaced and the method will return false.
-        /// </remarks>
-        /// <param name="str">
-        /// A reference to the string in which the Ubisoft game dir placeholder will be replaced.
-        /// The string will be modified if the placeholder is found and resolved.
-        /// </param>
-        /// <returns>
-        /// true if the placeholder was found and replaced or wasn't present in the string;
-        /// otherwise, false.
-        /// </returns>
-        public bool ReplaceUbisoftGameDirPlaceholder(ref string str)
-            => ReplaceSinglePlaceholder(ref str, _placeholderUbisoftGameDir, UbisoftGameDir);
-
-        /// <summary>
-        /// Replaces the Ubisoft install dir placeholder in the specified string with the Ubisoft
-        /// install dir associated with the given game.
-        /// </summary>
-        /// <remarks>
-        /// The directory is retrieved from the Ubisoft Game Launcher settings file. If the file
-        /// cannot be read or does not contain the necessary information, the placeholder will not
-        /// be replaced and the method will return false.
-        /// </remarks>
-        /// <param name="str">
-        /// A reference to the string in which the Ubisoft install dir placeholder will be replaced.
-        /// The string will be modified if the placeholder is found and resolved.
-        /// </param>
-        /// <returns>
-        /// true if the placeholder was found and replaced or wasn't present in the string;
-        /// otherwise, false.
-        /// </returns>
-        public bool ReplaceUbisoftInstallDirPlaceholder(ref string str)
-            => ReplaceSinglePlaceholder(ref str, _placeholderUbisoftInstallDir, UbisoftInstallDir);
-
-        /// <summary>
-        /// Replaces the Ubisoft screenshot dir placeholder in the specified string with the Ubisoft
-        /// screenshot dir associated with the given game.
-        /// </summary>
-        /// <remarks>
-        /// The directory is retrieved from the Ubisoft Game Launcher settings file. If the file
-        /// cannot be read or does not contain the necessary information, the placeholder will not
-        /// be replaced and the method will return false.
-        /// </remarks>
-        /// <param name="str">
-        /// A reference to the string in which the Ubisoft screenshot dir placeholder will be
-        /// replaced. The string will be modified if the placeholder is found and resolved.
-        /// </param>
-        /// <returns>
-        /// true if the placeholder was found and replaced or wasn't present in the string;
-        /// otherwise, false.
-        /// </returns>
-        public bool ReplaceUbisoftScreenshotsDirPlaceholder(ref string str)
-            => ReplaceSinglePlaceholder(ref str, _placeholderUbisoftScreenshotsDir, UbisoftScreenshotsDir);
-
-        /// <summary>
-        /// Replaces the Xbox gamebar screenshot dir placeholder in the specified string with the
-        /// actual Xbox gamebar screenshot dir.
-        /// </summary>
-        /// <param name="str">
-        /// A reference to the string in which the Xbox gamebar screenshot dir placeholder will be
-        /// replaced. The string will be modified if the placeholder is found and resolved.
-        /// </param>
-        /// <returns>
-        /// true if the placeholder was found and replaced or wasn't present in the string;
-        /// otherwise, false.
-        /// </returns>
-        public bool ReplaceXboxGamebarScreenshotDirPlaceholder(ref string str)
-            => ReplaceSinglePlaceholder(ref str, _placeholderXboxGamebarScreenshotsDir, XboxGamebarScreenshotDir);
-
-        public void TestExpansions(Game game)
-        {
-            ResetCache();
-
-            var resultString = string.Empty;
-
-            resultString += "Dropbox: " + ReplaceAllPlaceholders("{DropboxFolder}", game);
-            resultString += "\nEnvironment variables: " + ReplaceAllPlaceholders("{ProgramFiles}, {ProgramFiles(x86)}, {UserProfile}, {AppData}, {LocalAppData}, {Temp}", game);
-            resultString += "\nGame name: " + ReplaceAllPlaceholders("{GameName}", game);
-            resultString += "\nGOG ID: " + ReplaceAllPlaceholders("{GogId}", game);
-            resultString += "\nGOG Screenshot Dir: " + ReplaceAllPlaceholders("{GogScreenshotDir}", game);
-            resultString += "\nOneDrive: " + ReplaceAllPlaceholders("{OneDriveFolder}", game);
-            resultString += "\nPlaynite variables: " + ReplaceAllPlaceholders("{Name}, {InstallDir}, {Platform}, {GameId}", game);
-            resultString += "\nRetroArch: " + ReplaceAllPlaceholders("{RetroArchScreenshotsDir}", game);
-            resultString += "\nROM name: " + ReplaceAllPlaceholders("{RomName}", game);
-            resultString += "\nSteam AccountId: " + ReplaceAllPlaceholders("{SteamAccountId}", game);
-            resultString += "\nSteam Dir: " + ReplaceAllPlaceholders("{SteamInstallDir}", game);
-            resultString += "\nSteam ID: " + ReplaceAllPlaceholders("{SteamId}", game);
-            resultString += "\nSteam Screenshots: " + ReplaceAllPlaceholders("{SteamScreenshotsDir}", game);
-            resultString += "\nUbisoft Game Dir: " + ReplaceAllPlaceholders("{UbisoftGameDir}", game);
-            resultString += "\nUbisoft Install Dir: " + ReplaceAllPlaceholders("{UbisoftInstallDir}", game);
-            resultString += "\nUbisoft Screenshots Dir: " + ReplaceAllPlaceholders("{UbisoftScreenshotsDir}", game);
-            resultString += "\nXbox Gamebar Screenshot Dir: " + ReplaceAllPlaceholders("{XboxGamebarScreenshotsDir}", game);
-
-            API.Instance.Dialogs.ShowSelectableString("", "Placeholder Test", resultString);
+                API.Instance.Dialogs.ShowSelectableString("", "Placeholder Test", resultString);
+            }
         }
 
         private string GetDropBoxFolder()
@@ -860,6 +392,8 @@ namespace KNARZhelper
                 return string.Empty;
             }
         }
+
+        private string GetGogId(Game game) => game.PluginId.IsOneOf(_gogId, _gogOssId) ? game.GameId : string.Empty;
 
         private string GetGogScreenshotDir()
         {
@@ -885,7 +419,7 @@ namespace KNARZhelper
             }
         }
 
-        private string GetRetroArchScreenshotDir()
+        private string GetRetroArchScreenshotsDir()
         {
             try
             {
@@ -929,6 +463,9 @@ namespace KNARZhelper
             }
         }
 
+        private string GetRomName(Game game)
+                                    => game.IsInstalled && (game.Roms?.Any() ?? false) ? Path.GetFileNameWithoutExtension(game.Roms[0].Path) : string.Empty;
+
         private string GetSteamAccountId()
         {
             try
@@ -970,7 +507,7 @@ namespace KNARZhelper
             }
         }
 
-        private string GetSteamScreenshotDir()
+        private string GetSteamScreenshotsDir()
         {
             var screenshotDir = new DirectoryInfo(Path.Combine(SteamInstallDir, "userdata", SteamAccountId, "760", "remote"));
 
@@ -1001,6 +538,305 @@ namespace KNARZhelper
             return screenshotDir.Exists ? screenshotDir.FullName : string.Empty;
         }
 
+        private void PopulatePlaceholders()
+        {
+            Placeholders.Clear();
+
+            var game = new Game();
+
+            GetUbisoftDirs();
+
+            var tmpPlaceholders = new List<StringPlaceholder>
+            {
+                ////// Playnite variables //////
+
+                new StringPlaceholder
+                {
+                    Placeholder = "{ImagePath}",
+                    Type = _typePlaceholderFolderPath,
+                    TypeLocalizationString = _localizationPrefix + _typePlaceholderFolderPathLocal,
+                    LocalizationPrefix = _localizationPrefix,
+                    Description = "Game ISO/ROM path if set",
+                    GameDependent = true,
+                    IsPlayniteVar = true
+                },
+                new StringPlaceholder
+                {
+                    Placeholder = "{InstallDir}",
+                    Type = _typePlaceholderFolderPath,
+                    TypeLocalizationString = _localizationPrefix + _typePlaceholderFolderPathLocal,
+                    LocalizationPrefix = _localizationPrefix,
+                    Description = "Game installation directory",
+                    GameDependent = true,
+                    IsPlayniteVar = true
+                },
+                new StringPlaceholder
+                {
+                    Placeholder = "{InstallDirName}",
+                    Type = _typePlaceholderFolderPath,
+                    TypeLocalizationString = _localizationPrefix + _typePlaceholderFolderPathLocal,
+                    LocalizationPrefix = _localizationPrefix,
+                    Description = "Name of installation folder",
+                    GameDependent = true,
+                    IsPlayniteVar = true
+                },
+                new StringPlaceholder
+                {
+                    Placeholder = "{ImageName}",
+                    Type = _typePlaceholderGameInfo,
+                    TypeLocalizationString = _localizationPrefix + _typePlaceholderGameInfoLocal,
+                    LocalizationPrefix = _localizationPrefix,
+                    Description = "Game ISO/ROM file name",
+                    GameDependent = true,
+                    IsPlayniteVar = true
+                },
+                new StringPlaceholder
+                {
+                    Placeholder = "{ImageNameNoExt}",
+                    Type = _typePlaceholderGameInfo,
+                    TypeLocalizationString = _localizationPrefix + _typePlaceholderGameInfoLocal,
+                    LocalizationPrefix = _localizationPrefix,
+                    Description = "Game ISO/ROM file name without extension",
+                    GameDependent = true,
+                    IsPlayniteVar = true
+                },
+                new StringPlaceholder
+                {
+                    Placeholder = "{PlayniteDir}",
+                    Type = _typePlaceholderFolderPath,
+                    TypeLocalizationString = _localizationPrefix + _typePlaceholderFolderPathLocal,
+                    LocalizationPrefix = _localizationPrefix,
+                    Description = "Playnite's installation directory",
+                    Result = API.Instance.ExpandGameVariables(game, "{PlayniteDir}"),
+                    IsPlayniteVar = true
+                },
+                new StringPlaceholder
+                {
+                    Placeholder = "{Name}",
+                    Type = _typePlaceholderGameInfo,
+                    TypeLocalizationString = _localizationPrefix + _typePlaceholderGameInfoLocal,
+                    LocalizationPrefix = _localizationPrefix,
+                    Description = "Game name",
+                    GameDependent = true,
+                    IsPlayniteVar = true
+                },
+                new StringPlaceholder
+                {
+                    Placeholder = "{Platform}",
+                    Type = _typePlaceholderGameInfo,
+                    TypeLocalizationString = _localizationPrefix + _typePlaceholderGameInfoLocal,
+                    LocalizationPrefix = _localizationPrefix,
+                    Description = "Game's platform",
+                    GameDependent = true,
+                    IsPlayniteVar = true
+                },
+                new StringPlaceholder
+                {
+                    Placeholder = "{GameId}",
+                    Type = _typePlaceholderGameInfo,
+                    TypeLocalizationString = _localizationPrefix + _typePlaceholderGameInfoLocal,
+                    LocalizationPrefix = _localizationPrefix,
+                    Description = "Game's ID given by the library",
+                    GameDependent = true,
+                    IsPlayniteVar = true
+                },
+                new StringPlaceholder
+                {
+                    Placeholder = "{DatabaseId}",
+                    Type = _typePlaceholderGameInfo,
+                    TypeLocalizationString = _localizationPrefix + _typePlaceholderGameInfoLocal,
+                    LocalizationPrefix = _localizationPrefix,
+                    Description = "Game's database ID",
+                    GameDependent = true,
+                    IsPlayniteVar = true
+                },
+                new StringPlaceholder
+                {
+                    Placeholder = "{PluginId}",
+                    Type = _typePlaceholderGameInfo,
+                    TypeLocalizationString = _localizationPrefix + _typePlaceholderGameInfoLocal,
+                    LocalizationPrefix = _localizationPrefix,
+                    Description = "Game's library plugin ID",
+                    GameDependent = true,
+                    IsPlayniteVar = true
+                },
+                new StringPlaceholder
+                {
+                    Placeholder = "{Version}",
+                    Type = _typePlaceholderGameInfo,
+                    TypeLocalizationString = _localizationPrefix + _typePlaceholderGameInfoLocal,
+                    LocalizationPrefix = _localizationPrefix,
+                    Description = "Game version",
+                    GameDependent = true,
+                    IsPlayniteVar = true
+                },
+                new StringPlaceholder
+                {
+                    Placeholder = "{EmulatorDir}",
+                    Type = _typePlaceholderFolderPath,
+                    TypeLocalizationString = _localizationPrefix + _typePlaceholderFolderPathLocal,
+                    LocalizationPrefix = _localizationPrefix,
+                    Description = "Emulator's installation directory",
+                    GameDependent = true,
+                    IsPlayniteVar = true
+                },
+
+                ////// Screenshot Utilities variables //////
+
+                new StringPlaceholder
+                {
+                    Placeholder = _placeholderDropbox,
+                    Type = _typePlaceholderFolderPath,
+                    TypeLocalizationString = _localizationPrefix + _typePlaceholderFolderPathLocal,
+                    LocalizationPrefix = _localizationPrefix,
+                    Description = "Dropbox folder - Requires Dropbox to be installed",
+                    Result = DropBoxFolder
+                },
+                new StringPlaceholder
+                {
+                    Placeholder = _placeholderGameName,
+                    Type = _typePlaceholderGameInfo,
+                    TypeLocalizationString = _localizationPrefix + _typePlaceholderGameInfoLocal,
+                    LocalizationPrefix = _localizationPrefix,
+                    Description = "Game name formatted based on the set check boxes",
+                    GameDependent = true
+                },
+                new StringPlaceholder
+                {
+                    Placeholder = _placeholderGogId,
+                    Type = _typePlaceholderGameInfo,
+                    TypeLocalizationString = _localizationPrefix + _typePlaceholderGameInfoLocal,
+                    LocalizationPrefix = _localizationPrefix,
+                    Description = "Game's GOG ID if it's a GOG game",
+                    GameDependent = true,
+                    ResultFunc = GetGogId
+                },
+                new StringPlaceholder
+                {
+                    Placeholder = _placeholderGogScreenshotDir,
+                    Type = _typePlaceholderFolderPath,
+                    TypeLocalizationString = _localizationPrefix + _typePlaceholderFolderPathLocal,
+                    LocalizationPrefix = _localizationPrefix,
+                    Description = "GOG Galaxy screenshots folder",
+                    Result = GogScreenshotDir
+                },
+                new StringPlaceholder
+                {
+                    Placeholder = _placeholderOneDrive,
+                    Type = _typePlaceholderFolderPath,
+                    TypeLocalizationString = _localizationPrefix + _typePlaceholderFolderPathLocal,
+                    LocalizationPrefix = _localizationPrefix,
+                    Description = "OneDrive folder - Requires OneDrive to be installed",
+                    Result = OneDriveFolder
+                },
+                new StringPlaceholder
+                {
+                    Placeholder = _placeholderRetroArchScreenshots,
+                    Type = _typePlaceholderFolderPath,
+                    TypeLocalizationString = _localizationPrefix + _typePlaceholderFolderPathLocal,
+                    LocalizationPrefix = _localizationPrefix,
+                    Description = "RetroArch screenshots folder - Requires RetroArch to be installed",
+                    Result = RetroArchScreenshotsDir
+                },
+                new StringPlaceholder
+                {
+                    Placeholder = _placeholderRomName,
+                    Type = _typePlaceholderGameInfo,
+                    TypeLocalizationString = _localizationPrefix + _typePlaceholderGameInfoLocal,
+                    LocalizationPrefix = _localizationPrefix,
+                    Description = "Name of the first ROM of the game without extension",
+                    GameDependent = true,
+                    ResultFunc = GetRomName
+                },
+                new StringPlaceholder
+                {
+                    Placeholder = _placeholderSteamAccountId,
+                    Type = _typePlaceholderGameInfo,
+                    TypeLocalizationString = _localizationPrefix + _typePlaceholderGameInfoLocal,
+                    LocalizationPrefix = _localizationPrefix,
+                    Description = "Steam account ID of the currently active Steam user",
+                    Result = SteamAccountId
+                },
+                new StringPlaceholder
+                {
+                    Placeholder = _placeholderSteamDir,
+                    Type = _typePlaceholderFolderPath,
+                    TypeLocalizationString = _localizationPrefix + _typePlaceholderFolderPathLocal,
+                    LocalizationPrefix = _localizationPrefix,
+                    Description = "Steam installation folder - Requires Steam to be installed on the system",
+                    Result = SteamInstallDir
+                },
+                new StringPlaceholder
+                {
+                    Placeholder = _placeholderSteamId,
+                    Type = _typePlaceholderGameInfo,
+                    TypeLocalizationString = _localizationPrefix + _typePlaceholderGameInfoLocal,
+                    LocalizationPrefix = _localizationPrefix,
+                    Description = "Game's Steam ID if it's a Steam game or has a steam link",
+                    GameDependent = true,
+                    ResultFunc = SteamHelper.GetSteamId
+                },
+                new StringPlaceholder
+                {
+                    Placeholder = _placeholderSteamScreenshotsDir,
+                    Type = _typePlaceholderFolderPath,
+                    TypeLocalizationString = _localizationPrefix + _typePlaceholderFolderPathLocal,
+                    LocalizationPrefix = _localizationPrefix,
+                    Description = "Steam screenshots folder - Requires Steam to be installed",
+                    Result = SteamScreenshotsDir
+                },
+                new StringPlaceholder
+                {
+                    Placeholder = _placeholderUbisoftGameDir,
+                    Type = _typePlaceholderFolderPath,
+                    TypeLocalizationString = _localizationPrefix + _typePlaceholderFolderPathLocal,
+                    LocalizationPrefix = _localizationPrefix,
+                    Description = "Ubisoft games installation folder - Requires Ubisoft Connect to be installed",
+                    Result = UbisoftGameDir
+                },
+                new StringPlaceholder
+                {
+                    Placeholder = _placeholderUbisoftInstallDir,
+                    Type = _typePlaceholderFolderPath,
+                    TypeLocalizationString = _localizationPrefix + _typePlaceholderFolderPathLocal,
+                    LocalizationPrefix = _localizationPrefix,
+                    Description = "Ubisoft Connect installation folder - Requires Ubisoft Connect to be installed",
+                    Result = UbisoftInstallDir
+                },
+                new StringPlaceholder
+                {
+                    Placeholder = _placeholderUbisoftScreenshotsDir,
+                    Type = _typePlaceholderFolderPath,
+                    TypeLocalizationString = _localizationPrefix + _typePlaceholderFolderPathLocal,
+                    LocalizationPrefix = _localizationPrefix,
+                    Description = "Ubisoft Connect screenshots folder - Requires Ubisoft Connect to be installed",
+                    Result = UbisoftScreenshotsDir
+                },
+                new StringPlaceholder
+                {
+                    Placeholder = _placeholderXboxGamebarScreenshotsDir,
+                    Type = _typePlaceholderFolderPath,
+                    TypeLocalizationString = _localizationPrefix + _typePlaceholderFolderPathLocal,
+                    LocalizationPrefix = _localizationPrefix,
+                    Description = "Xbox Game Bar screenshots folder",
+                    Result = XboxGamebarScreenshotDir
+                }
+            };
+
+            ////// Environment variables //////
+
+            tmpPlaceholders.AddRange(Environment.GetEnvironmentVariables().Cast<DictionaryEntry>().Select(p => new StringPlaceholder
+            {
+                Placeholder = "{" + (string)p.Key + "}",
+                Type = _typePlaceholderEnvVar,
+                TypeLocalizationString = _localizationPrefix + _typePlaceholderEnvVarLocal,
+                LocalizationPrefix = _localizationPrefix,
+                Result = (string)p.Value
+            }).OrderBy(p => p.Placeholder));
+
+            _placeholders.AddMissing(tmpPlaceholders.OrderBy(p => p.Type.Equals(_typePlaceholderEnvVar) ? "X" : p.Type).ThenBy(p => p.Placeholder));
+        }
+
         private bool ReplaceSinglePlaceholder(ref string str, string placeholder, string value)
         {
             if (string.IsNullOrEmpty(str) || !str.Contains(placeholder))
@@ -1016,30 +852,18 @@ namespace KNARZhelper
             str = str.Replace(placeholder, value);
             return true;
         }
-
-        private void ResetCache()
-        {
-            _dropBoxFolder = null;
-            _gogScreenshotDir = null;
-            _oneDriveFolder = null;
-            _retroArchScreenshotsDir = null;
-            _steamAccountId = null;
-            _steamInstallDir = null;
-            _steamScreenshotsDir = null;
-            _ubisoftGameDir = null;
-            _ubisoftInstallDir = null;
-            _ubisoftScreenshotsDir = null;
-            _xboxGamebarScreenshotDir = null;
-            _ubisoftDirsRead = false;
-        }
     }
 
     public class StringPlaceholder : ObservableObject
     {
         public string Description { get; set; }
         public string DescriptionLocalizationString => LocalizationPrefix + Placeholder.Replace("{", string.Empty).Replace("}", string.Empty) + "Description";
+        public bool GameDependent { get; set; } = false;
+        public bool IsPlayniteVar { get; set; } = false;
         public string LocalizationPrefix { get; set; }
         public string Placeholder { get; set; }
+        public string Result { get; set; }
+        public Func<Game, string> ResultFunc { get; set; }
         public string Type { get; set; }
         public string TypeLocalizationString { get; set; }
     }
