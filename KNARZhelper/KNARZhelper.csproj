@@ -75,6 +75,12 @@
     <Compile Include="FilesCommon\FileDownloader.cs" />
     <Compile Include="FilesCommon\FileHelper.cs" />
     <Compile Include="FilesCommon\ImageHelper.cs" />
+    <Compile Include="GamesCommon\GameEx.cs" />
+    <Compile Include="GamesCommon\IGameSearchSettings.cs" />
+    <Compile Include="GamesCommon\SearchGameView.xaml.cs">
+      <DependentUpon>SearchGameView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="GamesCommon\SearchGameViewModel.cs" />
     <Compile Include="MetadataCommon\MetadataHelper.cs" />
     <Compile Include="MetadataCommon\DatabaseObjectTypes\BaseBooleanType.cs" />
     <Compile Include="MetadataCommon\DatabaseObjectTypes\BaseCompanyType.cs" />
@@ -185,6 +191,10 @@
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>
+    <Page Include="GamesCommon\SearchGameView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="MetadataCommon\Views\SelectMetadataView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
