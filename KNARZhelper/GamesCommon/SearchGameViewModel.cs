@@ -8,23 +8,36 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Data;
 using System.Windows.Forms;
+using SelectionMode = System.Windows.Controls.SelectionMode;
 
 namespace KNARZhelper.GamesCommon
 {
     public class SearchGameViewModel : ObservableObject, IEditableObject
     {
+        public readonly bool AddGamesMode;
+
         private readonly Action<List<GameEx>> _addGameAction;
+        private readonly GameEx _returnedGame;
         private readonly IGameSearchSettings _settings;
+        private string _closeButtonLabel = "Close";
         private FilterPreset _currentPreset;
         private ObservableCollection<FilterPreset> _filterPresets;
         private ObservableCollection<GameEx> _games = new ObservableCollection<GameEx>();
         private CollectionViewSource _gamesViewSource;
         private string _searchTerm = string.Empty;
+        private GameEx _selectedGame;
 
-        public SearchGameViewModel(IGameSearchSettings settings, Action<List<GameEx>> addGameAction)
+        public SearchGameViewModel(IGameSearchSettings settings, Action<List<GameEx>> addGameAction, bool addGamesMode = true, string closeButtonLabel = "Close", GameEx returnedGame = null)
         {
             _settings = settings;
             _addGameAction = addGameAction;
+            AddGamesMode = addGamesMode;
+            CloseButtonLabel = closeButtonLabel;
+
+            if (returnedGame != null)
+            {
+                _returnedGame = returnedGame;
+            }
 
             _filterPresets = API.Instance.Database.FilterPresets.OrderBy(x => x.Name).ToObservable();
 
@@ -37,15 +50,34 @@ namespace KNARZhelper.GamesCommon
             GamesViewSource.IsLiveSortingRequested = true;
         }
 
+        public Visibility AddGamesButtonVisibility => AddGamesMode
+            ? Visibility.Visible
+            : Visibility.Collapsed;
+
         public RelayCommand<IList<object>> AddGamesCommand => new RelayCommand<IList<object>>(items => _addGameAction(items.Cast<GameEx>().ToList()), items => items != null && items.Count > 0);
+
+        public string CloseButtonLabel
+        {
+            get => _closeButtonLabel;
+            set => SetValue(ref _closeButtonLabel, value);
+        }
 
         public RelayCommand<Window> CloseCommand => new RelayCommand<Window>(win =>
                 {
                     _settings.GameSearchWindowHeight = Convert.ToInt32(win.Height);
                     _settings.GameSearchWindowWidth = Convert.ToInt32(win.Width);
 
+                    if (_selectedGame?.Game != null && _returnedGame != null)
+                    {
+                        _returnedGame.Game = _selectedGame.Game;
+                    }
+
                     win.DialogResult = true;
                     win.Close();
+
+                    //TODO: Add actual functionality in Screenshot Utilities
+                    //SelectionMode isn't working
+                    //Add double click to add game and close window
                 });
 
         public FilterPreset CurrentPreset
@@ -101,6 +133,16 @@ namespace KNARZhelper.GamesCommon
                 LoadGames();
             }
         }
+
+        public GameEx SelectedGame
+        {
+            get => _selectedGame;
+            set => SetValue(ref _selectedGame, value);
+        }
+
+        public SelectionMode SelectionMode => AddGamesMode
+                                            ? SelectionMode.Extended
+            : SelectionMode.Single;
 
         public void BeginEdit()
         {

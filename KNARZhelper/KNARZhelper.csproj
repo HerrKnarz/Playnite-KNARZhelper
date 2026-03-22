@@ -191,6 +191,9 @@
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>
+    <Page Include="Controls\CommonStyles.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="GamesCommon\SearchGameView.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
