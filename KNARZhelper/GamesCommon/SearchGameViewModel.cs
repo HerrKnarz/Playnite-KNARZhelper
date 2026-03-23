@@ -8,7 +8,7 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Data;
 using System.Windows.Forms;
-using SelectionMode = System.Windows.Controls.SelectionMode;
+using DataGridSelectionMode = System.Windows.Controls.DataGridSelectionMode;
 
 namespace KNARZhelper.GamesCommon
 {
@@ -63,22 +63,21 @@ namespace KNARZhelper.GamesCommon
         }
 
         public RelayCommand<Window> CloseCommand => new RelayCommand<Window>(win =>
+        {
+            if (_returnedGame != null)
+            {
+                if (_selectedGame?.Game != null)
                 {
-                    _settings.GameSearchWindowHeight = Convert.ToInt32(win.Height);
-                    _settings.GameSearchWindowWidth = Convert.ToInt32(win.Width);
+                    _returnedGame.Game = _selectedGame.Game;
+                }
+                else if (_games?.Count > 0)
+                {
+                    _returnedGame.Game = _games.First().Game;
+                }
+            }
 
-                    if (_selectedGame?.Game != null && _returnedGame != null)
-                    {
-                        _returnedGame.Game = _selectedGame.Game;
-                    }
-
-                    win.DialogResult = true;
-                    win.Close();
-
-                    //TODO: Add actual functionality in Screenshot Utilities
-                    //SelectionMode isn't working
-                    //Add double click to add game and close window
-                });
+            CloseView(win);
+        });
 
         public FilterPreset CurrentPreset
         {
@@ -140,9 +139,37 @@ namespace KNARZhelper.GamesCommon
             set => SetValue(ref _selectedGame, value);
         }
 
-        public SelectionMode SelectionMode => AddGamesMode
-                                            ? SelectionMode.Extended
-            : SelectionMode.Single;
+        public RelayCommand<Window> SelectGameCommand => new RelayCommand<Window>(win =>
+        {
+            if (AddGamesMode)
+            {
+                return;
+            }
+
+            Game gameToReturn = null;
+
+            if (_selectedGame?.Game != null)
+            {
+                gameToReturn = _selectedGame.Game;
+            }
+            else if (_games?.Count > 0)
+            {
+                gameToReturn = _games.First().Game;
+            }
+
+            if (gameToReturn == null)
+            {
+                return;
+            }
+
+            _returnedGame.Game = gameToReturn;
+
+            CloseView(win);
+        });
+
+        public DataGridSelectionMode SelectionMode => AddGamesMode
+            ? DataGridSelectionMode.Extended
+            : DataGridSelectionMode.Single;
 
         public void BeginEdit()
         {
@@ -154,6 +181,14 @@ namespace KNARZhelper.GamesCommon
 
         public void EndEdit()
         {
+        }
+
+        private void CloseView(Window win)
+        {
+            _settings.GameSearchWindowHeight = Convert.ToInt32(win.Height);
+            _settings.GameSearchWindowWidth = Convert.ToInt32(win.Width);
+            win.DialogResult = true;
+            win.Close();
         }
 
         private void LoadGames()

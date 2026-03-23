@@ -98,6 +98,11 @@
                   SelectionMode="{Binding SelectionMode}"
                   SelectedItem="{Binding SelectedGame}"
                   Margin="0,10,0,0">
+            <DataGrid.InputBindings>
+                <MouseBinding Gesture="LeftDoubleClick"
+                              Command="{Binding SelectGameCommand}"
+                              CommandParameter="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}}" />
+            </DataGrid.InputBindings>
             <DataGrid.Columns>
                 <DataGridTextColumn Header="{DynamicResource LOCGameNameTitle}"
                                     d:Header="Name"

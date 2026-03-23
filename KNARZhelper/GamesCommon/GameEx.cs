@@ -4,7 +4,12 @@ namespace KNARZhelper.GamesCommon
 {
     public class GameEx
     {
-        public Game Game { get; set; }
+        public GameEx(Game game = null)
+        {
+            Game = game;
+        }
+
+        public Game Game { get; set; } = new Game();
 
         public string Platforms { get; set; }
 
