@@ -41,4 +41,6 @@
 
     <SolidColorBrush x:Key="KNARZDummyBrush"
                      Color="Green" />
+    <SolidColorBrush x:Key="KNARZDummyBrushBlack"
+                     Color="Black" />
 </ResourceDictionary>
