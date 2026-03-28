@@ -64,6 +64,8 @@ namespace KNARZhelper.GamesCommon
 
         public RelayCommand<Window> CloseCommand => new RelayCommand<Window>(win =>
         {
+            var dialogResult = true;
+
             if (_returnedGame != null)
             {
                 if (_selectedGame?.Game != null)
@@ -74,9 +76,13 @@ namespace KNARZhelper.GamesCommon
                 {
                     _returnedGame.Game = _games.First().Game;
                 }
+                else
+                {
+                    dialogResult = false;
+                }
             }
 
-            CloseView(win);
+            CloseView(win, dialogResult);
         });
 
         public FilterPreset CurrentPreset
@@ -183,11 +189,11 @@ namespace KNARZhelper.GamesCommon
         {
         }
 
-        private void CloseView(Window win)
+        private void CloseView(Window win, bool dialogResult = true)
         {
             _settings.GameSearchWindowHeight = Convert.ToInt32(win.Height);
             _settings.GameSearchWindowWidth = Convert.ToInt32(win.Width);
-            win.DialogResult = true;
+            win.DialogResult = dialogResult;
             win.Close();
         }
 

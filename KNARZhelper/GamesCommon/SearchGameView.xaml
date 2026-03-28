@@ -30,6 +30,11 @@
             </Style>
         </ResourceDictionary>
     </UserControl.Resources>
+    <UserControl.InputBindings>
+        <KeyBinding Command="{Binding CloseCommand}"
+                    CommandParameter="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}}"
+                    Key="Esc" />
+    </UserControl.InputBindings>
     <DockPanel Margin="15"
                FocusManager.FocusedElement="{Binding ElementName=SearchBox}"
                d:Background="AliceBlue">
