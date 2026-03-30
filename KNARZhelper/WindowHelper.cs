@@ -38,7 +38,7 @@ namespace KNARZhelper
                 ResizeMode = ResizeMode.NoResize,
                 WindowState = WindowState.Maximized,
                 WindowStyle = WindowStyle.None,
-                WindowStartupLocation = WindowStartupLocation.CenterScreen,
+                WindowStartupLocation = WindowStartupLocation.CenterOwner,
                 Background = new SolidColorBrush(Colors.Black)
             };
 
