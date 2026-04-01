@@ -151,14 +151,12 @@ namespace KNARZhelper.ScreenshotsCommon.Models
 
                 foreach (var group in this)
                 {
-                    filesToKeep.Add(group.FileName);
-
                     filesToKeep.UnionWith(group.Screenshots.Where(s => !string.IsNullOrEmpty(s.DownloadedThumbnailPath)).Select(s => s.DownloadedThumbnailPath));
 
                     filesToKeep.UnionWith(group.Screenshots.Where(s => !string.IsNullOrEmpty(s.DownloadedPath)).Select(s => s.DownloadedPath));
                 }
 
-                var files = directoryInfo.EnumerateFiles("*", SearchOption.AllDirectories).ToList();
+                var files = directoryInfo.EnumerateFiles("*", SearchOption.AllDirectories).Where(f => f.Extension != ".json").ToList();
 
                 if (!files.Any())
                 {
