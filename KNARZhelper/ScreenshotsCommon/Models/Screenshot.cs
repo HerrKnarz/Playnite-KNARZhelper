@@ -29,7 +29,9 @@ namespace KNARZhelper.ScreenshotsCommon.Models
         Artwork = 20,
         Promoshot = 21,
         SelfmadeScreenshot = 22,
-        Manual = 23
+        Manual = 23,
+        PromoVideo = 24,
+        PrivateVideo = 25,
     }
 
     /// <summary>
@@ -126,6 +128,12 @@ namespace KNARZhelper.ScreenshotsCommon.Models
         public bool IsDownloaded => !string.IsNullOrEmpty(DownloadedPath);
 
         /// <summary>
+        /// Determines if the media type of the screenshot is a video (e.g., PromoVideo or PrivateVideo).
+        /// </summary>
+        [DontSerialize]
+        public bool IsVideo => _type.IsOneOf(MediaType.PromoVideo, MediaType.PrivateVideo);
+
+        /// <summary>
         /// Name of the screenshot.
         /// </summary>
         [SerializationPropertyName("name")]
@@ -180,5 +188,11 @@ namespace KNARZhelper.ScreenshotsCommon.Models
             get => _type;
             set => SetValue(ref _type, value);
         }
+
+        /// <summary>
+        /// Determines if the media type of the screenshot is a video (e.g., PromoVideo or PrivateVideo).
+        /// </summary>
+        [DontSerialize]
+        public string VideoPath => _type.IsOneOf(MediaType.PromoVideo, MediaType.PrivateVideo) ? Path : null;
     }
 }
