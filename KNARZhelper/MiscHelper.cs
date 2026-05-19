@@ -1,6 +1,7 @@
 ﻿using Playnite.SDK;
 using Playnite.SDK.Data;
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -99,6 +100,27 @@ namespace KNARZhelper
         /// <param name="text">Text to check</param>
         /// <returns>True if the text contains only numbers, dots or minus signs, false otherwise</returns>
         public static bool IsOnlyNumbers(string text) => !_regexNumbers.IsMatch(text);
+
+        /// <summary>
+        /// Removes all items from the dictionary that match the given condition.
+        /// </summary>
+        /// <typeparam name="TKey">Type of the keys in the dictionary</typeparam>
+        /// <typeparam name="TValue">Type of the values in the dictionary</typeparam>
+        /// <param name="dict">The dictionary to remove items from</param>
+        /// <param name="removeIf">The condition to match items against</param>
+        /// <returns>The number of items removed from the collection</returns>
+        public static int RemoveAll<TKey, TValue>(this Dictionary<TKey, TValue> dict,
+                                            Func<KeyValuePair<TKey, TValue>, bool> condition)
+        {
+            var itemsToRemove = dict.Where(condition).ToList();
+
+            foreach (var item in itemsToRemove)
+            {
+                dict.Remove(item.Key);
+            }
+
+            return itemsToRemove.Count;
+        }
 
         /// <summary>
         /// Removes all items from the ObservableCollection that match the given condition.
