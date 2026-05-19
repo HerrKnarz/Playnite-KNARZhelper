@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Data;
 
 namespace KNARZhelper.MetadataCommon.ViewModels
@@ -14,19 +15,34 @@ namespace KNARZhelper.MetadataCommon.ViewModels
     /// </summary>
     public class SelectMetadataViewModel : ObservableObject
     {
+        private readonly bool _multiSelect;
         private ICollectionView _filteredMetadata;
         private bool _filterSelected;
         private string _searchTerm = string.Empty;
+
+        private BaseMetadataObject _selectedItem;
 
         /// <summary>
         /// Creates a new instance of the SelectMetadataViewModel class.
         /// </summary>
         /// <param name="items">Collection of metadata objects to select from</param>
-        public SelectMetadataViewModel(ObservableCollection<BaseMetadataObject> items)
+        /// <param name="multiSelect">Indicates whether multiple selection is allowed</param>
+        public SelectMetadataViewModel(ObservableCollection<BaseMetadataObject> items, bool multiSelect = true)
         {
             FilteredMetadata = CollectionViewSource.GetDefaultView(items);
             FilteredMetadata.Filter = Filter;
+            _multiSelect = multiSelect;
         }
+
+        public Visibility CheckBoxVisibility => _multiSelect
+            ? Visibility.Visible
+            : Visibility.Collapsed;
+
+        public RelayCommand<Window> CloseCommand => new RelayCommand<Window>(win =>
+                {
+                    win.DialogResult = false;
+                    win.Close();
+                });
 
         /// <summary>
         /// Gets or sets the filtered view of the metadata objects.
@@ -56,6 +72,11 @@ namespace KNARZhelper.MetadataCommon.ViewModels
         /// </summary>
         public RelayCommand<Window> OkCommand => new RelayCommand<Window>(win =>
         {
+            if (!_multiSelect)
+            {
+                SelectedItem.Selected = true;
+            }
+
             win.DialogResult = true;
             win.Close();
         }, win => win != null);
@@ -70,17 +91,43 @@ namespace KNARZhelper.MetadataCommon.ViewModels
             }
         }
 
+        public BaseMetadataObject SelectedItem
+        {
+            get => _selectedItem;
+            set => SetValue(ref _selectedItem, value);
+        }
+
+        public DataGridSelectionMode SelectionMode => _multiSelect
+            ? DataGridSelectionMode.Extended
+            : DataGridSelectionMode.Single;
+
+        public RelayCommand<Window> SelectItemCommand
+            => new RelayCommand<Window>(win =>
+            {
+                if (_multiSelect)
+                {
+                    return;
+                }
+
+                OkCommand.Execute(win);
+            }, win => win != null);
+
+        public Visibility TextBlockVisibility => !_multiSelect
+            ? Visibility.Visible
+            : Visibility.Collapsed;
+
         /// <summary>
         /// Gets a window containing the SelectMetadataView with the specified items and title.
         /// </summary>
         /// <param name="items">Collection of metadata objects to select from</param>
         /// <param name="windowTitle">Title of the window</param>
+        /// <param name="multiSelect">Indicates whether multiple selection is allowed</param>
         /// <returns>Window containing the SelectMetadataView</returns>
-        public static Window GetWindow(ObservableCollection<BaseMetadataObject> items, string windowTitle)
+        public static Window GetWindow(ObservableCollection<BaseMetadataObject> items, string windowTitle, bool multiSelect = true)
         {
             try
             {
-                var viewModel = new SelectMetadataViewModel(items);
+                var viewModel = new SelectMetadataViewModel(items, multiSelect);
 
                 var selectMetadataView = new SelectMetadataView();
 
