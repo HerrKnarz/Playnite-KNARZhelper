@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading;
@@ -16,16 +17,16 @@ namespace KNARZhelper.ScreenshotsCommon.Models
         /// Downloads all screenshots in all groups.
         /// </summary>
         /// <param name="thumbNailHeight">Height of the thumbnails that will be generated</param>
-        /// <param name="providerGuid">
-        /// Optional provider GUID to filter which groups to download from.
+        /// <param name="providerGuids">
+        /// Optional set of provider GUIDs to filter which groups to download from.
         /// </param>
         /// <returns>True if new screenshots were downloaded.</returns>
-        public async Task<bool> DownloadAllAsync(int thumbNailHeight, Guid providerGuid = default)
+        public async Task<bool> DownloadAllAsync(int thumbNailHeight, HashSet<Guid> providerGuids = null)
         {
             var bag = new ConcurrentBag<bool>();
             var maxParallel = 2;
             var throttler = new SemaphoreSlim(initialCount: maxParallel);
-            var tasks = this.Where(g => providerGuid == default || g.Provider.Id.Equals(providerGuid)).Select(async group =>
+            var tasks = this.Where(g => providerGuids == null || providerGuids.Contains(g.Provider.Id)).Select(async group =>
             {
                 await throttler.WaitAsync();
                 try
