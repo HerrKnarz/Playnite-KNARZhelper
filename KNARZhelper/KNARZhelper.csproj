@@ -73,6 +73,9 @@
     <Compile Include="Controls\GameToIconConverter.cs" />
     <Compile Include="Controls\ListBoxScrollIntoViewBehavior.cs" />
     <Compile Include="Controls\LocalFileImageConverter.cs" />
+    <Compile Include="Controls\SettingsOption.xaml.cs">
+      <DependentUpon>SettingsOption.xaml</DependentUpon>
+    </Compile>
     <Compile Include="FilesCommon\FileDownloader.cs" />
     <Compile Include="FilesCommon\FileHelper.cs" />
     <Compile Include="FilesCommon\ImageHelper.cs" />
@@ -194,6 +197,10 @@
   <ItemGroup>
     <Page Include="Controls\CommonStyles.xaml">
       <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Controls\SettingsOption.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
     </Page>
     <Page Include="GamesCommon\SearchGameView.xaml">
       <Generator>MSBuild:Compile</Generator>

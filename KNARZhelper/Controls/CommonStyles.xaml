@@ -39,6 +39,18 @@
                 Value="Right" />
     </Style>
 
+    <Style TargetType="{x:Type TextBlock}"
+           x:Key="SettingsDescription">
+        <Setter Property="TextWrapping"
+                Value="Wrap" />
+        <Setter Property="FontSize"
+                Value="{StaticResource FontSizeSmall}"
+                d:Value="12" />
+        <Setter Property="Foreground"
+                Value="{StaticResource TextBrushDarker}"
+                d:Value="DarkSlateGray" />
+    </Style>
+
     <SolidColorBrush x:Key="KNARZDummyBrush"
                      Color="Green" />
     <SolidColorBrush x:Key="KNARZDummyBrushBlack"
