@@ -43,5 +43,6 @@
         TimePlayed = 28,
         UserScore = 18,
         Version = 35,
+        Logo = 37
     }
 }

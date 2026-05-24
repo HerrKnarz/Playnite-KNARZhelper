@@ -67,6 +67,7 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AddonInteractions.cs" />
     <Compile Include="ApiHelper.cs" />
     <Compile Include="AsyncHelper.cs" />
     <Compile Include="Controls\AspectRatioLayoutDecorator.cs" />

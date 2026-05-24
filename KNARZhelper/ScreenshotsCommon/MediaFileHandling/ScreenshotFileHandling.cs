@@ -1,8 +1,8 @@
 ﻿using KNARZhelper.FilesCommon;
+using KNARZhelper.MetadataCommon.Enum;
 using Playnite.SDK;
 using Playnite.SDK.Data;
 using Playnite.SDK.Models;
-using Playnite.SDK.Plugins;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -174,7 +174,7 @@ namespace KNARZhelper.ScreenshotsCommon.Models
             }
         }
 
-        public void SetAs(Game game, MetadataField mediaType = MetadataField.BackgroundImage)
+        public void SetAs(Game game, FieldType mediaType = FieldType.Background)
         {
             if (!CanBeOpened)
             {
@@ -183,20 +183,24 @@ namespace KNARZhelper.ScreenshotsCommon.Models
 
             API.Instance.MainView.UIDispatcher.Invoke(delegate
             {
-                var image = API.Instance.Database.AddFile(DisplayPath, game.Id);
+                var image = mediaType == FieldType.Logo ? DisplayPath : API.Instance.Database.AddFile(DisplayPath, game.Id);
 
                 switch (mediaType)
                 {
-                    case MetadataField.BackgroundImage:
+                    case FieldType.Background:
                         game.BackgroundImage = image;
                         break;
 
-                    case MetadataField.CoverImage:
+                    case FieldType.Cover:
                         game.CoverImage = image;
                         break;
 
-                    case MetadataField.Icon:
+                    case FieldType.Icon:
                         game.Icon = image;
+                        break;
+
+                    case FieldType.Logo:
+                        AddonInteractions.SetImageAsLogo(game, image);
                         break;
 
                     default:
