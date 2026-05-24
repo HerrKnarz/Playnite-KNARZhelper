@@ -69,7 +69,7 @@ namespace KNARZhelper.ScreenshotsCommon.Models
 
             try
             {
-                path = System.IO.Path.Combine(path, $"{Id}{FileHelper.GetFileExtensionFromUrl(Path)}");
+                path = GetDownloadPath(path);
                 var image = await FileDownloader.Instance().DownloadFileAsync(path, new Uri(Path));
                 DownloadedPath = image.FullName;
 
@@ -87,18 +87,38 @@ namespace KNARZhelper.ScreenshotsCommon.Models
         /// </summary>
         /// <param name="thumbNailHeight">Height of the thumbnails that will be generated</param>
         /// <param name="replaceExisting">When true existing thumbnails will be regenerated</param>
+        /// <param name="alwaysCreateThumbnails">
+        /// <param name="path">Optional path for the generated thumbnails. Is only needed when
+        /// alwaysCreateThumbnails is true.</param> Flag to always create thumbnails, even if they
+        /// already exist
+        /// </param>
         /// <returns>True if new thumbnails were generated.</returns>
-        public async Task<bool> GenerateThumbnailAsync(int thumbNailHeight, bool replaceExisting = false)
+        public async Task<bool> GenerateThumbnailAsync(int thumbNailHeight, bool replaceExisting = false, bool alwaysCreateThumbnails = false, string path = default)
         {
-            if (!IsDownloaded || !File.Exists(DownloadedPath)
-                || (!string.IsNullOrEmpty(DownloadedThumbnailPath) && !replaceExisting))
+            if (
+                (!alwaysCreateThumbnails
+                    && (!IsDownloaded
+                        || !File.Exists(DownloadedPath)))
+                || (!string.IsNullOrEmpty(DownloadedThumbnailPath)
+                    && !replaceExisting))
             {
                 return false;
             }
 
+            //NEXT: Add option to download the image into a stream and add overridden CreateThumbnailImage to use a stream instead of a file path. This would allow to create thumbnails without downloading the image first, if the provider supports it.
+
+            var thumbnailPath = string.Empty;
+
+            // We need to generate the thumbnail filename if there is no downloaded screenshot to
+            // get it from.
+            if (alwaysCreateThumbnails && !File.Exists(DownloadedPath))
+            {
+                thumbnailPath = GetDownloadPath(path, true);
+            }
+
             try
             {
-                var thumb = await ImageHelper.CreateThumbnailImage(DownloadedPath, thumbNailHeight);
+                var thumb = await ImageHelper.CreateThumbnailImage(DisplayPath, thumbNailHeight, thumbnailPath);
                 DownloadedThumbnailPath = thumb.FullName;
                 return true;
             }
@@ -187,6 +207,13 @@ namespace KNARZhelper.ScreenshotsCommon.Models
 
                 API.Instance.Database.Games.Update(game);
             });
+        }
+
+        private string GetDownloadPath(string path, bool thumbNailPath = false)
+        {
+            var suffix = thumbNailPath ? "_thumb.jpg" : FileHelper.GetFileExtensionFromUrl(Path);
+
+            return System.IO.Path.Combine(path, $"{Id}{suffix}");
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using ImageMagick;
+using System;
 using System.IO;
 using System.Threading.Tasks;
 
@@ -31,7 +32,14 @@ namespace KNARZhelper.FilesCommon
                 thumbnailFileInfo.Delete();
             }
 
-            using (var image = new MagickImage(imageFileName))
+            var imageBytes = imageFileName.IsValidHttpUrl()
+                ? await FileDownloader.Instance().DownloadFileAsync(new Uri(imageFileName))
+                : File.ReadAllBytes(imageFileName);
+
+            // If the screenshot is not downloaded and coming from the web, we need to download it
+            // into a byte array first for
+
+            using (var image = new MagickImage(imageBytes))
             {
                 image.Scale(0, (uint)thumbNailHeight);
 

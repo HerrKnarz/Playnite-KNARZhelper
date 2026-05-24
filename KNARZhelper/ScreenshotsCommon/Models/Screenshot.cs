@@ -83,7 +83,7 @@ namespace KNARZhelper.ScreenshotsCommon.Models
         /// Gets the path to the thumbnail image to display, based on the download and availability status.
         /// </summary>
         [DontSerialize]
-        public string DisplayThumbnail => IsDownloaded && !string.IsNullOrEmpty(DownloadedThumbnailPath)
+        public string DisplayThumbnail => !string.IsNullOrEmpty(DownloadedThumbnailPath)
             ? DownloadedThumbnailPath : !string.IsNullOrEmpty(ThumbnailPath)
             ? ThumbnailPath : DisplayPath;
 

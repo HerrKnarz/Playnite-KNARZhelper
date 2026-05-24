@@ -52,16 +52,27 @@ namespace KNARZhelper.FilesCommon
         /// The relative or absolute path to the directory including the filename to be used.
         /// </param>
         /// <param name="uri">The URI for the file to download.</param>
+        /// <returns>FileInfo of the downloaded file</returns>
         public async Task<FileInfo> DownloadFileAsync(string directoryPath, Uri uri)
+        {
+            File.WriteAllBytes(directoryPath, await DownloadFileAsync(uri));
+
+            return new FileInfo(directoryPath);
+        }
+
+        /// <summary>
+        /// Downloads a file asynchronously from the <paramref name="uri"/> and returns it as a byte array.
+        /// </summary>
+        /// <param name="uri">The URI for the file to download.</param>
+        /// <returns>Byte array of the downloaded file</returns>
+        public async Task<byte[]> DownloadFileAsync(Uri uri)
         {
             if (_disposed)
             {
                 InitHttpClient();
             }
 
-            File.WriteAllBytes(directoryPath, await _httpClient.GetByteArrayAsync(uri));
-
-            return new FileInfo(directoryPath);
+            return await _httpClient.GetByteArrayAsync(uri);
         }
 
         private void InitHttpClient(HttpClient httpClient = null)

@@ -48,15 +48,17 @@ namespace KNARZhelper.ScreenshotsCommon.Models
         /// </summary>
         /// <param name="thumbNailHeight">Height of the thumbnails that will be generated</param>
         /// <param name="providerId">Optional provider GUID to filter which groups to refresh.</param>
+        /// <param name="alwaysCreateThumbnails">
+        /// Optional flag to always create thumbnails, even if the screenshots aren't downloaded.
+        /// </param>
         /// <returns>True if new thumbnails were generated.</returns>
-        public async Task<bool> RefreshAllThumbnailsAsync(int thumbNailHeight, Guid providerId = default)
+        public async Task<bool> RefreshAllThumbnailsAsync(int thumbNailHeight, Guid providerId = default, bool alwaysCreateThumbnails = false)
         {
             var generated = false;
 
             foreach (var group in this.Where(g => providerId == default || g.Provider.Id.Equals(providerId)))
             {
-                generated |= await group.RefreshThumbnailsAsync(thumbNailHeight);
-                group.Save();
+                generated |= await group.RefreshThumbnailsAsync(thumbNailHeight, true, alwaysCreateThumbnails);
             }
 
             return generated;

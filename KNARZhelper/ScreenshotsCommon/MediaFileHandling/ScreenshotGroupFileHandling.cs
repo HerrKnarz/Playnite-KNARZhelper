@@ -65,8 +65,12 @@ namespace KNARZhelper.ScreenshotsCommon.Models
         /// Creates thumbnails to all screenshots in the group and regenerates already existing ones.
         /// </summary>
         /// <param name="thumbNailHeight">Height of the thumbnails that will be generated</param>
+        /// <param name="replaceExisting">Flag to replace existing thumbnails</param>
+        /// <param name="alwaysCreateThumbnails">
+        /// Flag to always create thumbnails, even if they already exist
+        /// </param>
         /// <returns>True if new thumbnails were generated.</returns>
-        public async Task<bool> RefreshThumbnailsAsync(int thumbNailHeight)
+        public async Task<bool> RefreshThumbnailsAsync(int thumbNailHeight, bool replaceExisting = true, bool alwaysCreateThumbnails = false)
         {
             var generated = false;
 
@@ -74,13 +78,15 @@ namespace KNARZhelper.ScreenshotsCommon.Models
             {
                 foreach (var screenshot in Screenshots)
                 {
-                    generated |= await screenshot.GenerateThumbnailAsync(thumbNailHeight, true);
+                    generated |= await screenshot.GenerateThumbnailAsync(thumbNailHeight, replaceExisting, alwaysCreateThumbnails, BasePath);
                 }
             }
             catch (Exception ex)
             {
                 Log.Error(ex);
             }
+
+            Save();
 
             return generated;
         }
