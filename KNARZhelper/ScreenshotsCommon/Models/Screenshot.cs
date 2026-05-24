@@ -1,4 +1,5 @@
-﻿using Playnite.SDK.Data;
+﻿using Playnite.SDK;
+using Playnite.SDK.Data;
 using System;
 using System.Collections.Generic;
 
@@ -32,6 +33,42 @@ namespace KNARZhelper.ScreenshotsCommon.Models
         Manual = 23,
         PromoVideo = 24,
         PrivateVideo = 25,
+    }
+
+    /// <summary>
+    /// Dictionary of types with captions to show in a combo box.
+    /// </summary>
+    public class MediaTypesWithCaptions : Dictionary<MediaType, string>
+    {
+        public MediaTypesWithCaptions()
+        {
+            Add(MediaType.Unknown, ResourceProvider.GetString("LOCScreenshotUtilitiesMediaTypeUnknown"));
+            Add(MediaType.Screenshot, ResourceProvider.GetString("LOCScreenshotUtilitiesMediaTypeScreenshot"));
+            Add(MediaType.SelfmadeScreenshot, ResourceProvider.GetString("LOCScreenshotUtilitiesMediaTypeSelfmadeScreenshot"));
+            Add(MediaType.Promoshot, ResourceProvider.GetString("LOCScreenshotUtilitiesMediaTypePromoshot"));
+            Add(MediaType.Background, ResourceProvider.GetString("LOCScreenshotUtilitiesMediaTypeBackground"));
+            Add(MediaType.Icon, ResourceProvider.GetString("LOCScreenshotUtilitiesMediaTypeIcon"));
+            Add(MediaType.Logo, ResourceProvider.GetString("LOCScreenshotUtilitiesMediaTypeLogo"));
+            Add(MediaType.BoxFront, ResourceProvider.GetString("LOCScreenshotUtilitiesMediaTypeBoxFront"));
+            Add(MediaType.BoxBack, ResourceProvider.GetString("LOCScreenshotUtilitiesMediaTypeBoxBack"));
+            Add(MediaType.BoxSpine, ResourceProvider.GetString("LOCScreenshotUtilitiesMediaTypeBoxSpine"));
+            Add(MediaType.Box3D, ResourceProvider.GetString("LOCScreenshotUtilitiesMediaTypeBox3D"));
+            Add(MediaType.Disc, ResourceProvider.GetString("LOCScreenshotUtilitiesMediaTypeDisc"));
+            Add(MediaType.Cartridge, ResourceProvider.GetString("LOCScreenshotUtilitiesMediaTypeCartridge"));
+            Add(MediaType.ArcadeCabinet, ResourceProvider.GetString("LOCScreenshotUtilitiesMediaTypeArcadeCabinet"));
+            Add(MediaType.ArcadeCircuit, ResourceProvider.GetString("LOCScreenshotUtilitiesMediaTypeArcadeCircuit"));
+            Add(MediaType.ArcadeControlPanel, ResourceProvider.GetString("LOCScreenshotUtilitiesMediaTypeArcadeControlPanel"));
+            Add(MediaType.ArcadeControlsInfo, ResourceProvider.GetString("LOCScreenshotUtilitiesMediaTypeArcadeControlsInfo"));
+            Add(MediaType.ArcadeMarquee, ResourceProvider.GetString("LOCScreenshotUtilitiesMediaTypeArcadeMarquee"));
+            Add(MediaType.Banner, ResourceProvider.GetString("LOCScreenshotUtilitiesMediaTypeBanner"));
+            Add(MediaType.Poster, ResourceProvider.GetString("LOCScreenshotUtilitiesMediaTypePoster"));
+            Add(MediaType.Decal, ResourceProvider.GetString("LOCScreenshotUtilitiesMediaTypeDecal"));
+            Add(MediaType.Advertisement, ResourceProvider.GetString("LOCScreenshotUtilitiesMediaTypeAdvertisement"));
+            Add(MediaType.Artwork, ResourceProvider.GetString("LOCScreenshotUtilitiesMediaTypeArtwork"));
+            Add(MediaType.Manual, ResourceProvider.GetString("LOCScreenshotUtilitiesMediaTypeManual"));
+            Add(MediaType.PromoVideo, ResourceProvider.GetString("LOCScreenshotUtilitiesMediaTypePromoVideo"));
+            Add(MediaType.PrivateVideo, ResourceProvider.GetString("LOCScreenshotUtilitiesMediaTypePrivateVideo"));
+        }
     }
 
     /// <summary>

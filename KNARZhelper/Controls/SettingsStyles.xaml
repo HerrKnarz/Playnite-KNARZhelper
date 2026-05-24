@@ -101,12 +101,13 @@
                     <StackPanel Margin="0, 0, 0, 15">
                         <DockPanel>
                             <Label DockPanel.Dock="Left"
-                                   Content="{TemplateBinding Heading}" />
+                                   Content="{TemplateBinding Heading}"
+                                   MinWidth="{TemplateBinding MinLabelWidth}" />
                             <ContentControl Content="{TemplateBinding Content}"
                                             DockPanel.Dock="Right"
                                             Margin="10, 0, 0, 0"
                                             MinWidth="40"
-                                            HorizontalAlignment="Right" />
+                                            HorizontalAlignment="{TemplateBinding HorizontalControlAlignment}" />
                         </DockPanel>
                         <TextBlock Text="{TemplateBinding Description}"
                                    TextWrapping="Wrap"
