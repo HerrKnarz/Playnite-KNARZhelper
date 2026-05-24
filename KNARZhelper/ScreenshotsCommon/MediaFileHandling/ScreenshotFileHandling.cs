@@ -105,8 +105,6 @@ namespace KNARZhelper.ScreenshotsCommon.Models
                 return false;
             }
 
-            //NEXT: Add option to download the image into a stream and add overridden CreateThumbnailImage to use a stream instead of a file path. This would allow to create thumbnails without downloading the image first, if the provider supports it.
-
             var thumbnailPath = string.Empty;
 
             // We need to generate the thumbnail filename if there is no downloaded screenshot to
