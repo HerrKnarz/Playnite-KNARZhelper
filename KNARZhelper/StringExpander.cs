@@ -31,7 +31,6 @@ namespace KNARZhelper
         private readonly string _placeholderUbisoftInstallDir = "{UbisoftInstallDir}";
         private readonly string _placeholderUbisoftScreenshotsDir = "{UbisoftScreenshotsDir}";
         private readonly string _placeholderXboxGamebarScreenshotsDir = "{XboxGamebarScreenshotsDir}";
-        //NEXT: add a placeholder for a "wildcard game name" - that one tries to remove all special chars with wildcards that could be 0 to 1 character and look for folders that way. Should make finding the right folders more reliable in some cases. See https://discord.com/channels/365863063296933888/808419165311467630/1508586713478598798
 
         private readonly string _typePlaceholderEnvVar = "ENV";
         private readonly string _typePlaceholderEnvVarLocal = "EnvVar";

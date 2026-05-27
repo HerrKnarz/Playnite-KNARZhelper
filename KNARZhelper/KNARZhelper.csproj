@@ -194,7 +194,11 @@
       <Version>2.2.0</Version>
     </PackageReference>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Content Include="Resources\KNARZIconFont.ttf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
   <ItemGroup>
     <Page Include="Controls\CommonStyles.xaml">
       <Generator>MSBuild:Compile</Generator>
