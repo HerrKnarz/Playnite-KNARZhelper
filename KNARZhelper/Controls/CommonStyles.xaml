@@ -11,6 +11,20 @@
                 d:Value="IcoFont" />
     </Style>
 
+    <Style x:Key="HiddenIconButton"
+           TargetType="Button"
+           BasedOn="{StaticResource KNARZIconButton}">
+        <Setter Property="Visibility"
+                Value="Hidden" />
+        <Style.Triggers>
+            <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=ListBoxItem}, Path=IsMouseOver}"
+                         Value="True">
+                <Setter Property="Visibility"
+                        Value="Visible" />
+            </DataTrigger>
+        </Style.Triggers>
+    </Style>
+
     <Style x:Key="KNARZGridCheckBox"
            TargetType="CheckBox"
            BasedOn="{StaticResource {x:Type CheckBox}}">

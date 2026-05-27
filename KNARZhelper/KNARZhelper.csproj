@@ -74,6 +74,7 @@
     <Compile Include="Controls\GameToIconConverter.cs" />
     <Compile Include="Controls\ListBoxScrollIntoViewBehavior.cs" />
     <Compile Include="Controls\LocalFileImageConverter.cs" />
+    <Compile Include="Controls\ResourceHelper.cs" />
     <Compile Include="Controls\SettingsOption.cs" />
     <Compile Include="Controls\SettingsSection.cs" />
     <Compile Include="FilesCommon\FileDownloader.cs" />
