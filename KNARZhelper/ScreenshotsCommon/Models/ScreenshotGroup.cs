@@ -84,6 +84,9 @@ namespace KNARZhelper.ScreenshotsCommon.Models
             set => SetValue(ref _gameIdentifier, value);
         }
 
+        [DontSerialize]
+        public bool HasScreenshots => _screenshots?.Count > 0;
+
         /// <summary>
         /// Unique identifier for the screenshot group.
         /// </summary>
@@ -142,6 +145,9 @@ namespace KNARZhelper.ScreenshotsCommon.Models
             get => _provider;
             set => SetValue(ref _provider, value);
         }
+
+        [DontSerialize]
+        public int ScreenshotCount => _screenshots?.Count ?? 0;
 
         /// <summary>
         /// Collection of screenshots in this group.

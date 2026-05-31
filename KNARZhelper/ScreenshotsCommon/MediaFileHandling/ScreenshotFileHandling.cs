@@ -105,6 +105,13 @@ namespace KNARZhelper.ScreenshotsCommon.Models
                 return false;
             }
 
+            // We exit the method for jxr files and videos, because ImageMagick can't process
+            // themout of the box without serious fiddling or in case of videos at all.
+            if (FileHelper.GetFileExtensionFromUrl(DisplayPath).IsOneOf(".jxr", ".mp4", ".avi", ".webm"))
+            {
+                return false;
+            }
+
             var thumbnailPath = string.Empty;
 
             // We need to generate the thumbnail filename if there is no downloaded screenshot to

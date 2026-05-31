@@ -46,6 +46,9 @@ namespace KNARZhelper.ScreenshotsCommon.Models
         [DontSerialize]
         public bool HasMoreThanOneGroup => Count > 1;
 
+        [DontSerialize]
+        public bool HasScreenshots => ScreenshotCount > 0;
+
         /// <summary>
         /// Specifies whether all screenshots in all groups have been downloaded.
         /// </summary>
