@@ -1,4 +1,5 @@
-﻿using KNARZhelper.ScreenshotsCommon.Models;
+﻿using KNARZhelper.FilesCommon;
+using KNARZhelper.ScreenshotsCommon.Models;
 using Playnite.SDK;
 using Playnite.SDK.Models;
 using System;
@@ -178,23 +179,34 @@ namespace KNARZhelper.ScreenshotsCommon
             var path = GetDownloadPath(gameId: game.Id, providerId: providerId, createDir: false);
             var succeeded = false;
 
+            if (!path.Exists)
+            {
+                return succeeded;
+            }
+
             try
             {
-                if (path.Exists)
-                {
-                    path.Delete(true);
-                }
-
+                path.Empty();
                 Task.Delay(TimeSpan.FromMilliseconds(100));
+
+                try
+                {
+                    path.Delete();
+                    Task.Delay(TimeSpan.FromMilliseconds(100));
+                }
+                catch (Exception ex)
+                {
+                    Log.Error(ex, $"Couldn't delete folder for game \"{game.Name}\" ({game.Id})");
+                }
 
                 path.Refresh();
 
-                succeeded = !path.Exists;
+                succeeded = !path.Exists || (path?.GetFiles().Count() ?? 0) == 0;
             }
             catch (Exception ex)
             {
                 succeeded = false;
-                Log.Error(ex, $"Couldn't delete folder for game \"{game.Name}\" ({game.Id})");
+                Log.Error(ex, $"Couldn't empty folder for game \"{game.Name}\" ({game.Id})");
             }
 
             if (!succeeded && showNotification)

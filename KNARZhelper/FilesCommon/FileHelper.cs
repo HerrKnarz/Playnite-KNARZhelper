@@ -8,7 +8,7 @@ namespace KNARZhelper.FilesCommon
     /// <summary>
     /// Helper class for file operations.
     /// </summary>
-    public class FileHelper
+    public static class FileHelper
     {
         private const string longPathPrefix = @"\\?\";
         private const string longPathUncPrefix = @"\\?\UNC\";
@@ -39,6 +39,23 @@ namespace KNARZhelper.FilesCommon
             }
 
             fileInfo.Delete();
+        }
+
+        /// <summary>
+        /// Empties a directory without deleting itself in the process.
+        /// </summary>
+        /// <param name="directory">Directory to empty</param>
+        public static void Empty(this DirectoryInfo directory)
+        {
+            foreach (var file in directory.GetFiles())
+            {
+                file.Delete();
+            }
+
+            foreach (var subDirectory in directory.GetDirectories())
+            {
+                subDirectory.Delete(true);
+            }
         }
 
         /// <summary>
