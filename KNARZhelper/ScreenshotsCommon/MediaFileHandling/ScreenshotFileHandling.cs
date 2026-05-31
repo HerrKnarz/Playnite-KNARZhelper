@@ -117,7 +117,7 @@ namespace KNARZhelper.ScreenshotsCommon.Models
             try
             {
                 var thumb = await ImageHelper.CreateThumbnailImage(DisplayPath, thumbNailHeight, thumbnailPath);
-                DownloadedThumbnailPath = thumb.FullName;
+                DownloadedThumbnailPath = thumb?.FullName;
                 return true;
             }
             catch (Exception exception)

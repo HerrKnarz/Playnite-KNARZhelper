@@ -19,9 +19,17 @@ namespace KNARZhelper.FilesCommon
         /// <returns>The FileInfo of the created thumbnail image.</returns>
         public static async Task<FileInfo> CreateThumbnailImage(string imageFileName, int thumbNailHeight, string thumbnailFileName = "")
         {
+            var fileInfo = new FileInfo(imageFileName);
+
+            // We exit the method for jxr files and videos, because ImageMagick can't process
+            // themout of the box without serious fiddling or in case of videos at all.
+            if (fileInfo.Extension.IsOneOf(".jxr", ".mp4", ".avi", ".webm"))
+            {
+                return null;
+            }
+
             if (string.IsNullOrEmpty(thumbnailFileName))
             {
-                var fileInfo = new FileInfo(imageFileName);
                 thumbnailFileName = Path.Combine(fileInfo.DirectoryName, $"{Path.GetFileNameWithoutExtension(fileInfo.Name)}_thumb.jpg");
             }
 
@@ -36,19 +44,25 @@ namespace KNARZhelper.FilesCommon
                 ? await FileDownloader.Instance().DownloadFileAsync(new Uri(imageFileName))
                 : File.ReadAllBytes(imageFileName);
 
-            // If the screenshot is not downloaded and coming from the web, we need to download it
-            // into a byte array first for
-
-            using (var image = new MagickImage(imageBytes))
+            try
             {
-                image.Scale(0, (uint)thumbNailHeight);
+                using (var image = new MagickImage(imageBytes))
+                {
+                    image.Scale(0, (uint)thumbNailHeight);
 
-                image.Format = MagickFormat.Jpg;
+                    image.Format = MagickFormat.Jpg;
 
-                await image.WriteAsync(thumbnailFileName);
+                    await image.WriteAsync(thumbnailFileName);
+                }
+
+                return new FileInfo(thumbnailFileName);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex, $"Error processing file {imageFileName}");
             }
 
-            return new FileInfo(thumbnailFileName);
+            return null;
         }
     }
 }
