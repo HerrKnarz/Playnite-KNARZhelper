@@ -533,9 +533,24 @@ namespace KNARZhelper
 
         private string GetXboxGamebarScreenshotDir()
         {
-            var screenshotDir = new DirectoryInfo(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Videos", "Captures"));
+            try
+            {
+                var key = Registry.CurrentUser.OpenSubKey(@"Software\Microsoft\Windows\CurrentVersion\Explorer\User Shell Folders");
 
-            return screenshotDir.Exists ? screenshotDir.FullName : string.Empty;
+                if (key?.GetValueNames().Contains("{EDC0FE71-98D8-4F4A-B920-C8DC133CB165}") == true)
+                {
+                    return key.GetValue("{EDC0FE71-98D8-4F4A-B920-C8DC133CB165}").ToString().Replace('/', '\\');
+                }
+
+                var screenshotDir = new DirectoryInfo(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Videos", "Captures"));
+
+                return screenshotDir.Exists ? screenshotDir.FullName : string.Empty;
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex, "Error while reading XBox Game Bar folder");
+                return string.Empty;
+            }
         }
 
         private void PopulatePlaceholders()
