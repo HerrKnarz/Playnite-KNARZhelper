@@ -24,9 +24,14 @@ namespace KNARZhelper.Controls
 
                 game = (Game)value;
 
-                var platform = game.Platforms.FirstOrDefault(p => p.SpecificationId == "pc_windows") ?? game.Platforms.FirstOrDefault();
+                if (game.Platforms is null || game.Platforms.Count == 0)
+                {
+                    return defaultIcon;
+                }
 
-                if (!string.IsNullOrEmpty(platform.Icon))
+                var platform = game.Platforms?.FirstOrDefault(p => p.SpecificationId == "pc_windows") ?? game.Platforms?.FirstOrDefault();
+
+                if (!string.IsNullOrEmpty(platform?.Icon))
                 {
                     var platformIconFileInfo = new FileInfo(API.Instance.Database.GetFullFilePath(platform.Icon));
 
