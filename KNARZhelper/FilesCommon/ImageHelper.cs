@@ -19,17 +19,16 @@ namespace KNARZhelper.FilesCommon
         /// <returns>The FileInfo of the created thumbnail image.</returns>
         public static async Task<FileInfo> CreateThumbnailImage(string imageFileName, int thumbNailHeight, string thumbnailFileName = "")
         {
-            var fileInfo = new FileInfo(imageFileName);
-
             // We exit the method for jxr files and videos, because ImageMagick can't process
             // themout of the box without serious fiddling or in case of videos at all.
-            if (fileInfo.Extension.IsOneOf(".jxr", ".mp4", ".avi", ".webm"))
+            if (FileHelper.GetFileExtensionFromUrl(imageFileName).IsOneOf(".jxr", ".mp4", ".avi", ".webm"))
             {
                 return null;
             }
 
             if (string.IsNullOrEmpty(thumbnailFileName))
             {
+                var fileInfo = new FileInfo(imageFileName);
                 thumbnailFileName = Path.Combine(fileInfo.DirectoryName, $"{Path.GetFileNameWithoutExtension(fileInfo.Name)}_thumb.jpg");
             }
 
