@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media.Imaging;
@@ -105,9 +106,10 @@ namespace KNARZhelper.ScreenshotsCommon.Models
                 return false;
             }
 
-            // We exit the method for jxr files and videos, because ImageMagick can't process
-            // themout of the box without serious fiddling or in case of videos at all.
-            if (FileHelper.GetFileExtensionFromUrl(DisplayPath).IsOneOf(".jxr", ".mp4", ".avi", ".webm"))
+            var fileExtension = FileHelper.GetFileExtensionFromUrl(DisplayPath);
+
+            // We only support a few extensions out of the box to avoid errors with unusual file types.
+            if (!ImageHelper.SupportedImageExtensions.Contains(fileExtension) && !ImageHelper.SupportedVideoExtensions.Contains(fileExtension))
             {
                 return false;
             }

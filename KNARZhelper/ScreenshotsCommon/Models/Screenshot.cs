@@ -165,10 +165,12 @@ namespace KNARZhelper.ScreenshotsCommon.Models
         public bool IsDownloaded => !string.IsNullOrEmpty(DownloadedPath);
 
         /// <summary>
-        /// Determines if the media type of the screenshot is a video (e.g., PromoVideo or PrivateVideo).
+        /// Determines if the media type of the screenshot is a video (e.g., PromoVideo or
+        /// PrivateVideo). We return false if the path is a https url, since the MedtaElement can't
+        /// play those and crashes Playnite in the process.
         /// </summary>
         [DontSerialize]
-        public bool IsVideo => _type.IsOneOf(MediaType.PromoVideo, MediaType.PrivateVideo);
+        public bool IsVideo => _type.IsOneOf(MediaType.PromoVideo, MediaType.PrivateVideo) && !DownloadedPath.StartsWith("https");
 
         /// <summary>
         /// Name of the screenshot.
