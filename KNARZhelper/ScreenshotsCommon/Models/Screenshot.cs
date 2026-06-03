@@ -170,7 +170,7 @@ namespace KNARZhelper.ScreenshotsCommon.Models
         /// play those and crashes Playnite in the process.
         /// </summary>
         [DontSerialize]
-        public bool IsVideo => _type.IsOneOf(MediaType.PromoVideo, MediaType.PrivateVideo) && !DownloadedPath.StartsWith("https");
+        public bool IsVideo => _type.IsOneOf(MediaType.PromoVideo, MediaType.PrivateVideo) && !(DisplayPath?.StartsWith("https") ?? false);
 
         /// <summary>
         /// Name of the screenshot.

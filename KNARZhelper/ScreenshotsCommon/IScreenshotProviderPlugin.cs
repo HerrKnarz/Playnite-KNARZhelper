@@ -10,6 +10,11 @@ namespace KNARZhelper.ScreenshotsCommon
     public interface IScreenshotProviderPlugin
     {
         /// <summary>
+        /// Returns true if the provider addon is a local provider.
+        /// </summary>
+        bool IsLocalProvider { get; set; }
+
+        /// <summary>
         /// Name of the provider to be displayed in the UI.
         /// </summary>
         string ProviderName { get; set; }

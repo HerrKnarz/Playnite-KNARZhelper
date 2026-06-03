@@ -84,7 +84,7 @@ namespace KNARZhelper.ScreenshotsCommon.Models
         }
 
         /// <summary>
-        /// Generates a thumbnail for the downloaded screenshot.
+        /// Generates a thumbnail for the screenshot.
         /// </summary>
         /// <param name="thumbNailHeight">Height of the thumbnails that will be generated</param>
         /// <param name="replaceExisting">When true existing thumbnails will be regenerated</param>

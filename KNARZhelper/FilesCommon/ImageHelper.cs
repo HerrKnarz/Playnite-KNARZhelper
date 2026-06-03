@@ -23,8 +23,6 @@ namespace KNARZhelper.FilesCommon
         /// <returns>The FileInfo of the created thumbnail image.</returns>
         public static async Task<FileInfo> CreateThumbnailImage(string imageFileName, int thumbNailHeight, string thumbnailFileName = "")
         {
-            //NEXT: Check why the thumbnail file seems to be used. Does a FileInfo lock a file maybe?
-
             byte[] imageBytes = null;
             var videoInitialized = false;
 
