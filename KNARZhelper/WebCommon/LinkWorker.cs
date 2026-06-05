@@ -144,9 +144,27 @@ namespace KNARZhelper.WebCommon
                     AllowedCallbackUrls.Clear();
                 }
 
-                _webView.NavigateAndWait(url);
-                UrlLoadResult.ResponseUrl = _webView.GetCurrentAddress();
-                pageText = documentType == DocumentType.Text ? _webView.GetPageText() : _webView.GetPageSource();
+                var loadTask = new Task<bool>(() =>
+                {
+                    _webView.NavigateAndWait(url);
+                    UrlLoadResult.ResponseUrl = _webView.GetCurrentAddress();
+                    pageText = documentType == DocumentType.Text ? _webView.GetPageText() : _webView.GetPageSource();
+                    return true;
+                });
+
+                loadTask.Start();
+
+                try
+                {
+                    AsyncHelper.RunSync(async () => await AsyncHelper.TimeoutAfter(loadTask, TimeSpan.FromSeconds(30)));
+                }
+                catch
+                {
+                    if (debugMode)
+                    {
+                        Log.Debug($"Worker {Id} - url {url}: 1. timeout while loading page!");
+                    }
+                }
 
                 if (debugMode)
                 {
@@ -158,7 +176,7 @@ namespace KNARZhelper.WebCommon
                 {
                     try
                     {
-                        AsyncHelper.TimeoutAfter(_tcs.Task, TimeSpan.FromSeconds(10)).Wait();
+                        AsyncHelper.RunSync(async () => await AsyncHelper.TimeoutAfter(_tcs.Task, TimeSpan.FromSeconds(10)));
                     }
                     catch
                     {
