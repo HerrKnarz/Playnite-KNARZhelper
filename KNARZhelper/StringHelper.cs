@@ -70,6 +70,19 @@ namespace KNARZhelper
         public static string EscapeQuotes(this string str) => str.Replace("\"", "\\\"");
 
         /// <summary>
+        /// Returns the part of the string before the first occurrence of the specified separator.
+        /// If the separator is not found, the entire string is returned.
+        /// </summary>
+        /// <param name="str">string to process</param>
+        /// <param name="separator">separator to find</param>
+        /// <returns>part of the string before the separator</returns>
+        public static string FirstPart(this string str, string separator)
+        {
+            var index = str.IndexOf(separator, StringComparison.Ordinal);
+            return index < 0 ? str : str.Substring(0, index);
+        }
+
+        /// <summary>
         /// Formats the specified string according to the options provided in the format parameters.
         /// </summary>
         /// <remarks>
