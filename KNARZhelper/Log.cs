@@ -17,6 +17,22 @@ namespace KNARZhelper
         private static readonly ILogger _logger = LogManager.GetLogger();
 
         /// <summary>
+        /// Logs a debug message if addMessage is true. Useful for just passing a debug flag without
+        /// needing to check that every time.
+        /// </summary>
+        /// <param name="addMessage">The log message will only be added if this is true</param>
+        /// <param name="message">The message to log</param>
+        public static void Debug(bool addMessage, string message)
+        {
+            if (!addMessage)
+            {
+                return;
+            }
+
+            Debug(message);
+        }
+
+        /// <summary>
         /// Logs a debug message.
         /// </summary>
         /// <param name="message">The message to log</param>
