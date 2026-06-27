@@ -26,7 +26,7 @@ namespace KNARZhelper
 
             foreach (var platform in platforms.Where(p => p.SpecificationId != null))
             {
-                _platformSpecNameByNormalName.Add(platform.Name, new[] { platform.SpecificationId });
+                TryAddPlatformByName(_platformSpecNameByNormalName, platform.Name, new[] { platform.SpecificationId });
 
                 var nameWithoutCompany = _trimCompanyName.Replace(platform.Name, string.Empty);
 
@@ -102,6 +102,7 @@ namespace KNARZhelper
         /// <param name="platformName">Name of the platform</param>
         /// <param name="platformSpecNames">Specification names of the platform</param>
         /// <returns>True if the platform was added, false if it already exists</returns>
+        //TODO: Replace the new dictionary method TryAdd in P11!
         private static bool TryAddPlatformByName(IDictionary<string, string[]> dict, string platformName, params string[] platformSpecNames)
         {
             if (dict.ContainsKey(platformName))
