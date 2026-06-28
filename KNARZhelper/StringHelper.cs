@@ -324,6 +324,35 @@ namespace KNARZhelper
         public static string StripUriParams(this string str) => new Uri(str).GetLeftPart(UriPartial.Path);
 
         /// <summary>
+        /// Returns the text between two text fragments.
+        /// </summary>
+        /// <param name="source">String to process</param>
+        /// <param name="from">Fragment after which the text begins.</param>
+        /// <param name="to">Fragment after the text</param>
+        /// <returns>Text between the two fragments</returns>
+        public static string TextBetween(this string source, string from, string to)
+        {
+            var pFrom = source.IndexOf(from);
+            var pTo = source.LastIndexOf(to);
+
+            if (pFrom == -1)
+            {
+                pFrom = 0;
+            }
+            else
+            {
+                pFrom += from.Length;
+            }
+
+            if (pTo == -1)
+            {
+                pTo = source.Length;
+            }
+
+            return source.Substring(pFrom, pTo - pFrom);
+        }
+
+        /// <summary>
         /// Converts a string to title case (first letter of each word capitalized).
         /// </summary>
         /// <param name="title">String to convert</param>
