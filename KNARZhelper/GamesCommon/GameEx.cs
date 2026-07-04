@@ -14,7 +14,9 @@ namespace KNARZhelper.GamesCommon
         }
 
         public static string DefaultCover => ResourceProvider.GetResource("DefaultGameCover")?.ToString() ?? string.Empty;
+
         public static string DefaultIcon => ResourceProvider.GetResource("DefaultGameIcon")?.ToString() ?? string.Empty;
+
         public Game Game { get; set; } = new Game();
 
         public string Platforms { get; set; }
