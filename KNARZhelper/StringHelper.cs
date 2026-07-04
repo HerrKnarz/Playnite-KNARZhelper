@@ -69,6 +69,40 @@ namespace KNARZhelper
         /// <returns>Escaped string</returns>
         public static string EscapeQuotes(this string str) => str.Replace("\"", "\\\"");
 
+        public static double ExtractNumber(this string inputString)
+        {
+            var extractedNumbersRegex = new Regex(@"-?\d+[\.,]?\d+");
+            var extractedNumbers = extractedNumbersRegex.Matches(inputString);
+
+            if (extractedNumbers.Count == 0)
+            {
+                return 0;
+            }
+
+            var numberString = extractedNumbers[0].Value;
+
+            if (int.TryParse(numberString, out var parsedInt))
+            {
+                return parsedInt;
+            }
+
+            if (double.TryParse(numberString, NumberStyles.AllowDecimalPoint, CultureInfo.CurrentCulture, out var parsedNumber))
+            {
+                return parsedNumber;
+            }
+
+            var culture = CultureInfo.CreateSpecificCulture("en-US");
+
+            if (double.TryParse(numberString, NumberStyles.AllowDecimalPoint, culture, out parsedNumber))
+            {
+                return parsedNumber;
+            }
+
+            culture = CultureInfo.CreateSpecificCulture("de-DE");
+
+            return double.TryParse(numberString, NumberStyles.AllowDecimalPoint, culture, out parsedNumber) ? parsedNumber : 0;
+        }
+
         /// <summary>
         /// Returns the part of the string before the first occurrence of the specified separator.
         /// If the separator is not found, the entire string is returned.
