@@ -71,7 +71,7 @@ namespace KNARZhelper
 
         public static double ExtractNumber(this string inputString)
         {
-            var extractedNumbersRegex = new Regex(@"-?\d+[\.,]?\d+");
+            var extractedNumbersRegex = new Regex(@"-?\d+[\.,]?\d{0,}");
             var extractedNumbers = extractedNumbersRegex.Matches(inputString);
 
             if (extractedNumbers.Count == 0)
@@ -199,6 +199,8 @@ namespace KNARZhelper
 
             return str;
         }
+
+        public static bool IsNullOrEmpty(this string str) => string.IsNullOrEmpty(str);
 
         /// <summary>
         /// Checks if a string is a valid HTTP or HTTPS URL.
@@ -363,14 +365,22 @@ namespace KNARZhelper
         /// <param name="source">String to process</param>
         /// <param name="from">Fragment after which the text begins.</param>
         /// <param name="to">Fragment after the text</param>
+        /// <param name="allowMissingBoundaries">
+        /// Indicates whether missing fragments should be allowed. If true, missing fragments will
+        /// be treated as empty strings.
+        /// </param>
         /// <returns>Text between the two fragments</returns>
-        public static string TextBetween(this string source, string from, string to)
+        public static string TextBetween(this string source, string from, string to, bool allowMissingBoundaries = true)
         {
             var pFrom = source.IndexOf(from);
-            var pTo = source.LastIndexOf(to);
 
             if (pFrom == -1)
             {
+                if (!allowMissingBoundaries)
+                {
+                    return string.Empty;
+                }
+
                 pFrom = 0;
             }
             else
@@ -378,9 +388,20 @@ namespace KNARZhelper
                 pFrom += from.Length;
             }
 
+            var pTo = source.Substring(pFrom).IndexOf(to);
+
             if (pTo == -1)
             {
+                if (!allowMissingBoundaries)
+                {
+                    return string.Empty;
+                }
+
                 pTo = source.Length;
+            }
+            else
+            {
+                pTo += pFrom;
             }
 
             return source.Substring(pFrom, pTo - pFrom);
