@@ -1,5 +1,4 @@
-﻿using HtmlAgilityPack;
-using Playnite.SDK;
+﻿using Playnite.SDK;
 using System.Net;
 using System.Windows.Media;
 
@@ -7,8 +6,6 @@ namespace KNARZhelper.WebCommon.Models
 {
     public class UrlLoadResult
     {
-        public HtmlDocument Document { get; set; } = null;
-
         public string ErrorDetails { get; set; } = string.Empty;
         public bool IsUrlValid { get; set; } = true;
         public string PageText { get; set; } = string.Empty;

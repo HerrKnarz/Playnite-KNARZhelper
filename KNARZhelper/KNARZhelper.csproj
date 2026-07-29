@@ -172,6 +172,7 @@
     <Compile Include="WebCommon\LinkWorker.cs" />
     <Compile Include="WebCommon\Models\UrlLoadResult.cs" />
     <Compile Include="WebCommon\WebHelper.cs" />
+    <Compile Include="WebCommon\WebHelperAgility.cs" />
     <Compile Include="WindowHelper.cs" />
   </ItemGroup>
   <ItemGroup>
