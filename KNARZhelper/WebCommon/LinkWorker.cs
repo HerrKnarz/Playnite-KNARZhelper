@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace KNARZhelper.WebCommon
@@ -32,7 +33,9 @@ namespace KNARZhelper.WebCommon
     {
         private readonly bool _detailedDebug = false;
         private readonly WebViewSettings _webViewSettings;
+#pragma warning disable IDE0090 // Use 'new(...)'
         private TaskCompletionSource<bool> _tcs = new TaskCompletionSource<bool>();
+#pragma warning restore IDE0090 // Use 'new(...)'
         private IWebView _webView;
 
         public LinkWorker(int id)
@@ -109,7 +112,7 @@ namespace KNARZhelper.WebCommon
             }
         }
 
-        public UrlLoadResult LoadUrl(string url, DocumentType documentType = DocumentType.Source, bool debugMode = false, string checkForContent = "", HashSet<string> allowedCallbackUrls = null, bool waitForCallback = true)
+        public UrlLoadResult LoadUrl(string url, DocumentType documentType = DocumentType.Source, bool debugMode = false, string checkForContent = "", HashSet<string> allowedCallbackUrls = null, bool waitForCallback = true, int delay = 0)
         {
             var ts = DateTime.Now;
             var pageText = string.Empty;
@@ -147,6 +150,12 @@ namespace KNARZhelper.WebCommon
                 var loadTask = new Task<bool>(() =>
                 {
                     _webView.NavigateAndWait(url);
+
+                    if (delay > 0)
+                    {
+                        Thread.Sleep(delay);
+                    }
+
                     UrlLoadResult.ResponseUrl = _webView.GetCurrentAddress();
                     pageText = documentType == DocumentType.Text ? _webView.GetPageText() : _webView.GetPageSource();
                     return true;
