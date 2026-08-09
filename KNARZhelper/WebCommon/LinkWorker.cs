@@ -5,42 +5,24 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace KNARZhelper.WebCommon
 {
-    public enum DocumentType
-    {
-        /// <summary>
-        /// Retrieves the source code of the page. Usually used for scraping data from the HTML.
-        /// </summary>
-        Source = 0,
-
-        /// <summary>
-        /// Retrieves the text of the page. Usually used for fetching API results in JSON or XML format.
-        /// </summary>
-        Text = 1,
-
-        /// <summary>
-        /// Doesn't load the content of the page and returns an empty string. Usually used when only
-        /// checking if a page is reachable.
-        /// </summary>
-        Empty = 2
-    }
-
     public class LinkWorker : IDisposable
     {
         private readonly bool _detailedDebug = false;
+        private readonly Guid _pluginId;
         private readonly WebViewSettings _webViewSettings;
 #pragma warning disable IDE0090 // Use 'new(...)'
         private TaskCompletionSource<bool> _tcs = new TaskCompletionSource<bool>();
 #pragma warning restore IDE0090 // Use 'new(...)'
         private IWebView _webView;
 
-        public LinkWorker(int id)
+        public LinkWorker(int id, Guid pluginId = default)
         {
             Id = id;
+            _pluginId = pluginId;
 
             _webViewSettings = new WebViewSettings
             {
@@ -149,15 +131,8 @@ namespace KNARZhelper.WebCommon
 
                 var loadTask = new Task<bool>(() =>
                 {
-                    _webView.NavigateAndWait(url);
-
-                    if (delay > 0)
-                    {
-                        Thread.Sleep(delay);
-                    }
-
+                    pageText = WebHelper.LoadPageWithSmartWait(_webView, url, debugMode, _pluginId, documentType, delay);
                     UrlLoadResult.ResponseUrl = _webView.GetCurrentAddress();
-                    pageText = documentType == DocumentType.Text ? _webView.GetPageText() : _webView.GetPageSource();
                     return true;
                 });
 

@@ -9,6 +9,25 @@ using System.Threading;
 
 namespace KNARZhelper.WebCommon
 {
+    public enum DocumentType
+    {
+        /// <summary>
+        /// Retrieves the source code of the page. Usually used for scraping data from the HTML.
+        /// </summary>
+        Source = 0,
+
+        /// <summary>
+        /// Retrieves the text of the page. Usually used for fetching API results in JSON or XML format.
+        /// </summary>
+        Text = 1,
+
+        /// <summary>
+        /// Doesn't load the content of the page and returns an empty string. Usually used when only
+        /// checking if a page is reachable.
+        /// </summary>
+        Empty = 2
+    }
+
     public static class WebHelper
     {
         public static readonly string AgentString =
@@ -81,28 +100,37 @@ namespace KNARZhelper.WebCommon
         /// If true, saves the last fetched HTML to a file for debugging purposes
         /// </param>
         /// <param name="pluginId">Plugin ID to determine the path for saving the debug file</param>
+        /// <param name="documentType">Specifies the type of document to return (Source or Text)</param>
+        /// <param name="initialDelay">
+        /// Initial delay in milliseconds before starting to check the page content
+        /// </param>
         /// <returns>HTML source of the loaded page</returns>
-        public static string LoadPageWithSmartWait(IWebView webView, string url, bool debugMode = false, Guid pluginId = default)
+        public static string LoadPageWithSmartWait(IWebView webView, string url, bool debugMode = false, Guid pluginId = default, DocumentType documentType = DocumentType.Source, int initialDelay = 0)
         {
-            var htmlSource = string.Empty;
+            var pageContent = string.Empty;
 
             webView.NavigateAndWait(url);
+
+            if (initialDelay > 0)
+            {
+                Thread.Sleep(initialDelay);
+            }
 
             var maxRetries = 10; // 10 attempts of 1 second
             var attempts = 0;
 
             while (attempts < maxRetries)
             {
-                htmlSource = webView.GetPageSource();
+                pageContent = webView.GetPageSource();
 
                 // Check if we passed the Cloudflare barrier. If the HTML DOES NOT contain the block
                 // messages, it means the page loaded!
-                if (!string.IsNullOrEmpty(htmlSource) &&
-                    !htmlSource.Contains("Just a moment...") &&
-                    !htmlSource.Contains("cf-browser-verification") &&
-                    !htmlSource.Contains("challenges.cloudflare.com"))
+                if (!string.IsNullOrEmpty(pageContent) &&
+                    !pageContent.Contains("Just a moment...") &&
+                    !pageContent.Contains("cf-browser-verification") &&
+                    !pageContent.Contains("challenges.cloudflare.com"))
                 {
-                    htmlSource = webView.GetPageSource();
+                    pageContent = documentType == DocumentType.Text ? webView.GetPageText() : webView.GetPageSource();
                     break;
                 }
 
@@ -111,14 +139,14 @@ namespace KNARZhelper.WebCommon
                 attempts++;
             }
 
-            if (debugMode)
+            if (debugMode && pluginId != default)
             {
                 var basePath = API.Instance.Addons.Plugins.Find(p => p.Id == pluginId).GetPluginUserDataPath();
 
-                FileHelper.WriteStringToFile(Path.Combine(basePath, "last_fetched.html"), htmlSource);
+                FileHelper.WriteStringToFile(Path.Combine(basePath, documentType == DocumentType.Text ? "last_fetched.txt" : "last_fetched.html"), pageContent);
             }
 
-            return htmlSource;
+            return pageContent;
         }
     }
 }
