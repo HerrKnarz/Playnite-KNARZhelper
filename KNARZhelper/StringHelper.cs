@@ -38,7 +38,7 @@ namespace KNARZhelper
         /// <param name="toCheck">The substring, that will be searched</param>
         /// <param name="comp">StringComparer to allow ignore case etc.</param>
         /// <returns>true, if the string contains the substring</returns>
-        public static bool Contains(this string source, string toCheck, StringComparison comp) => source?.IndexOf(toCheck, comp) >= 0;
+        public static bool Contains(this string source, string toCheck, StringComparison comp) => !toCheck.IsNullOrEmpty() && source?.IndexOf(toCheck, comp) >= 0;
 
         /// <summary>
         /// Substitutes every digit to its counterpart in roman notation.
@@ -509,5 +509,45 @@ namespace KNARZhelper
         /// Indicates whether whitespace characters in the string should be replaced with underscores.
         /// </summary>
         public bool WhitespacesToUnderscores { get; set; } = false;
+    }
+
+    /// <summary>
+    /// Simple class for a pair of string values to rename links or prefixes.
+    /// </summary>
+    public class StringPair
+    {
+        /// <summary>
+        /// Value the text must contain
+        /// </summary>
+        public string Contains { get; set; }
+
+        /// <summary>
+        /// Desired name of the text.
+        /// </summary>
+        public string Name { get; set; }
+    }
+
+    public class StringPairs : List<StringPair>
+    {
+        public StringPairs() : base()
+        {
+        }
+
+        public StringPairs(IEnumerable<StringPair> collection) : base(collection)
+        {
+        }
+
+        public string GetNameForString(string input)
+        {
+            foreach (var pair in this)
+            {
+                if (input.Contains(pair.Contains, StringComparison.OrdinalIgnoreCase))
+                {
+                    return pair.Name;
+                }
+            }
+
+            return input;
+        }
     }
 }
