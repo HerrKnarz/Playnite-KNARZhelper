@@ -96,7 +96,7 @@ namespace KNARZhelper
             TryAddPlatformByName(_platformSpecNameByNormalName, new[] { "Coleco ColecoVision", "ColecoVision", "Col" }, "coleco_vision");
             TryAddPlatformByName(_platformSpecNameByNormalName, new[] { "Commodore 64", "C64" }, "commodore_64");
             TryAddPlatformByName(_platformSpecNameByNormalName, new[] { "Commodore Amiga CD32", "Amiga CD32", "CD32" }, "commodore_amiga_cd32");
-            TryAddPlatformByName(_platformSpecNameByNormalName, new[] { "Commodore Amiga", "Amiga", "AGA", "OCS", "Amiga OCS" }, "commodore_amiga");
+            TryAddPlatformByName(_platformSpecNameByNormalName, new[] { "Commodore Amiga", "Amiga", "AGA", "OCS", "Amiga OCS", "Amiga AGA" }, "commodore_amiga");
             TryAddPlatformByName(_platformSpecNameByNormalName, new[] { "Commodore CBM-5x0", "CBM-5x0" }, "commodore_cbm5x0");
             TryAddPlatformByName(_platformSpecNameByNormalName, new[] { "Commodore CBM-II", "CBM-II" }, "commodore_cbm2");
             TryAddPlatformByName(_platformSpecNameByNormalName, new[] { "Commodore PET", "PET" }, "commodore_pet");
@@ -109,8 +109,8 @@ namespace KNARZhelper
             TryAddPlatformByName(_platformSpecNameByNormalName, new[] { "Mega Duck" }, "megaduck");
             TryAddPlatformByName(_platformSpecNameByNormalName, new[] { "Microsoft MSX", "MSX" }, "microsoft_msx");
             TryAddPlatformByName(_platformSpecNameByNormalName, new[] { "Microsoft MSX2", "MSX2" }, "microsoft_msx2");
-            TryAddPlatformByName(_platformSpecNameByNormalName, new[] { "NEC PC-88", "PC-88", "8801" }, "nec_pc88");
-            TryAddPlatformByName(_platformSpecNameByNormalName, new[] { "NEC PC-98", "PC-98", "9801" }, "nec_pc98");
+            TryAddPlatformByName(_platformSpecNameByNormalName, new[] { "NEC PC-88", "PC-88", "8801", "NEC PC8801" }, "nec_pc88");
+            TryAddPlatformByName(_platformSpecNameByNormalName, new[] { "NEC PC-98", "PC-98", "9801", "NEC PC9801" }, "nec_pc98");
             TryAddPlatformByName(_platformSpecNameByNormalName, new[] { "NEC PC-FX", "PC-FX", "PCFX" }, "nec_pcfx");
             TryAddPlatformByName(_platformSpecNameByNormalName, new[] { "NEC SuperGrafx", "SuperGrafx", "PC Engine SuperGrafx", "SGFX" }, "nec_supergrafx");
             TryAddPlatformByName(_platformSpecNameByNormalName, new[] { "NEC TurboGrafx 16", "TurboGrafx 16", "PC Engine", "NEC PC Engine", "TurboGrafx", "PCE" }, "nec_turbografx_16");
