@@ -45,7 +45,14 @@ namespace KNARZhelper
         /// </summary>
         /// <param name="str">String to process</param>
         /// <returns>String with roman numerals</returns>
-        public static string DigitsToRomanNumbers(this string str) => str.Replace("1", "I")
+        public static string DigitsToRomanNumbers(this string str) => str
+            .Replace("10", "X")
+            .Replace("11", "XI")
+            .Replace("12", "XII")
+            .Replace("13", "XIII")
+            .Replace("14", "XIV")
+            .Replace("15", "XV")
+            .Replace("1", "I")
             .Replace("2", "II")
             .Replace("3", "III")
             .Replace("4", "IV")
@@ -350,6 +357,14 @@ namespace KNARZhelper
         /// A string with all invalid file name characters replaced by the specified replacement string.
         /// </returns>
         public static string ReplaceInvalidFileNameChars(this string str, string replaceStr = "") => string.Join(replaceStr, str.Split(Path.GetInvalidFileNameChars()));
+
+        /// <summary>
+        /// Replaces special characters with their word equivalents.
+        /// </summary>
+        /// <param name="str">String to process</param>
+        /// <returns>String with special characters replaced by words</returns>
+        public static string SpecialCharsToWords(this string str) => str.Replace("&", "And")
+            .Replace("+", "Plus");
 
         /// <summary>
         /// Strips query parameters and fragments from a URL, returning only the base path. For
