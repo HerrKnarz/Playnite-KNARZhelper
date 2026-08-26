@@ -23,6 +23,14 @@ namespace KNARZhelper
             },
         };
 
+        private static readonly Regex ExtractNumbersRegex = new Regex(@"-?\d+[\.,]?\d{0,}", RegexOptions.Compiled);
+
+        private static readonly Regex RemoveEditionSuffixRegex = new Regex(@"(\s*[:-])?(\s+([a-z']+\s+(edition|cut)|hd|collection|remaster(ed)?|remake|ultimate|anthology|game of the|deluxe))+$", RegexOptions.Compiled | RegexOptions.IgnoreCase | RegexOptions.ExplicitCapture);
+
+        private static readonly Regex RemoveSpecialCharsRegex = new Regex(@"[^a-zA-Z0-9\-\s]+", RegexOptions.Compiled);
+
+        private static readonly Regex RemoveSpecialCharsRegexUnicode = new Regex(@"[^\p{L}\p{N}\-\s]+", RegexOptions.Compiled);
+
         /// <summary>
         /// Replaces multiple whitespaces between characters with a single one and trims them from
         /// beginning and end of the string.
@@ -78,8 +86,7 @@ namespace KNARZhelper
 
         public static double ExtractNumber(this string inputString)
         {
-            var extractedNumbersRegex = new Regex(@"-?\d+[\.,]?\d{0,}");
-            var extractedNumbers = extractedNumbersRegex.Matches(inputString);
+            var extractedNumbers = ExtractNumbersRegex.Matches(inputString);
 
             if (extractedNumbers.Count == 0)
             {
@@ -228,11 +235,14 @@ namespace KNARZhelper
         /// <param name="searchTerm">
         /// The search term to normalize. Cannot be null; must be a non-empty string.
         /// </param>
+        /// <param name="onlyLatinCharacters">
+        /// If true, only Latin characters will be retained in the normalized string.
+        /// </param>
         /// <returns>
         /// A normalized string suitable for search operations. Returns an empty string if the input
         /// contains only removable characters.
         /// </returns>
-        public static string NormalizeSearchTerm(this string searchTerm) => searchTerm.RemoveSpecialChars().ToLower().Replace(" ", "").Replace("-", "");
+        public static string NormalizeSearchTerm(this string searchTerm, bool onlyLatinCharacters = true) => searchTerm.RemoveSpecialChars(onlyLatinCharacters: onlyLatinCharacters).ToLower().Replace(" ", "").Replace("-", "");
 
         /// <summary>
         /// Checks if a string matches a regular expression.
@@ -284,10 +294,7 @@ namespace KNARZhelper
         /// <returns>string without the edition suffix</returns>
         public static string RemoveEditionSuffix(this string str)
         {
-            var regExOptions = RegexOptions.ExplicitCapture;
-            regExOptions |= RegexOptions.Compiled;
-            var ignoredEndWordsRegex = new Regex(@"(\s*[:-])?(\s+([a-z']+\s+(edition|cut)|hd|collection|remaster(ed)?|remake|ultimate|anthology|game of the|deluxe))+$", regExOptions | RegexOptions.IgnoreCase);
-            var match = ignoredEndWordsRegex.Match(str);
+            var match = RemoveEditionSuffixRegex.Match(str);
 
             return match.Success ? str.Remove(match.Index).Trim() : str;
         }
@@ -311,8 +318,12 @@ namespace KNARZhelper
         /// </summary>
         /// <param name="str">String to process</param>
         /// <param name="replaceStr">String to replace removed characters with</param>
+        /// <param name="onlyLatinCharacters">If true, only Latin characters will be kept</param>
         /// <returns>Processed string</returns>
-        public static string RemoveSpecialChars(this string str, string replaceStr = "") => Regex.Replace(str, @"[^a-zA-Z0-9\-\s]+", replaceStr);
+        public static string RemoveSpecialChars(this string str, string replaceStr = "", bool onlyLatinCharacters = true) =>
+            onlyLatinCharacters
+                ? RemoveSpecialCharsRegex.Replace(str, replaceStr)
+                : RemoveSpecialCharsRegexUnicode.Replace(str, replaceStr);
 
         /// <summary>
         /// Removes all values from a string that are between two substrings like parentheses or
@@ -363,8 +374,11 @@ namespace KNARZhelper
         /// </summary>
         /// <param name="str">String to process</param>
         /// <returns>String with special characters replaced by words</returns>
-        public static string SpecialCharsToWords(this string str) => str.Replace("&", "And")
-            .Replace("+", "Plus");
+        public static string SpecialCharsToWords(this string str) => str
+            .Replace("&", "And")
+            .Replace("+", "Plus")
+            .Replace("²", "2")
+            .Replace("³", "3");
 
         /// <summary>
         /// Strips query parameters and fragments from a URL, returning only the base path. For
