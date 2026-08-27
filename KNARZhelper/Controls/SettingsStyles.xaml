@@ -99,7 +99,7 @@
             <Setter.Value>
                 <ControlTemplate TargetType="local:SettingsOption">
                     <StackPanel Margin="0, 0, 0, 15">
-                        <DockPanel>
+                        <DockPanel Margin="0, 0, 0, 5">
                             <Label DockPanel.Dock="Left"
                                    Content="{TemplateBinding Heading}"
                                    MinWidth="{TemplateBinding MinLabelWidth}" />
