@@ -92,6 +92,7 @@ namespace KNARZhelper.Controls
                 /* bring the data item (Product object) into view
                  * in case it has been virtualized away */
                 dataGrid.ScrollIntoView(item);
+                dataGrid.UpdateLayout();
                 row = dataGrid.ItemContainerGenerator.ContainerFromIndex(rowIndex) as DataGridRow;
             }
 
