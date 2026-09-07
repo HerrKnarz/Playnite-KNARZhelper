@@ -164,7 +164,7 @@ namespace KNARZhelper.WebCommon
                     }
                     catch
                     {
-                        if (debugMode)
+                        if (debugMode && _pluginId == Guid.Parse("f692b4bb-238d-4080-ae76-4aaefde6f7a1"))
                         {
                             Log.Debug($"Worker {Id} - url {url}: 2. ResourceLoadedCallback - timeout!");
 
