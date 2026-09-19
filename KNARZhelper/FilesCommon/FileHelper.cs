@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Drawing;
 using System.IO;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -89,6 +90,33 @@ namespace KNARZhelper.FilesCommon
                 Log.Error(ex, "Failed to get file extension from URL.");
                 return string.Empty;
             }
+        }
+
+        public static int GetFileSizeInBytes(string path)
+        {
+            path = FixPathLength(path);
+            var fileInfo = new FileInfo(path);
+            return fileInfo.Exists ? (int)fileInfo.Length : 0;
+        }
+
+        public static Size GetImageSize(string imageFileName)
+        {
+            try
+            {
+                using (Stream stream = File.OpenRead(imageFileName))
+                {
+                    using (var sourceImage = Image.FromStream(stream, false, false))
+                    {
+                        return sourceImage.Size;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex, $"Error getting image size for {imageFileName}");
+            }
+
+            return Size.Empty;
         }
 
         /// <summary>

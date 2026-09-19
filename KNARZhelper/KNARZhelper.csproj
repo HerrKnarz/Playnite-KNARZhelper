@@ -87,6 +87,7 @@
       <DependentUpon>SearchGameView.xaml</DependentUpon>
     </Compile>
     <Compile Include="GamesCommon\SearchGameViewModel.cs" />
+    <Compile Include="MetadataCommon\DatabaseObjectTypes\IImageType.cs" />
     <Compile Include="MetadataCommon\MetadataHelper.cs" />
     <Compile Include="MetadataCommon\DatabaseObjectTypes\BaseBooleanType.cs" />
     <Compile Include="MetadataCommon\DatabaseObjectTypes\BaseCompanyType.cs" />
@@ -181,7 +182,7 @@
       <Version>1.11.46</Version>
     </PackageReference>
     <PackageReference Include="Magick.NET-Q8-x86">
-      <Version>14.13.1</Version>
+      <Version>14.17.1</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.Xaml.Behaviors.Wpf">
       <Version>1.1.39</Version>

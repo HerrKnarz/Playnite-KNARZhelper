@@ -1,6 +1,8 @@
-﻿using KNARZhelper.MetadataCommon.Enum;
+﻿using KNARZhelper.FilesCommon;
+using KNARZhelper.MetadataCommon.Enum;
 using Playnite.SDK;
 using Playnite.SDK.Models;
+using System.Drawing;
 using System.Linq;
 
 namespace KNARZhelper.MetadataCommon.DatabaseObjectTypes
@@ -8,7 +10,7 @@ namespace KNARZhelper.MetadataCommon.DatabaseObjectTypes
     /// <summary>
     /// Base type for media metadata fields.
     /// </summary>
-    public abstract class BaseMediaType : IMetadataFieldType, IValueType, IClearAbleType
+    public abstract class BaseMediaType : IMetadataFieldType, IValueType, IClearAbleType, IImageType
     {
         public bool CanBeAdded => false;
         public bool CanBeClearedInGame => true;
@@ -62,7 +64,7 @@ namespace KNARZhelper.MetadataCommon.DatabaseObjectTypes
             }
             else
             {
-                return AddValueToGame(targetGame, API.Instance.Database.GetFullFilePath(GetValue(sourceGame)));
+                return AddValueToGame(targetGame, GetFile(sourceGame));
             }
         }
 
@@ -79,6 +81,24 @@ namespace KNARZhelper.MetadataCommon.DatabaseObjectTypes
         public bool FieldInGameIsEmpty(Game game) => !GetValue(game)?.Any() ?? true;
 
         public bool GameContainsValue<T>(Game game, T value) => !GetValue(game)?.Any() ?? true;
+
+        public float GetAspectRatio(Game game)
+        {
+            var imageSize = GetImageSize(game);
+
+            return imageSize.Width == 0 || imageSize.Height == 0 ? 0 : (float)imageSize.Width / imageSize.Height;
+        }
+
+        public string GetExtension(Game game)
+            => FileHelper.GetFileExtensionFromUrl(GetFile(game));
+
+        public string GetFile(Game game) => API.Instance.Database.GetFullFilePath(GetValue(game));
+
+        public int GetFileSizeInBytes(Game game)
+            => FileHelper.GetFileSizeInBytes(GetFile(game));
+
+        public Size GetImageSize(Game game)
+            => FileHelper.GetImageSize(GetFile(game));
 
         /// <summary>
         /// Gets the media value of the field for the specified game. Can be null.
