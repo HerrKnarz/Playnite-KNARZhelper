@@ -192,24 +192,29 @@ namespace KNARZhelper.ScreenshotsCommon.Models
 
             API.Instance.MainView.UIDispatcher.Invoke(delegate
             {
-                var image = mediaType == FieldType.Logo ? DisplayPath : API.Instance.Database.AddFile(DisplayPath, game.Id);
+                string ReplaceImage(string oldImage)
+                {
+                    var image = API.Instance.Database.AddFile(DisplayPath, game.Id);
+                    API.Instance.Database.RemoveFile(oldImage);
+                    return image;
+                }
 
                 switch (mediaType)
                 {
                     case FieldType.Background:
-                        game.BackgroundImage = image;
+                        game.BackgroundImage = ReplaceImage(game.BackgroundImage);
                         break;
 
                     case FieldType.Cover:
-                        game.CoverImage = image;
+                        game.CoverImage = ReplaceImage(game.CoverImage);
                         break;
 
                     case FieldType.Icon:
-                        game.Icon = image;
+                        game.Icon = ReplaceImage(game.Icon);
                         break;
 
                     case FieldType.Logo:
-                        AddonInteractions.SetImageAsLogo(game, image);
+                        AddonInteractions.SetImageAsLogo(game, DisplayPath);
                         break;
 
                     default:
