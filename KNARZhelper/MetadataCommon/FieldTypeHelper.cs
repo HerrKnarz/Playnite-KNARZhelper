@@ -57,6 +57,7 @@ namespace KNARZhelper.MetadataCommon
                         new TypeLastPlayed(),
                         new TypeLibrary(),
                         new TypeLink(),
+                        new TypeLogo(),
                         new TypeManual(),
                         new TypeName(),
                         new TypeNotes(),
@@ -154,6 +155,9 @@ namespace KNARZhelper.MetadataCommon
 
                 case FieldType.Link:
                     return new TypeLink();
+
+                case FieldType.Logo:
+                    return new TypeLogo();
 
                 case FieldType.Manual:
                     return new TypeManual();

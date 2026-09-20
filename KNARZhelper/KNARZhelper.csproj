@@ -88,6 +88,7 @@
     </Compile>
     <Compile Include="GamesCommon\SearchGameViewModel.cs" />
     <Compile Include="MetadataCommon\DatabaseObjectTypes\IImageType.cs" />
+    <Compile Include="MetadataCommon\DatabaseObjectTypes\TypeLogo.cs" />
     <Compile Include="MetadataCommon\MetadataHelper.cs" />
     <Compile Include="MetadataCommon\DatabaseObjectTypes\BaseBooleanType.cs" />
     <Compile Include="MetadataCommon\DatabaseObjectTypes\BaseCompanyType.cs" />

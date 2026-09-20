@@ -27,6 +27,7 @@
         LastPlayed = 23,
         Library = 11,
         Link = 36,
+        Logo = 37,
         Manual = 34,
         Name = 32,
         Notes = 22,
@@ -42,7 +43,6 @@
         Tag = 4,
         TimePlayed = 28,
         UserScore = 18,
-        Version = 35,
-        Logo = 37
+        Version = 35
     }
 }
