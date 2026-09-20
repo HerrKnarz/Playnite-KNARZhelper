@@ -10,17 +10,17 @@ namespace KNARZhelper.MetadataCommon.DatabaseObjectTypes
     /// <summary>
     /// Base type for media metadata fields.
     /// </summary>
-    public abstract class BaseMediaType : IMetadataFieldType, IValueType, IClearAbleType, IImageType
+    public abstract class BaseMediaType : IMetadataFieldType, IValueType, IClearAbleType, INumberType, IImageType
     {
         public bool CanBeAdded => false;
         public bool CanBeClearedInGame => true;
         public bool CanBeDeleted => false;
         public bool CanBeEmptyInGame => true;
         public bool CanBeModified => false;
-        public bool CanBeSetByMetadataAddOn => true;
+        public virtual bool CanBeSetByMetadataAddOn => true;
         public bool CanBeSetInGame => true;
         public bool IsDefaultToCopy => true;
-        public string LabelPlural => LabelSingular;
+        public virtual string LabelPlural => LabelSingular;
         public abstract string LabelSingular { get; }
         public abstract FieldType Type { get; }
         public ItemValueType ValueType => ItemValueType.Media;
@@ -68,7 +68,7 @@ namespace KNARZhelper.MetadataCommon.DatabaseObjectTypes
             }
         }
 
-        public void EmptyFieldInGame(Game game)
+        public virtual void EmptyFieldInGame(Game game)
         {
             if (FieldInGameIsEmpty(game))
             {
@@ -92,13 +92,17 @@ namespace KNARZhelper.MetadataCommon.DatabaseObjectTypes
         public string GetExtension(Game game)
             => FileHelper.GetFileExtensionFromUrl(GetFile(game));
 
-        public string GetFile(Game game) => API.Instance.Database.GetFullFilePath(GetValue(game));
+        public virtual string GetFile(Game game) => API.Instance.Database.GetFullFilePath(GetValue(game));
 
         public int GetFileSizeInBytes(Game game)
             => FileHelper.GetFileSizeInBytes(GetFile(game));
 
         public Size GetImageSize(Game game)
             => FileHelper.GetImageSize(GetFile(game));
+
+        public bool IsBiggerThan<T>(Game game, T value) => value is int intValue && GetFileSizeInBytes(game) > intValue * 1024;
+
+        public bool IsSmallerThan<T>(Game game, T value) => value is int intValue && GetFileSizeInBytes(game) < intValue * 1024;
 
         /// <summary>
         /// Gets the media value of the field for the specified game. Can be null.
