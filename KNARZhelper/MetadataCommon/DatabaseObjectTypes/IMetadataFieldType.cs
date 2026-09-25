@@ -50,6 +50,12 @@ namespace KNARZhelper.MetadataCommon.DatabaseObjectTypes
         bool CanBeSetInGame { get; }
 
         /// <summary>
+        /// Either the singular or plural label of the metadata field, depending if the field can
+        /// contain multiple values in a game, used for display purposes.
+        /// </summary>
+        string LabelInGame { get; }
+
+        /// <summary>
         /// Label for the plural form of the metadata field, used for display purposes.
         /// </summary>
         string LabelPlural { get; }

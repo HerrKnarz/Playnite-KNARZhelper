@@ -12,6 +12,7 @@ namespace KNARZhelper.MetadataCommon.DatabaseObjectTypes
     public abstract class BaseListType : BaseObjectType
     {
         public override bool IsList => true;
+        public override string LabelInGame => LabelPlural;
 
         public override bool AddValueToGame<T>(Game game, T value)
         {

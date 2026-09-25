@@ -20,6 +20,7 @@ namespace KNARZhelper.MetadataCommon.DatabaseObjectTypes
         public bool CanBeSetByMetadataAddOn => false;
         public bool CanBeSetInGame => true;
         public virtual bool IsDefaultToCopy => true;
+        public string LabelInGame => LabelSingular;
         public virtual string LabelPlural => LabelSingular;
         public abstract string LabelSingular { get; }
         public abstract FieldType Type { get; }

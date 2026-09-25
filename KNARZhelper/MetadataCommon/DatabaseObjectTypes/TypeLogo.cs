@@ -7,7 +7,6 @@ namespace KNARZhelper.MetadataCommon.DatabaseObjectTypes
     public class TypeLogo : BaseMediaType
     {
         public override bool CanBeSetByMetadataAddOn => false;
-        public override string LabelPlural => ResourceProvider.GetString("LOCKNARZHelperLogosTitle");
         public override string LabelSingular => ResourceProvider.GetString("LOCKNARZHelperLogoTitle");
 
         public override FieldType Type => FieldType.Logo;

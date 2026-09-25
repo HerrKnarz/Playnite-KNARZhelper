@@ -31,6 +31,8 @@ namespace KNARZhelper.MetadataCommon.DatabaseObjectTypes
 
         public bool IsDefaultToCopy => true;
 
+        public string LabelInGame => LabelPlural;
+
         public string LabelPlural => ResourceProvider.GetString("LOCLinksLabel");
 
         public string LabelSingular => ResourceProvider.GetString("LOCGameActionTypeLink");

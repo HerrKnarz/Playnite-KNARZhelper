@@ -233,6 +233,12 @@ namespace KNARZhelper.MetadataCommon
         public string TypeLabel => TypeManager?.LabelSingular ?? string.Empty;
 
         /// <summary>
+        /// Label of the metadata object type.
+        /// </summary>
+        [DontSerialize]
+        public string TypeLabelInGame => TypeManager?.LabelInGame ?? string.Empty;
+
+        /// <summary>
         /// Gets or sets the type manager of the metadata object.
         /// </summary>
         [DontSerialize]

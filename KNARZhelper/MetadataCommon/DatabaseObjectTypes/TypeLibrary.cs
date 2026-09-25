@@ -32,6 +32,8 @@ namespace KNARZhelper.MetadataCommon.DatabaseObjectTypes
 
         public bool IsList => false;
 
+        public string LabelInGame => LabelSingular;
+
         public string LabelPlural => ResourceProvider.GetString("LOCLibraries");
 
         public string LabelSingular => ResourceProvider.GetString("LOCLibrary");

@@ -39,6 +39,8 @@ namespace KNARZhelper.MetadataCommon.DatabaseObjectTypes
 
         public abstract bool IsList { get; }
 
+        public abstract string LabelInGame { get; }
+
         public abstract string LabelPlural { get; }
 
         public abstract string LabelSingular { get; }

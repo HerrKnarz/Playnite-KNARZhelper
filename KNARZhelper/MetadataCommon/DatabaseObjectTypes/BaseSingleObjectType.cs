@@ -12,6 +12,7 @@ namespace KNARZhelper.MetadataCommon.DatabaseObjectTypes
     public abstract class BaseSingleObjectType : BaseObjectType
     {
         public override bool IsList => false;
+        public override string LabelInGame => LabelSingular;
 
         public override bool AddValueToGame<T>(Game game, T value)
         {

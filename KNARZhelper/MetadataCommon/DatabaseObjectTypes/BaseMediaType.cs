@@ -10,7 +10,7 @@ namespace KNARZhelper.MetadataCommon.DatabaseObjectTypes
     /// <summary>
     /// Base type for media metadata fields.
     /// </summary>
-    public abstract class BaseMediaType : IMetadataFieldType, IValueType, IClearAbleType, INumberType, IImageType
+    public abstract class BaseMediaType : IMetadataFieldType, IValueType, IClearAbleType, IImageType
     {
         public bool CanBeAdded => false;
         public bool CanBeClearedInGame => true;
@@ -20,6 +20,7 @@ namespace KNARZhelper.MetadataCommon.DatabaseObjectTypes
         public virtual bool CanBeSetByMetadataAddOn => true;
         public bool CanBeSetInGame => true;
         public bool IsDefaultToCopy => true;
+        public string LabelInGame => LabelSingular;
         public virtual string LabelPlural => LabelSingular;
         public abstract string LabelSingular { get; }
         public abstract FieldType Type { get; }
@@ -99,10 +100,6 @@ namespace KNARZhelper.MetadataCommon.DatabaseObjectTypes
 
         public Size GetImageSize(Game game)
             => FileHelper.GetImageSize(GetFile(game));
-
-        public bool IsBiggerThan<T>(Game game, T value) => value is int intValue && GetFileSizeInBytes(game) > intValue * 1024;
-
-        public bool IsSmallerThan<T>(Game game, T value) => value is int intValue && GetFileSizeInBytes(game) < intValue * 1024;
 
         /// <summary>
         /// Gets the media value of the field for the specified game. Can be null.
