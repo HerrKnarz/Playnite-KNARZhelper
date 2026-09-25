@@ -149,6 +149,11 @@ namespace KNARZhelper
         /// </returns>
         public static string FormatString(this string str, StringFormatParameters formatParams)
         {
+            if (str is null)
+            {
+                return string.Empty;
+            }
+
             if (formatParams.RemoveEditionSuffix)
             {
                 str = str.RemoveEditionSuffix();

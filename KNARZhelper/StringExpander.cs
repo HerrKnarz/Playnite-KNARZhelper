@@ -56,6 +56,8 @@ namespace KNARZhelper
         public StringExpander(string localizationPrefix = "")
         {
             _localizationPrefix = localizationPrefix;
+
+            ResetCache();
         }
 
         /// <summary>
@@ -313,43 +315,59 @@ namespace KNARZhelper
         /// </returns>
         public string ReplaceAllPlaceholders(string str, Game game, string gameName = null)
         {
-            if (string.IsNullOrEmpty(str) || !str.Contains('{'))
+            try
             {
-                return str;
-            }
-
-            if (game == null)
-            {
-                game = new Game();
-            }
-
-            if (string.IsNullOrEmpty(gameName))
-            {
-                gameName = game.Name;
-            }
-
-            str = API.Instance.ExpandGameVariables(game, str);
-
-            foreach (var placeholder in Placeholders.Where(p => !p.IsPlayniteVar && str.Contains(p.Placeholder)))
-            {
-                if (placeholder.GameDependent)
+                if (string.IsNullOrEmpty(str) || !str.Contains('{'))
                 {
-                    if (placeholder.Placeholder == _placeholderGameName)
+                    return str;
+                }
+
+                if (game == null)
+                {
+                    game = new Game();
+                }
+
+                if (string.IsNullOrEmpty(gameName))
+                {
+                    gameName = game.Name;
+                }
+
+                str = API.Instance.ExpandGameVariables(game, str);
+
+                foreach (var placeholder in Placeholders.Where(p => !p.IsPlayniteVar && str.Contains(p.Placeholder)))
+                {
+                    try
                     {
-                        ReplaceSinglePlaceholder(ref str, placeholder.Placeholder, gameName);
+                        if (placeholder.GameDependent)
+                        {
+                            if (placeholder.Placeholder == _placeholderGameName)
+                            {
+                                ReplaceSinglePlaceholder(ref str, placeholder.Placeholder, gameName);
+                            }
+                            else if (!ReplaceSinglePlaceholder(ref str, placeholder.Placeholder, placeholder.ResultFunc(game)))
+                            {
+                                return string.Empty;
+                            }
+                        }
+                        else if (!ReplaceSinglePlaceholder(ref str, placeholder.Placeholder, placeholder.Result))
+                        {
+                            return string.Empty;
+                        }
                     }
-                    else if (!ReplaceSinglePlaceholder(ref str, placeholder.Placeholder, placeholder.ResultFunc(game)))
+                    catch (Exception ex)
                     {
-                        return string.Empty;
+                        Log.Error(ex, $"Error while processing placeholder {placeholder.Placeholder}");
+                        continue;
                     }
                 }
-                else if (!ReplaceSinglePlaceholder(ref str, placeholder.Placeholder, placeholder.Result))
-                {
-                    return string.Empty;
-                }
-            }
 
-            return str.Contains("{") ? string.Empty : str;
+                return str.Contains("{") ? string.Empty : str;
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex, "Error while replacing placeholders");
+                return string.Empty;
+            }
         }
 
         public void ResetCache() => PopulatePlaceholders();
@@ -479,7 +497,7 @@ namespace KNARZhelper
 
                 var steamUserIdDir = steamUserDir.GetDirectories()
                     .OrderBy(d => d.GetDirectories("config")
-                    .FirstOrDefault().LastWriteTime).First();
+                    .FirstOrDefault().LastWriteTime).Last();
 
                 return steamUserIdDir == null ? string.Empty : steamUserIdDir.Name;
             }
@@ -510,6 +528,8 @@ namespace KNARZhelper
         private string GetSteamScreenshotsDir()
         {
             var screenshotDir = new DirectoryInfo(Path.Combine(SteamInstallDir, "userdata", SteamAccountId, "760", "remote"));
+
+            Log.Debug($"Steam screenshots directory: {screenshotDir.FullName}");
 
             return screenshotDir.Exists ? screenshotDir.FullName : string.Empty;
         }
