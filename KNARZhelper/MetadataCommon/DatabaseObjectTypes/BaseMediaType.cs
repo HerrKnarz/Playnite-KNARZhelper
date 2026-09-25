@@ -91,7 +91,7 @@ namespace KNARZhelper.MetadataCommon.DatabaseObjectTypes
         }
 
         public string GetExtension(Game game)
-            => FileHelper.GetFileExtensionFromUrl(GetFile(game));
+            => FileHelper.GetFileExtensionFromUrl(GetFile(game)).Substring(1);
 
         public virtual string GetFile(Game game) => API.Instance.Database.GetFullFilePath(GetValue(game));
 
