@@ -27,22 +27,25 @@ namespace KNARZhelper.MetadataCommon.ViewModels
         /// </summary>
         /// <param name="items">Collection of metadata objects to select from</param>
         /// <param name="multiSelect">Indicates whether multiple selection is allowed</param>
-        public SelectMetadataViewModel(ObservableCollection<BaseMetadataObject> items, bool multiSelect = true)
+        public SelectMetadataViewModel(ObservableCollection<BaseMetadataObject> items, bool multiSelect = true, RelayCommand addNewCommand = null)
         {
             FilteredMetadata = CollectionViewSource.GetDefaultView(items);
             FilteredMetadata.Filter = Filter;
             _multiSelect = multiSelect;
+            AddNewCommand = addNewCommand;
         }
 
-        public Visibility CheckBoxVisibility => _multiSelect
-            ? Visibility.Visible
-            : Visibility.Collapsed;
+        public Visibility AddNewButtonVisibility => AddNewCommand != null ? Visibility.Visible : Visibility.Collapsed;
+
+        public RelayCommand AddNewCommand { get; set; }
+
+        public Visibility CheckBoxVisibility => _multiSelect ? Visibility.Visible : Visibility.Collapsed;
 
         public RelayCommand<Window> CloseCommand => new RelayCommand<Window>(win =>
-                {
-                    win.DialogResult = false;
-                    win.Close();
-                });
+        {
+            win.DialogResult = false;
+            win.Close();
+        });
 
         /// <summary>
         /// Gets or sets the filtered view of the metadata objects.
@@ -122,12 +125,13 @@ namespace KNARZhelper.MetadataCommon.ViewModels
         /// <param name="items">Collection of metadata objects to select from</param>
         /// <param name="windowTitle">Title of the window</param>
         /// <param name="multiSelect">Indicates whether multiple selection is allowed</param>
+        /// <param name="addNewCommand">Command to add a new item</param>
         /// <returns>Window containing the SelectMetadataView</returns>
-        public static Window GetWindow(ObservableCollection<BaseMetadataObject> items, string windowTitle, bool multiSelect = true)
+        public static Window GetWindow(ObservableCollection<BaseMetadataObject> items, string windowTitle, bool multiSelect = true, RelayCommand addNewCommand = null)
         {
             try
             {
-                var viewModel = new SelectMetadataViewModel(items, multiSelect);
+                var viewModel = new SelectMetadataViewModel(items, multiSelect, addNewCommand);
 
                 var selectMetadataView = new SelectMetadataView();
 

@@ -29,6 +29,14 @@
         </StackPanel>
         <DockPanel DockPanel.Dock="Top"
                    VerticalAlignment="Center">
+            <Button Content="&#xec3e;"
+                    ToolTip="{DynamicResource LOCAddNewItem}"
+                    FontFamily="{DynamicResource FontIcoFont}"
+                    Command="{Binding AddNewCommand}"
+                    DockPanel.Dock="Right"
+                    Visibility="{Binding AddNewButtonVisibility}"
+                    Margin="5,0,0,0"
+                    Padding="5,5,8,5" />
             <Button Content="&#xef00;"
                     FontFamily="{DynamicResource FontIcoFont}"
                     Click="ClearSearchBox"
