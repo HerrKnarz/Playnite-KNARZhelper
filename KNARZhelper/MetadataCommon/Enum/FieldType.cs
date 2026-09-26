@@ -22,6 +22,7 @@
         Hdr = 29,
         Hidden = 25,
         Icon = 14,
+        InstallDirectory = 38,
         InstallSize = 31,
         IsInstalled = 26,
         LastPlayed = 23,

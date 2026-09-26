@@ -52,6 +52,7 @@ namespace KNARZhelper.MetadataCommon
                         new TypeHdr(),
                         new TypeHidden(),
                         new TypeIcon(),
+                        new TypeInstallDirectory(),
                         new TypeInstallSize(),
                         new TypeIsInstalled(),
                         new TypeLastPlayed(),
@@ -140,6 +141,9 @@ namespace KNARZhelper.MetadataCommon
 
                 case FieldType.Icon:
                     return new TypeIcon();
+
+                case FieldType.InstallDirectory:
+                    return new TypeInstallDirectory();
 
                 case FieldType.InstallSize:
                     return new TypeInstallSize();
