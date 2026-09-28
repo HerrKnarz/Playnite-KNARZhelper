@@ -91,9 +91,18 @@ namespace KNARZhelper.MetadataCommon.DatabaseObjectTypes
         }
 
         public string GetExtension(Game game)
-            => FileHelper.GetFileExtensionFromUrl(GetFile(game)).Substring(1);
+        {
+            var extension = FileHelper.GetFileExtensionFromUrl(GetFile(game));
 
-        public virtual string GetFile(Game game) => API.Instance.Database.GetFullFilePath(GetValue(game));
+            return extension.IsNullOrEmpty() || extension.Length < 2 ? string.Empty : extension.Substring(1);
+        }
+
+        public virtual string GetFile(Game game)
+        {
+            var file = GetValue(game);
+
+            return file.IsNullOrEmpty() ? string.Empty : API.Instance.Database.GetFullFilePath(file);
+        }
 
         public int GetFileSizeInBytes(Game game)
             => FileHelper.GetFileSizeInBytes(GetFile(game));

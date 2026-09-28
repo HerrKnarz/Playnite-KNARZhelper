@@ -94,6 +94,11 @@ namespace KNARZhelper.FilesCommon
 
         public static int GetFileSizeInBytes(string path)
         {
+            if (path.IsNullOrEmpty())
+            {
+                return 0;
+            }
+
             path = FixPathLength(path);
             var fileInfo = new FileInfo(path);
             return fileInfo.Exists ? (int)fileInfo.Length : 0;
@@ -103,6 +108,11 @@ namespace KNARZhelper.FilesCommon
         {
             try
             {
+                if (imageFileName.IsNullOrEmpty())
+                {
+                    return Size.Empty;
+                }
+
                 using (Stream stream = File.OpenRead(imageFileName))
                 {
                     using (var sourceImage = Image.FromStream(stream, false, false))
