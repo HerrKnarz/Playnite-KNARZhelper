@@ -9,6 +9,8 @@ namespace KNARZhelper.MetadataCommon.DatabaseObjectTypes
 
         string GetExtension(Game game);
 
+        string GetFile(Game game);
+
         int GetFileSizeInBytes(Game game);
 
         Size GetImageSize(Game game);

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Drawing;
 using System.IO;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -104,37 +103,25 @@ namespace KNARZhelper.FilesCommon
             return fileInfo.Exists ? (int)fileInfo.Length : 0;
         }
 
-        public static Size GetImageSize(string imageFileName)
-        {
-            try
-            {
-                if (imageFileName.IsNullOrEmpty())
-                {
-                    return Size.Empty;
-                }
-
-                using (Stream stream = File.OpenRead(imageFileName))
-                {
-                    using (var sourceImage = Image.FromStream(stream, false, false))
-                    {
-                        return sourceImage.Size;
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                Log.Error(ex, $"Error getting image size for {imageFileName}");
-            }
-
-            return Size.Empty;
-        }
-
         /// <summary>
         /// Checks if the given path is a full path (absolute path).
         /// </summary>
         /// <param name="path">The file path to check.</param>
         /// <returns>True if the path is a full path; otherwise, false.</returns>
         public static bool IsFullPath(string path) => !string.IsNullOrWhiteSpace(path) && Regex.IsMatch(path, @"^([a-zA-Z]:\\|\\\\)");
+
+        /// <summary>
+        /// Renames the specified file to the new name provided. The file will be moved to the same
+        /// directory with the new name.
+        /// </summary>
+        /// <param name="this">The file to rename.</param>
+        /// <param name="newName">The new name for the file.</param>
+        public static void Rename(this FileInfo @this, string newName)
+        {
+            var filePath = Path.Combine(@this.Directory.FullName, newName);
+
+            @this.MoveTo(filePath);
+        }
 
         /// <summary>
         /// Writes the specified content to a file at the given path. If the file already exists, it

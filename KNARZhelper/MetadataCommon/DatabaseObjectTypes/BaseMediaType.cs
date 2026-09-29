@@ -107,8 +107,7 @@ namespace KNARZhelper.MetadataCommon.DatabaseObjectTypes
         public int GetFileSizeInBytes(Game game)
             => FileHelper.GetFileSizeInBytes(GetFile(game));
 
-        public Size GetImageSize(Game game)
-            => FileHelper.GetImageSize(GetFile(game));
+        public Size GetImageSize(Game game) => ImageHelper.GetImageSize(GetFile(game));
 
         /// <summary>
         /// Gets the media value of the field for the specified game. Can be null.
