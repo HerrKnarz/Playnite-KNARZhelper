@@ -1,8 +1,5 @@
 ﻿using ImageMagick;
 using System;
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace KNARZhelper.FilesCommon
 {
@@ -12,90 +9,51 @@ namespace KNARZhelper.FilesCommon
     internal static class ImageHelper
     {
         public static readonly string[] SupportedImageExtensions = { ".jpg", ".jpeg", ".png", ".webp", ".bmp" };
-        public static readonly string[] SupportedVideoExtensions = { ".mp4", ".avi", ".webm", ".wmv", ".mov" };
 
-        /// <summary>
-        /// Creates a thumbnail image.
-        /// </summary>
-        /// <param name="imageFileName">The path to the original image file.</param>
-        /// <param name="thumbNailHeight">Height of the thumbnails that will be generated</param>
-        /// <param name="thumbnailFileName">The path to the thumbnail image file.</param>
-        /// <returns>The FileInfo of the created thumbnail image.</returns>
-        public static async Task<FileInfo> CreateThumbnailImage(string imageFileName, int thumbNailHeight, string thumbnailFileName = "")
+        public static bool MirrorImage(string imageFileName, bool horizontal)
         {
-            byte[] imageBytes = null;
-            var videoInitialized = false;
-
-            if (SupportedImageExtensions.Contains(FileHelper.GetFileExtensionFromUrl(imageFileName)))
-            {
-                imageBytes = imageFileName.IsValidHttpUrl()
-                    ? await FileDownloader.Instance().DownloadFileAsync(new Uri(imageFileName))
-                    : File.ReadAllBytes(imageFileName);
-            }
-
-            if (string.IsNullOrEmpty(thumbnailFileName))
-            {
-                var fileInfo = new FileInfo(imageFileName);
-                thumbnailFileName = Path.Combine(fileInfo.DirectoryName, $"{Path.GetFileNameWithoutExtension(fileInfo.Name)}_thumb.jpg");
-            }
-
-            var thumbnailFileInfo = new FileInfo(thumbnailFileName);
-
-            if (SupportedVideoExtensions.Contains(FileHelper.GetFileExtensionFromUrl(imageFileName)))
-            {
-                try
-                {
-                    var ffMpeg = new NReco.VideoConverter.FFMpegConverter();
-
-                    ffMpeg.GetVideoThumbnail(imageFileName, thumbnailFileInfo.FullName, 5);
-
-                    Task.Delay(TimeSpan.FromMilliseconds(100));
-
-                    videoInitialized = true;
-
-                    thumbnailFileInfo.Refresh();
-
-                    if (!thumbnailFileInfo.Exists)
-                    {
-                        return null;
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Log.Error(ex, $"Error processing video {imageFileName}");
-                }
-            }
-
-            if (!videoInitialized && imageBytes is null)
-            {
-                return null;
-            }
-
             try
             {
-                using (var image = videoInitialized ? new MagickImage(thumbnailFileInfo.FullName) : new MagickImage(imageBytes))
+                using (var image = new MagickImage(imageFileName))
                 {
-                    image.Scale(0, (uint)thumbNailHeight);
-
-                    image.Format = MagickFormat.Jpg;
-
-                    if (thumbnailFileInfo.Exists)
+                    if (horizontal)
                     {
-                        thumbnailFileInfo.Delete();
-                        Task.Delay(TimeSpan.FromMilliseconds(100));
+                        image.Flop();
+                    }
+                    else
+                    {
+                        image.Flip();
                     }
 
-                    await image.WriteAsync(thumbnailFileName);
+                    image.Write(imageFileName);
                 }
 
-                return new FileInfo(thumbnailFileName);
+                return true;
             }
             catch (Exception ex)
             {
-                Log.Error(ex, $"Error processing image file {imageFileName}");
+                Log.Error(ex, $"Error mirroring image file {imageFileName}");
+                return false;
             }
+        }
 
-            return null;
+        public static bool RotateImage(string imageFileName, int rotationAngle)
+        {
+            try
+            {
+                using (var image = new MagickImage(imageFileName))
+                {
+                    image.Rotate(rotationAngle);
+                    image.Write(imageFileName);
+                }
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex, $"Error rotating image file {imageFileName}");
+                return false;
+            }
         }
     }
 }

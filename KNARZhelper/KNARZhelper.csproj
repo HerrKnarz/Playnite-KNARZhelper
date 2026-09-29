@@ -81,6 +81,8 @@
     <Compile Include="FilesCommon\FileDownloader.cs" />
     <Compile Include="FilesCommon\FileHelper.cs" />
     <Compile Include="FilesCommon\ImageHelper.cs" />
+    <Compile Include="FilesCommon\MediaHelper.cs" />
+    <Compile Include="FilesCommon\VideoHelper.cs" />
     <Compile Include="GamesCommon\GameEx.cs" />
     <Compile Include="GamesCommon\IGameSearchSettings.cs" />
     <Compile Include="GamesCommon\SearchGameView.xaml.cs">

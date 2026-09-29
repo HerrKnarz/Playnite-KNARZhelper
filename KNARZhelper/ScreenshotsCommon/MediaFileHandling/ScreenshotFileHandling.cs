@@ -109,7 +109,7 @@ namespace KNARZhelper.ScreenshotsCommon.Models
             var fileExtension = FileHelper.GetFileExtensionFromUrl(DisplayPath);
 
             // We only support a few extensions out of the box to avoid errors with unusual file types.
-            if (!ImageHelper.SupportedImageExtensions.Contains(fileExtension) && !ImageHelper.SupportedVideoExtensions.Contains(fileExtension))
+            if (!ImageHelper.SupportedImageExtensions.Contains(fileExtension) && !VideoHelper.SupportedVideoExtensions.Contains(fileExtension))
             {
                 return false;
             }
@@ -125,7 +125,7 @@ namespace KNARZhelper.ScreenshotsCommon.Models
 
             try
             {
-                var thumb = await ImageHelper.CreateThumbnailImage(DisplayPath, thumbNailHeight, thumbnailPath);
+                var thumb = await MediaHelper.CreateThumbnailImage(DisplayPath, thumbNailHeight, thumbnailPath);
                 DownloadedThumbnailPath = thumb?.FullName;
                 return true;
             }
