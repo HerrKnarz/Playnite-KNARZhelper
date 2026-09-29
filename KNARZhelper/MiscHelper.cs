@@ -39,6 +39,16 @@ namespace KNARZhelper
             });
         }
 
+        public static void AddTextKnarzFontResource(string key, string text)
+        {
+            Application.Current.Resources.Add(key, new TextBlock
+            {
+                Text = text,
+                FontSize = 16,
+                FontFamily = ResourceProvider.GetResource("KNARZIconFont") as FontFamily
+            });
+        }
+
         /// <summary>
         /// Creates a deep clone of an object via JSON serialization.
         /// </summary>
